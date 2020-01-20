@@ -1,0 +1,11 @@
+// pow with loop
+fun pow(x, n) {
+    var result =1;
+    for (var i=0; i < n; i = i +1) {
+        result = result * x;
+    }
+
+    return result;
+}
+
+print pow(2, 10);
