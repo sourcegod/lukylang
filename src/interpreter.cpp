@@ -15,6 +15,8 @@
 Interpreter::Interpreter() {
     m_globals = std::make_shared<Environment>();
     m_environment = m_globals;
+    m_globals->m_name = "globals, (" + m_globals->m_name + ")";
+    std::cerr << "Env globals: " << m_globals->m_name << std::endl;
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
     auto func = std::make_shared<ClockFunc>();
