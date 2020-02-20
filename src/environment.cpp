@@ -5,6 +5,8 @@
 #include <map>
 #include <iostream>
 
+// static variable must be initialized
+int Environment::next_id;
 TObject& Environment::get(Token name) {
     auto elem = values.find(name.lexeme);
     std::cerr << "Env get: " << m_name;

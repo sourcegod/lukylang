@@ -13,26 +13,35 @@ using TObject = LukObject;
 using PEnvironment = std::shared_ptr<Environment>;
 
 class Environment {
+protected:
+    static int next_id;
 public:
+    int id;
     std::string m_name;
     
-    Environment() { 
-        m_enclosing = nullptr; 
-        m_name = addressOf();
+    Environment() 
+    : id(++next_id) { 
+        m_enclosing = nullptr;
+        setName();
         std::cerr << "Env: ctor, " << m_name << "\n"; 
     }
     
     explicit Environment(PEnvironment& encl)
-        : m_enclosing(encl) { 
-            m_name = addressOf();
+        : id(++next_id), m_enclosing(encl) {
+            setName();
             std::cerr << "Env: copy ctor: " << m_name << "\n"; 
-        }
+     }
 
      // get the address of object
     const std::string addressOf() { 
         std::ostringstream oss;
         oss << (void const *)this;
         return oss.str(); 
+    }
+
+    // construct name
+    const std::string setName() { 
+        return m_name = "id: " + std::to_string(id) + ", (" + addressOf() + ")";
     }
 
     TObject& get(Token name);
