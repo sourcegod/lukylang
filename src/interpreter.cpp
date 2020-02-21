@@ -5,6 +5,7 @@
 #include "clock_func.hpp"
 #include "lukfunction.hpp"
 #include "return.hpp"
+#include "logger.hpp"
 
 #include <iostream>
 #include <string>

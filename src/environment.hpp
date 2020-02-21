@@ -5,10 +5,14 @@
 #include <unordered_map>
 #include "token.hpp"
 #include "lukobject.hpp"
+#include "logger.hpp"
+
 #include <memory> // smart pointers
 
 class LukObject;
 class Environment;
+class CTracer;
+
 using TObject = LukObject;
 using PEnvironment = std::shared_ptr<Environment>;
 
@@ -23,13 +27,16 @@ public:
     : id(++next_id) { 
         m_enclosing = nullptr;
         setName();
+        DEBUG_MSG("Ceci est un debug message.");
         std::cerr << "Env: ctor, " << m_name << "\n"; 
     }
     
     explicit Environment(PEnvironment& encl)
         : id(++next_id), m_enclosing(encl) {
             setName();
-            std::cerr << "Env: copy ctor: " << m_name << "\n"; 
+            // std::cerr << "Env: copy ctor: " << m_name << "\n"; 
+            DEBUG_PRINT("Env: copy ctor: %s", m_name.c_str());
+            // LOG_DUMP(m_name);
      }
 
      // get the address of object
