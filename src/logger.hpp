@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#define DEBUG   1
 // object to tracing
 class CTracer {
 public:
@@ -30,10 +31,31 @@ private:
     const char* m_name;
 };
 
+
 // std::string CTracer::m_in {"Enter "};
 // std::string CTracer::m_out {"Exit "};
 
-#define DEBUG   1
+// variadic template
+// base case
+template <typename T>
+void log_msg(T val) { 
+    if (DEBUG) {
+        std::cerr << val << " "
+            << __PRETTY_FUNCTION__ << ", " << __FILE__ << ":" << __LINE__ << "\n";
+        }
+}
+
+// recursive case
+template <typename T, typename... TArgs>
+void log_msg(T first, TArgs... args) {
+    if (DEBUG) {
+        std::cerr << first << " ";
+        log_msg(args...);
+    }
+
+}
+
+
 // macros to logging
 #ifdef DEBUG
     // pass argument to CTracer object
@@ -69,9 +91,6 @@ private:
     #define DEBUG_PRINT
 
 #endif
-
-
-
 
 
 #endif // LOGGER_HPP
