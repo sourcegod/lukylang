@@ -38,7 +38,7 @@ private:
 // variadic template
 // base case
 template <typename T>
-void log_msg(T val) { 
+void logMsg(T val) { 
     if (DEBUG) {
         std::cerr << val << " "
             << __PRETTY_FUNCTION__ << ", " << __FILE__ << ":" << __LINE__ << "\n";
@@ -47,10 +47,10 @@ void log_msg(T val) {
 
 // recursive case
 template <typename T, typename... TArgs>
-void log_msg(T first, TArgs... args) {
+void logMsg(T first, TArgs... args) {
     if (DEBUG) {
         std::cerr << first << " ";
-        log_msg(args...);
+        logMsg(args...);
     }
 
 }
