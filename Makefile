@@ -1,8 +1,15 @@
 # makefile for luky project
-# Last Update: 08/09/19
+# Last Update: 29/03/2020
 
 CC := g++
-CFLAGS := -std=c++11 -Wall -Wextra -pedantic -g
+# condition for passing to "make" debug as option
+DEBUG ?= 1
+ifeq ($(DEBUG),1)
+	CFLAGS := -std=c++11 -DDEBUG -Wall -Wextra -pedantic -g
+else
+	CFLAGS := -std=c++11 -DNDEBUG -Wall -Wextra -pedantic -g
+endif
+
 SRC_DIR := src
 BUILD_DIR := build
 TARGET := $(BUILD_DIR)/luky
@@ -29,7 +36,7 @@ $(TARGET): $(OBJS)
 #$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp $(SRC_DIR)/main.cpp
 # compile and generate dependency info
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS)  -c -o $@ $<
 	# $(CC) -MM $(CFLAGS) $(SRC_DIR)/$*.cpp > $(BUILD_DIR)/$*.d
 
 
@@ -40,7 +47,7 @@ run:
 	rlwrap ./$(TARGET)
 	#
 # Debug the interpreter with gdb
-debug:
+gdb:
 	rlwrap gdb ./$(TARGET)
 
 

@@ -9,17 +9,17 @@
 int Environment::next_id;
 TObject& Environment::get(Token name) {
     auto elem = values.find(name.lexeme);
-    std::cerr << "Env get: " << m_name;
+    logMsg("Env get: ", m_name, "-");
  
     
     if (elem != values.end()) {
-        std::cerr << " var name: " << name.lexeme << ", " << *elem->second << "\n";
+        logMsg(" var name: ", name.lexeme, ", ", *elem->second, "\n");
         
         return *elem->second;
     }
     
     if (m_enclosing != nullptr) {
-        std::cerr << "\nEnv enclosing: " << m_enclosing->m_name << "\n";
+        logMsg("\nEnv enclosing: ", m_enclosing->m_name, "\n");
         return m_enclosing->get(name);
     }
 

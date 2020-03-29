@@ -3,12 +3,12 @@
 #include <iostream>
 #include <string>
 
-#define DEBUG   1
+// #define DEBUG  1 
 // object to tracing
 class CTracer {
 public:
-    static std::string m_in; // {"Enter "};
-    static std::string m_out; // {"Exit "};
+    const std::string m_in {"Enter "};
+    const std::string m_out {"Exit "};
 
     CTracer(const char* name): m_name(name) {
         std::cerr << m_in << m_name << "\n";
@@ -21,7 +21,7 @@ public:
 
 
     ~CTracer() {
-        std::cerr << m_out << m_name << "\n";
+        std::cerr << m_out << m_name << "\n\n";
     }
 
 private:
@@ -39,19 +39,20 @@ private:
 // base case
 template <typename T>
 void logMsg(T val) { 
-    if (DEBUG) {
-        std::cerr << val << " "
-            << __PRETTY_FUNCTION__ << ", " << __FILE__ << ":" << __LINE__ << "\n";
-        }
+#ifdef DEBUG
+        std::cerr << val;
+            // << __PRETTY_FUNCTION__ << ", " << __FILE__ << ":" << __LINE__ << "\n";
+#endif
+
 }
 
 // recursive case
 template <typename T, typename... TArgs>
 void logMsg(T first, TArgs... args) {
-    if (DEBUG) {
+#ifdef DEBUG
         std::cerr << first << " ";
         logMsg(args...);
-    }
+#endif
 
 }
 
@@ -66,14 +67,17 @@ void logMsg(T first, TArgs... args) {
     #define TRACE_ENTRY_EXIT_ALL(x, y, z)       CTracer varLogAll(x, y, z)
     // print by default file, line, and function name without arguments
     #define TRACE_ALL              TRACE_ENTRY_EXIT_ALL(__FILE__, __LINE__, __PRETTY_FUNCTION__)
+    
     // print by default file, line, and function name
     #define LOG_FILE              std::cerr << __FILE__ \
         << ":" << __LINE__ << " " << __PRETTY_FUNCTION__ << "\n";
     // print string value for the variable name and the content
     #define LOG_DUMP(x)         do { std::cerr << #x " is value " << (x) << ", "; LOG_FILE; } while(false)
+    
     // print message and all traces like file, line, and function name
     #define TRACE_MSG(msg)         std::cerr << msg << "\n"; \
                                     TRACE_ALL
+    
     // print an message with file, line, and functions name
     #define DEBUG_MSG(msg)       std::cerr << msg << "\n" \
                                     << __FILE__ << ":" << __LINE__ << " " << __PRETTY_FUNCTION__ << "\n";

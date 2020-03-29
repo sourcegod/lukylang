@@ -5,6 +5,7 @@
 #include "clock_func.hpp"
 #include "lukfunction.hpp"
 #include "return.hpp"
+#include "logger.hpp"
 
 #include <iostream>
 #include <string>
@@ -16,7 +17,9 @@ Interpreter::Interpreter() {
     m_globals = std::make_shared<Environment>();
     m_environment = m_globals;
     m_globals->m_name = "Globals, " + m_globals->m_name;
-    std::cerr << "Env globals: " << m_globals->m_name << std::endl;
+    // TRACE_ALL;
+    TRACE_MSG("Env globals tracer: ");
+    logMsg("Env globals: ", m_globals->m_name, "\n");
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
     auto func = std::make_shared<ClockFunc>();
