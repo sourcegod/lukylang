@@ -19,7 +19,7 @@ Interpreter::Interpreter() {
     m_globals->m_name = "Globals, " + m_globals->m_name;
     // TRACE_ALL;
     TRACE_MSG("Env globals tracer: ");
-    logMsg("Env globals: ", m_globals->m_name, "\n");
+    logMsg("Env globals: ", m_globals->m_name);
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
     auto func = std::make_shared<ClockFunc>();
@@ -76,11 +76,16 @@ void Interpreter::execute(PStmt& stmt) {
 }
 
 void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
+    TRACE_MSG("executeblock Tracer: ");
     auto previous = m_environment;
     // std::cerr << "dans executeblock: \n";
     // std::cerr << "statements.size: " << statements.size() << "\n";
     // std::cerr << "env->size: " <<  env->size() << "\n";
     // std::cerr << "m_env.size: " << m_environment->size() << "\n";
+    logMsg("statements.size: ", statements.size(),
+        "\nenv name ", env->m_name, "size: ", env->size(),
+        "\nm_environment name: ", m_environment->m_name, "size: ", m_environment->size());
+
     
     try {
         m_environment = env;
@@ -97,6 +102,7 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
     } catch(...) {
         // std::cerr << "Je catch\n"; 
         m_environment = previous;
+        logMsg("Catch exception, m_environment name: ", m_environment->m_name, "size: ", m_environment->size());
         // throw up the exception
         throw;
     }
@@ -133,9 +139,10 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 
 void Interpreter::visitFunctionStmt(FunctionStmt* stmt) {
     // auto func = std::make_shared<LukFunction>(stmt);
+    TRACE_MSG("Visit function Tracer: ");
     auto func = std::make_shared<LukFunction>(stmt);
     // auto func = std::make_shared<LukFunction>(stmt->params, stmt->body);
-
+    logMsg("Create function: ", stmt->name.lexeme);
     auto obj = LukObject(func);
     m_environment->define(stmt->name.lexeme, obj); // LukObject(func));
     
@@ -263,6 +270,7 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     return TObject();
 }
 TObject Interpreter::visitCallExpr(CallExpr& expr) {
+    TRACE_MSG("CallExpr Tracer: ");
     auto callee = evaluate(expr.callee);
     if (! callee.isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
@@ -274,6 +282,7 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
     }
      
     const auto& func = callee.getCallable();
+    logMsg("Func name: ", func->toString());
     if (v_args.size() != func->arity()) {
         std::ostringstream msg;
         msg << "Expected " << func->arity() 

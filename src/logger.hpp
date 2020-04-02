@@ -8,7 +8,7 @@
 class CTracer {
 public:
     const std::string m_in {"Enter "};
-    const std::string m_out {"Exit "};
+    const std::string m_out {"\nExit "};
 
     CTracer(const char* name): m_name(name) {
         std::cerr << m_in << m_name << "\n";
@@ -40,7 +40,7 @@ private:
 template <typename T>
 void logMsg(T val) { 
 #ifdef DEBUG
-        std::cerr << val;
+        std::cerr << val << "\n";
             // << __PRETTY_FUNCTION__ << ", " << __FILE__ << ":" << __LINE__ << "\n";
 #endif
 

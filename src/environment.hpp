@@ -28,14 +28,14 @@ public:
         setName();
         // DEBUG_MSG("Ceci est un debug message.");
         // std::cerr << "Env: ctor, " << m_name << "\n"; 
-        logMsg("Env: ctor, ", m_name, "-");
+        logMsg("Env: ctor, ", m_name);
     }
     
     explicit Environment(PEnvironment& encl)
         : id(++next_id), m_enclosing(encl) {
             setName();
             // std::cerr << "Env: copy ctor: " << m_name << "\n"; 
-            logMsg("Env: copy ctor", m_name, "-");
+            logMsg("Env: copy ctor", m_name);
             // DEBUG_PRINT("Env: copy ctor: %s", m_name.c_str());
      }
 

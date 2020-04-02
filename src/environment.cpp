@@ -8,18 +8,19 @@
 // static variable must be initialized
 int Environment::next_id;
 TObject& Environment::get(Token name) {
+  TRACE_MSG("Environment Get Tracer: ");
     auto elem = values.find(name.lexeme);
-    logMsg("Env get: ", m_name, "-");
+    logMsg("Env get: ", m_name);
  
     
     if (elem != values.end()) {
-        logMsg(" var name: ", name.lexeme, ", ", *elem->second, "\n");
+        logMsg("var name: ", name.lexeme, ",", *elem->second);
         
         return *elem->second;
     }
     
     if (m_enclosing != nullptr) {
-        logMsg("\nEnv enclosing: ", m_enclosing->m_name, "\n");
+        logMsg("\nEnv enclosing: ", m_enclosing->m_name);
         return m_enclosing->get(name);
     }
 
