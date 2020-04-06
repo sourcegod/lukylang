@@ -4,12 +4,13 @@
 #include "environment.hpp"
 #include "interpreter.hpp"
 #include "stmt.hpp"
-// #include "lukobject.hpp"
+#include "lukobject.hpp"
+#include "return.hpp"
+#include "logger.hpp"
 
 #include <string>
 #include <vector>
 #include <memory>
-#include "return.hpp"
 #include <cassert>
 #include <typeinfo> // type name
 
@@ -44,6 +45,7 @@ public:
     virtual LukObject  call(Interpreter& interp, 
            std::vector<LukObject>& v_args) const override {
 
+        TRACE_MSG("Call Function Tracer: ");
         // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
         auto env = std::make_shared<Environment>(interp.m_globals);
         // auto env = std::make_shared<Environment>();
@@ -58,10 +60,13 @@ public:
             // std::cout << "in lukfunction\n";
             // std::cerr << "env.size: " << env->size() << "\n";
             // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
+            logMsg("LukFunction, env name: ", env->m_name, "size: ", env->size(), 
+                "\ninterp.m_globals name: ", interp.m_globals->m_name, "size: ", interp.m_globals->size());
             interp.executeBlock(m_declaration->body, env);
             // std::cout << "after body\n";
         } catch(Return& ret) {
             // std::cerr << "je return: " << ret.value.value() << "\n";
+            logMsg("Catch Return Value: ", ret.value.value());
             return ret.value;
         }
         
