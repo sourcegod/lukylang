@@ -3,12 +3,15 @@
 
 CC := g++
 # condition for passing to "make" debug as option
-DEBUG ?= 1
+# set DEBUG at 0 if no option
+DEBUG ?= 0 
 ifeq ($(DEBUG),1)
 	CFLAGS := -std=c++11 -DDEBUG -Wall -Wextra -pedantic -g
 else
 	CFLAGS := -std=c++11 -DNDEBUG -Wall -Wextra -pedantic -g
 endif
+
+DEBFLAGS := -std=c++11 -DDEBUG -Wall -Wextra -pedantic -g
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -30,6 +33,8 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
+
+
 # pull in dependency info for *existing* .o files
 # TODO: how to rebuild when headerfiles are changed
 # not ideal: 
@@ -40,8 +45,15 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	# $(CC) -MM $(CFLAGS) $(SRC_DIR)/$*.cpp > $(BUILD_DIR)/$*.d
 
 
+.PHONY: build clean release
+
+clean = rm -f $(BUILD_DIR)/*.o ./$(TARGET)
+
+
 clean:
-	rm -f $(BUILD_DIR)/*.o ./$(TARGET)
+	$(clean)
+
+
 # Run the interpreter
 run:
 	rlwrap ./$(TARGET)
@@ -49,6 +61,8 @@ run:
 # Debug the interpreter with gdb
 gdb:
 	rlwrap gdb ./$(TARGET)
+
+rebuild: clean all
 
 
 # -include $(OBJS:.o=.d)

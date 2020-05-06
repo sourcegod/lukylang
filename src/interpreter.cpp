@@ -20,6 +20,9 @@ Interpreter::Interpreter() {
     // TRACE_ALL;
     TRACE_MSG("Env globals tracer: ");
     logMsg("Env globals: ", m_globals->m_name);
+    LogConf.headers = true;
+    LogConf.level = log_OFF;
+    CLog(log_WARN) << "log_WARN: Coucou les gens";
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
     auto func = std::make_shared<ClockFunc>();
