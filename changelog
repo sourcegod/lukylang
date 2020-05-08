@@ -2,6 +2,11 @@
 # Author: Coolbrother
 # Date: samedi, 24/08/1
 
+# Version 0.22: logger 2
+Date: mercredi, 06/05/2020
+Adding: CLog object, improving logger functions, 
+Adding: scons sconstruct file.
+
 # Version 0.21: Tracer and logger.
 Date: jeudi, 02/04/2020
 -- Adding: option "debug" to MakeFile file.
