@@ -21,7 +21,7 @@ Interpreter::Interpreter() {
     TRACE_MSG("Env globals tracer: ");
     logMsg("Env globals: ", m_globals->m_name);
     LogConf.headers = true;
-    LogConf.level = log_DEBUG;
+    // LogConf.level = log_DEBUG;
     CLog(log_WARN) << "log_WARN: Coucou les gens";
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
@@ -372,6 +372,8 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 
 std::string Interpreter::stringify(TObject& obj) { 
     // std::cerr << "in stringify, objtype: " << obj.getType() << "\n";
+    // if (obj.isNil()) return "";
+    if (obj.isNil() || obj.isBool()) return obj.value();
     if (obj.isNumber()) {
         std::string text = obj.value(); 
         std::string end = ".000000";
@@ -379,10 +381,8 @@ std::string Interpreter::stringify(TObject& obj) {
         if (endsWith(text, end)) 
             return text.substr(0, text.size() - end.size());
         return text;
-    } else if (obj.isNil() ) {
-        return "";
-    }
-
+    } 
+    
     // return obj.value();
     // std::cerr << "End of stringify\n";
     return *obj.getPtrString();
