@@ -25,10 +25,9 @@ class LukFunction : public LukCallable {
 public:
     // WARNING: cannot copy assignment derived object like FunctionStmt ..
     // so passing it by pointer.
-    LukFunction(FunctionStmt* declaration) { 
-        m_declaration = declaration;
-    
-    }
+    LukFunction(FunctionStmt* declaration, PEnvironment closure) : 
+      m_declaration(declaration),
+      m_closure(closure) {}
     
     LukFunction() = delete;
     LukFunction(const LukFunction&) = delete;
@@ -47,9 +46,7 @@ public:
 
         TRACE_MSG("Call Function Tracer: ");
         // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
-        auto env = std::make_shared<Environment>(interp.m_globals);
-        // auto env = std::make_shared<Environment>();
-        // std::cerr << "env.size: " << env->size() << "\n";
+        auto env = std::make_shared<Environment>(m_closure);
         for (unsigned i=0; i < m_declaration->params.size(); ++i) {
             // Note: C++ can store polymorphic or derived object in a container
             // only with pointer or smart pointers.
@@ -57,15 +54,10 @@ public:
         }
         
         try {
-            // std::cout << "in lukfunction\n";
-            // std::cerr << "env.size: " << env->size() << "\n";
-            // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
             logMsg("LukFunction, env name: ", env->m_name, "size: ", env->size(), 
-                "\ninterp.m_globals name: ", interp.m_globals->m_name, "size: ", interp.m_globals->size());
+                "\nm_closure name: ", m_closure->m_name, "size: ", m_closure->size());
             interp.executeBlock(m_declaration->body, env);
-            // std::cout << "after body\n";
         } catch(Return& ret) {
-            // std::cerr << "je return: " << ret.value.value() << "\n";
             logMsg("Catch Return Value: ", ret.value.value());
             return ret.value;
         }
@@ -78,6 +70,7 @@ public:
 
 private:
    FunctionStmt* m_declaration;
+   PEnvironment m_closure;
 
 };
 

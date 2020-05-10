@@ -31,7 +31,7 @@ public:
         logMsg("Env: ctor, ", m_name);
     }
     
-    explicit Environment(PEnvironment& encl)
+    explicit Environment(PEnvironment encl)
         : id(++next_id), m_enclosing(encl) {
             setName();
             // std::cerr << "Env: copy ctor: " << m_name << "\n"; 

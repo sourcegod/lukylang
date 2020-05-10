@@ -2,6 +2,11 @@
 # Author: Coolbrother
 # Date: samedi, 24/08/1
 
+# Version 0.23: closure
+Date: samedi, 09/05/2020
+Adding: closure feature for functions.
+Fixing bugs: environment object, stringify function.
+
 # Version 0.22: logger 2
 Date: mercredi, 06/05/2020
 Adding: CLog object, improving logger functions, 
