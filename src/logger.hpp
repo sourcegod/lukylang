@@ -35,6 +35,11 @@ public:
     }
     m_opened = false;
   }
+
+  static void initLog() {
+    LogConf.level = log_DEBUG;
+  }
+
   
   template <class T>
   CLog &operator <<(const T &msg) {
@@ -131,7 +136,6 @@ void logMsg(T first, TArgs... args) {
 
 // macros to logging
 #ifdef DEBUG
-   
     // print by default file, line, and function name
     #define LOG_FILE              std::cerr << __FILE__ \
         << ":" << __LINE__ << " " << __PRETTY_FUNCTION__ << "\n";

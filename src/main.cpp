@@ -117,7 +117,8 @@ int main(int argc, char* argv[]) {
             const std::string line = argv[2];
             runCommand(line, lukErr);
         } else {
-            cout << "Usage: luky [filename]" << endl;
+            cout << "Usage: luky [filename]\n" 
+              << "-c: line" << endl;
         }
     } else if (argc == 2) {
         cout << "Run file " << argv[1] << endl;

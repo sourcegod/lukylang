@@ -21,7 +21,7 @@ Interpreter::Interpreter() {
     TRACE_MSG("Env globals tracer: ");
     logMsg("Env globals: ", m_globals->m_name);
     LogConf.headers = true;
-    // LogConf.level = log_DEBUG;
+    LogConf.level = log_DEBUG;
     CLog(log_WARN) << "log_WARN: Coucou les gens";
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
@@ -57,12 +57,12 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
 }
 
 void Interpreter::printResult() {
-    // std::cerr << "printResult avant \n";
+    // CLog(log_DEBUG) << "printResult avant \n";
     std::cout << stringify(m_result) << "\n";
-    // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
+    // CLog(log_DEBUG) << "voici m_result.p_string: " << m_result.p_string << "\n";
     // std::cerr << stringify(m_result) << "\n";
     // reinitialize m_result to nil
-    // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
+    // CLog(log_DEBUG) << "voici m_result.p_string: " << m_result.p_string << "\n";
     m_result = TObject();
     // std::cerr << "printResult à la fin,  m_result.p_string: " << m_result.p_string << std::endl;
     
@@ -145,7 +145,7 @@ void Interpreter::visitFunctionStmt(FunctionStmt* stmt) {
     auto func = std::make_shared<LukFunction>(stmt, m_environment);
     // auto func = std::make_shared<LukFunction>(stmt->params, stmt->body);
     logMsg("Create function: ", stmt->name.lexeme);
-    auto obj = LukObject(func);
+    auto obj = std::make_shared<LukObject>(func);
     m_environment->define(stmt->name.lexeme, obj); // LukObject(func));
     
 }
@@ -168,9 +168,9 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    // std::cerr << "visitPrintStmt: avant value\n";
+  std::cerr << "visitPrintStmt: avant value\n";
     TObject value = evaluate(stmt.expression);
-    // std::cerr << "après value : " << value << std::endl;
+    std::cerr << "après value : " << value << "\n";
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
     // std::cerr << "visitPrintStmt: à la fin: \n";
@@ -282,9 +282,10 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
     for (auto& arg: expr.args) {
         v_args.push_back(evaluate(arg));
     }
-     
     const auto& func = callee.getCallable();
+    logMsg("Avant func name:\n");     
     logMsg("Func name: ", func->toString());
+    logMsg("Apres func name.\n");     
     if (v_args.size() != func->arity()) {
         std::ostringstream msg;
         msg << "Expected " << func->arity() 

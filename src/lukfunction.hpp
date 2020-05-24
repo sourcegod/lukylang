@@ -33,7 +33,7 @@ public:
     LukFunction(const LukFunction&) = delete;
     LukFunction(LukFunction&&) = delete;
 
-    ~LukFunction() {} 
+    ~LukFunction() { std::cerr << "Destructor lukfunction: " << this << "\n"; } 
     virtual std::string addressOf()  override {  
         std::ostringstream oss;
         oss << "LukFunction address: " << this;

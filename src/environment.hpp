@@ -52,8 +52,11 @@ public:
     }
 
     TObject& get(Token name);
-    void assign(Token name, TObject value);
-    void define(const std::string& name, TObject value);
+    void assign(Token name, TObject val);
+
+    void define(const std::string& name, TObject val);
+    void define(const std::string& name, std::shared_ptr<TObject> val);
+
     size_t size() {  return values.size(); }
 
 private:
