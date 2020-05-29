@@ -29,6 +29,14 @@ void LukError::error(const std::string& title, Token& token,
     hadError = true;
 }
 
+void LukError::error(const std::string& title, const std::string& message) {
+  std::cerr << title << message 
+    << std::endl;
+
+    hadError = true;
+}
+
+
 void LukError::report(const std::string& title, int line, int col, 
         const std::string& where, 
         const std::string& message) const {

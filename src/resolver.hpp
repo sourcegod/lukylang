@@ -1,0 +1,54 @@
+#ifndef RESOLVER_HPP
+#define RESOLVER_HPP
+
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <memory> // smart pointers
+
+#include "expr.hpp"
+#include "stmt.hpp"
+#include "environment.hpp"
+#include "token.hpp"
+#include "lukobject.hpp"
+#include "lukerror.hpp"
+#include "logger.hpp"
+
+class Interpreter;
+class Token;
+class LukObject;
+class Environment;
+class LukError;
+class CTracer;
+
+class Resolver : public ExprVisitor,  public StmtVisitor {
+public:
+  explicit  Resolver(Interpreter& interp, LukError& lukErr);
+  void resolve(std::vector<std::unique_ptr<Stmt>>& statements);
+    // expressions
+    TObject visitVariableExpr(VariableExpr& expr) override;
+    
+    // statements
+    void visitBlockStmt(BlockStmt& stmt) override;
+    void visitVarStmt(VarStmt& stmt) override;
+
+private:
+    const std::string errTitle = "ResolverError: ";
+  Interpreter& m_interp;
+  LukError& m_lukErr;
+  std::vector< std::unordered_map<std::string, bool> > m_scopes;
+  
+  // resolve statements
+  void resolve(Stmt& stmt);
+  // resolve expression
+  void resolve(Expr& expr);
+  void resolveLocal(Expr* expr, Token name);
+
+  void beginScope();
+  void endScope();
+  void declare(Token name);
+  void define(Token& name);
+
+};
+
+#endif // RESOLVER_HPP
