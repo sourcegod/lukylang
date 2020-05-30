@@ -25,9 +25,16 @@ class Resolver : public ExprVisitor,  public StmtVisitor {
 public:
   explicit  Resolver(Interpreter& interp, LukError& lukErr);
   void resolve(std::vector<std::unique_ptr<Stmt>>& statements);
+    
     // expressions
-    TObject visitVariableExpr(VariableExpr& expr) override;
     TObject visitAssignExpr(AssignExpr& expr) override;
+    TObject visitBinaryExpr(BinaryExpr& expr) override;
+    TObject visitCallExpr(CallExpr& expr) override;
+    TObject visitGroupingExpr(GroupingExpr& expr) override;
+    TObject visitLiteralExpr(LiteralExpr& expr) override; 
+    TObject visitLogicalExpr(LogicalExpr& expr) override;
+    TObject visitUnaryExpr(UnaryExpr& expr);
+    TObject visitVariableExpr(VariableExpr& expr) override;
     
     // statements
     void visitBlockStmt(BlockStmt& stmt) override;

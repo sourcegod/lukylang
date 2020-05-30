@@ -83,6 +83,52 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
 }
 
 // expressions
+TObject Resolver::visitAssignExpr(AssignExpr& expr) {
+  resolve(*expr.value);
+  resolveLocal(&expr, expr.name);
+  
+  return nullptr;
+}
+
+TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
+  resolve(*expr.left);
+  resolve(*expr.right);
+  
+  return nullptr;
+}
+
+TObject Resolver::visitCallExpr(CallExpr& expr) {
+  resolve(*expr.callee);
+  for (std::unique_ptr<Expr>& arg : expr.args) {
+    resolve(*arg);
+  }
+  
+  return nullptr;
+}
+
+TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
+  resolve(*expr.expression);
+ 
+  return nullptr;
+}
+
+TObject Resolver::visitLiteralExpr(LiteralExpr& expr) {
+  return nullptr;
+}
+
+TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
+  resolve(*expr.left);
+  resolve(*expr.right);
+  
+  return nullptr;
+}
+
+TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
+  resolve(*expr.right);
+  
+  return nullptr;
+}
+
 TObject Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
@@ -92,13 +138,6 @@ TObject Resolver::visitVariableExpr(VariableExpr& expr) {
     }
   }
   resolveLocal(&expr, expr.name);
-  return nullptr;
-}
-
-TObject Resolver::visitAssignExpr(AssignExpr& expr) {
-  resolve(*expr.value);
-  resolveLocal(&expr, expr.name);
-  
   return nullptr;
 }
 
