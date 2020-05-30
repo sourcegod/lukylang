@@ -53,6 +53,17 @@ void Resolver::resolve(Stmt& stmt) {
 
 }
 
+void Resolver::resolveFunction(FunctionStmt* func) {
+  beginScope();
+  for (Token& param: func->params) {
+    declare(param);
+    define(param);
+  }
+
+  resolve(func->body);
+  endScope();
+
+}
 // resolve expressions
 void Resolver::resolve(Expr& expr) {
   expr.accept(*this);
@@ -84,6 +95,13 @@ TObject Resolver::visitVariableExpr(VariableExpr& expr) {
   return nullptr;
 }
 
+TObject Resolver::visitAssignExpr(AssignExpr& expr) {
+  resolve(*expr.value);
+  resolveLocal(&expr, expr.name);
+  
+  return nullptr;
+}
+
 // statements
 void Resolver::visitBlockStmt(BlockStmt& stmt) {
   beginScope();
@@ -98,5 +116,12 @@ void Resolver::visitVarStmt(VarStmt& stmt) {
     resolve(*stmt.initializer);
   }
   define(stmt.name);
+
+}
+
+void Resolver::visitFunctionStmt(FunctionStmt* stmt) {
+  declare(stmt->name);
+  define(stmt->name);
+  resolveFunction(stmt);
 
 }

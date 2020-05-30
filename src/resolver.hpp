@@ -27,10 +27,12 @@ public:
   void resolve(std::vector<std::unique_ptr<Stmt>>& statements);
     // expressions
     TObject visitVariableExpr(VariableExpr& expr) override;
+    TObject visitAssignExpr(AssignExpr& expr) override;
     
     // statements
     void visitBlockStmt(BlockStmt& stmt) override;
     void visitVarStmt(VarStmt& stmt) override;
+    void visitFunctionStmt(FunctionStmt* stmt) override;
 
 private:
     const std::string errTitle = "ResolverError: ";
@@ -38,11 +40,14 @@ private:
   LukError& m_lukErr;
   std::vector< std::unordered_map<std::string, bool> > m_scopes;
   
-  // resolve statements
-  void resolve(Stmt& stmt);
   // resolve expression
   void resolve(Expr& expr);
   void resolveLocal(Expr* expr, Token name);
+  
+  // resolve statements
+  void resolve(Stmt& stmt);
+  void resolveFunction(FunctionStmt* func);
+  
 
   void beginScope();
   void endScope();
