@@ -31,8 +31,13 @@ public:
     
     // statements
     void visitBlockStmt(BlockStmt& stmt) override;
-    void visitVarStmt(VarStmt& stmt) override;
+    void visitExpressionStmt(ExpressionStmt& stmt) override;
+    void visitIfStmt(IfStmt& stmt) override;
     void visitFunctionStmt(FunctionStmt* stmt) override;
+    void visitPrintStmt(PrintStmt& stmt) override;
+    void visitReturnStmt(ReturnStmt& stmt) override;
+    void visitVarStmt(VarStmt& stmt) override;
+    void visitWhileStmt(WhileStmt& stmt) override;
 
 private:
     const std::string errTitle = "ResolverError: ";

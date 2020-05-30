@@ -110,12 +110,15 @@ void Resolver::visitBlockStmt(BlockStmt& stmt) {
 
 }
 
-void Resolver::visitVarStmt(VarStmt& stmt) {
-  declare(stmt.name);
-  if (stmt.initializer != nullptr) {
-    resolve(*stmt.initializer);
-  }
-  define(stmt.name);
+void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
+  resolve(*stmt.expression);
+
+}
+
+void Resolver::visitIfStmt(IfStmt& stmt) {
+  resolve(*stmt.condition);
+  resolve(*stmt.thenBranch);
+  if (stmt.elseBranch != nullptr) resolve(*stmt.elseBranch);
 
 }
 
@@ -125,3 +128,29 @@ void Resolver::visitFunctionStmt(FunctionStmt* stmt) {
   resolveFunction(stmt);
 
 }
+
+void Resolver::visitPrintStmt(PrintStmt& stmt) {
+  resolve(*stmt.expression);
+
+}
+
+void Resolver::visitReturnStmt(ReturnStmt& stmt) {
+  if (stmt.value != nullptr) resolve(*stmt.value);
+
+}
+
+void Resolver::visitVarStmt(VarStmt& stmt) {
+  declare(stmt.name);
+  if (stmt.initializer != nullptr) {
+    resolve(*stmt.initializer);
+  }
+  define(stmt.name);
+
+}
+
+void Resolver::visitWhileStmt(WhileStmt& stmt) {
+  resolve(*stmt.condition);
+  resolve(*stmt.body);
+
+}
+
