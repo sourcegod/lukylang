@@ -78,6 +78,12 @@ void Interpreter::execute(PStmt& stmt) {
     stmt->accept(*this);
 }
 
+void Interpreter::resolve(Expr& expr, int depth) {
+  // FIX: abstract class Expr cannot be in map
+  m_locals[expr.id()] = depth;
+
+}
+
 void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
     TRACE_MSG("executeblock Tracer: ");
     auto previous = m_environment;
@@ -216,7 +222,14 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
 TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
     TObject value = evaluate(expr.value);
-    m_environment->assign(expr.name, value);
+    auto elem = m_locals.find(expr.id());
+    if (elem != m_locals.end()) {
+      auto val = std::make_shared<TObject>(value);
+      m_environment->assignAt(elem->second, expr.name, val);
+    } else {
+      m_globals->assign(expr.name, value);
+    }
+    
     return value;
 }
 
@@ -337,9 +350,18 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
-    return m_environment->get(expr.name);
+    // return m_environment->get(expr.name);
+    return lookUpVariable(expr.name, expr);
 }
 
+TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
+  auto elem = m_locals.find(expr.id());
+  if (elem != m_locals.end()) {
+    return m_environment->getAt(elem->second, name.lexeme);
+  }
+
+  return m_globals->get(name);
+}
 
 bool Interpreter::isTruthy(TObject& obj) {
     if (obj.isNil()) return false;

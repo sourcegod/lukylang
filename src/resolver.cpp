@@ -76,9 +76,10 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
     auto elem = scope.find(name.lexeme);
     if (elem != scope.end()) {
       int val = m_scopes.size() -1 - i;
-      // m_interp.resolve(expr, val);
+      m_interp.resolve(*expr, val);
     }
   }
+  //
   // Not found. Assume it is global
 }
 

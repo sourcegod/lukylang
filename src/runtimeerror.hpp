@@ -8,6 +8,9 @@
 class RuntimeError : public std::runtime_error {
     
 public:
+    RuntimeError(const std::string& msg) 
+        : std::runtime_error(msg) {}
+
     RuntimeError(Token& tok, const std::string& msg) 
         : std::runtime_error(tok.lexeme + ", " + msg) {}
 

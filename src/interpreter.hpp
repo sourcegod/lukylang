@@ -6,6 +6,8 @@
 #include "environment.hpp"
 #include <string>
 #include <vector>
+#include <unordered_map>
+
 using PObject = std::unique_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
@@ -38,16 +40,20 @@ public:
 
     TObject evaluate(PExpr& expr);
     void execute(PStmt& stmt);
+    void resolve(Expr& expr, int depth);
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
 
 private:
     PEnvironment m_environment;
     TObject m_result;
     const std::string errTitle = "InterpretError: ";
+    std::unordered_map<unsigned, int> m_locals;
+
     bool isTruthy(TObject& obj);
     bool isEqual(TObject& a, TObject& b);
     void checkNumberOperand(Token& op, TObject& operand);
     void checkNumberOperands(Token& op, TObject& left, TObject& right);
+    TObject lookUpVariable(Token& name, Expr& expr);
 
     // starts and ends for string
     inline bool startsWith(const std::string& str, const std::string& start) {

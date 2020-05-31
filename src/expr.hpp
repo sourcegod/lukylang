@@ -37,10 +37,21 @@ class ExprVisitor {
 // Base class for different objects
 class  Expr {
 public:
+  Expr() : m_id(0) {
+      static unsigned next_id =0;
+      next_id++;
+      m_id = next_id;
+    }
+    
     virtual TObject accept(ExprVisitor &v) =0;
     virtual bool isCallExpr() const { return false; }
     virtual bool isVariableExpr() const { return false; }
     virtual std::string typeName() const { return "Expr"; }
+    virtual unsigned id() const { return m_id; }
+
+private:
+  unsigned m_id;
+
 };
 
 // differents objects
