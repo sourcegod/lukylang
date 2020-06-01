@@ -1,2 +1,2 @@
 1+2;
-print "good bye"
+print "good bye";

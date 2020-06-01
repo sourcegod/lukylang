@@ -21,7 +21,7 @@ Interpreter::Interpreter() {
     TRACE_MSG("Env globals tracer: ");
     logMsg("Env globals: ", m_globals->m_name);
     LogConf.headers = true;
-    LogConf.level = log_DEBUG;
+    // LogConf.level = log_DEBUG;
     CLog(log_WARN) << "log_WARN: Coucou les gens";
     // std::shared_ptr<LukCallable>  
     // auto func = std::make_shared<ClockFunc>();
@@ -174,9 +174,9 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-  std::cerr << "visitPrintStmt: avant value\n";
+  logMsg("visitPrintStmt: avant value\n");
     TObject value = evaluate(stmt.expression);
-    std::cerr << "après value : " << value << "\n";
+    logMsg("après value : ", value, "\n");
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
     // std::cerr << "visitPrintStmt: à la fin: \n";

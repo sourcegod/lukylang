@@ -23,7 +23,7 @@ class CTracer;
 
 class Resolver : public ExprVisitor,  public StmtVisitor {
 public:
-  explicit  Resolver(Interpreter& interp, LukError& lukErr);
+  explicit Resolver(Interpreter& interp, LukError& lukErr);
   void resolve(std::vector<std::unique_ptr<Stmt>>& statements);
     
     // expressions
@@ -38,6 +38,7 @@ public:
     
     // statements
     void visitBlockStmt(BlockStmt& stmt) override;
+    void visitBreakStmt(BreakStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt& stmt) override;
     void visitIfStmt(IfStmt& stmt) override;
     void visitFunctionStmt(FunctionStmt* stmt) override;
@@ -53,11 +54,11 @@ private:
   std::vector< std::unordered_map<std::string, bool> > m_scopes;
   
   // resolve expression
-  void resolve(Expr& expr);
+  void resolve(PExpr& expr);
   void resolveLocal(Expr* expr, Token name);
   
   // resolve statements
-  void resolve(Stmt& stmt);
+  void resolve(PStmt& stmt);
   void resolveFunction(FunctionStmt* func);
   
 

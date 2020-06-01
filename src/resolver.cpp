@@ -40,16 +40,18 @@ void Resolver::resolve(std::vector<std::unique_ptr<Stmt>>& statements) {
         m_lukErr.error(errTitle, "Vector is empty.\n");
         return;
     }
+    
     for (auto& stmt : statements) {
-        resolve(*stmt);
+        resolve(stmt);
     }
+    
  
 }
 
 
 // resolve statement
-void Resolver::resolve(Stmt& stmt) {
-  stmt.accept(*this);
+void Resolver::resolve(PStmt& stmt) {
+  stmt->accept(*this);
 
 }
 
@@ -65,8 +67,8 @@ void Resolver::resolveFunction(FunctionStmt* func) {
 
 }
 // resolve expressions
-void Resolver::resolve(Expr& expr) {
-  expr.accept(*this);
+void Resolver::resolve(PExpr& expr) {
+  expr->accept(*this);
 }
 
 void Resolver::resolveLocal(Expr* expr, Token name) {
@@ -79,55 +81,56 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
       m_interp.resolve(*expr, val);
     }
   }
-  //
+  
   // Not found. Assume it is global
 }
 
 // expressions
 TObject Resolver::visitAssignExpr(AssignExpr& expr) {
-  resolve(*expr.value);
+  resolve(expr.value);
   resolveLocal(&expr, expr.name);
   
-  return nullptr;
+  return TObject();
 }
 
 TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
-  resolve(*expr.left);
-  resolve(*expr.right);
+  resolve(expr.left);
+  resolve(expr.right);
   
-  return nullptr;
+  return TObject();
 }
 
 TObject Resolver::visitCallExpr(CallExpr& expr) {
-  resolve(*expr.callee);
+  resolve(expr.callee);
   for (std::unique_ptr<Expr>& arg : expr.args) {
-    resolve(*arg);
+    resolve(arg);
   }
-  
-  return nullptr;
+
+  return TObject();
 }
 
 TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
-  resolve(*expr.expression);
+  resolve(expr.expression);
  
-  return nullptr;
+  return TObject();
 }
 
 TObject Resolver::visitLiteralExpr(LiteralExpr& expr) {
-  return nullptr;
+  return TObject();
 }
 
 TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
-  resolve(*expr.left);
-  resolve(*expr.right);
+  resolve(expr.left);
+  resolve(expr.right);
   
-  return nullptr;
+
+  return TObject();
 }
 
 TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
-  resolve(*expr.right);
+  resolve(expr.right);
   
-  return nullptr;
+  return TObject();
 }
 
 TObject Resolver::visitVariableExpr(VariableExpr& expr) {
@@ -139,7 +142,8 @@ TObject Resolver::visitVariableExpr(VariableExpr& expr) {
     }
   }
   resolveLocal(&expr, expr.name);
-  return nullptr;
+
+  return TObject();
 }
 
 // statements
@@ -150,15 +154,19 @@ void Resolver::visitBlockStmt(BlockStmt& stmt) {
 
 }
 
+void Resolver::visitBreakStmt(BreakStmt& stmt) {
+}
+
+
 void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
-  resolve(*stmt.expression);
+  resolve(stmt.expression);
 
 }
 
 void Resolver::visitIfStmt(IfStmt& stmt) {
-  resolve(*stmt.condition);
-  resolve(*stmt.thenBranch);
-  if (stmt.elseBranch != nullptr) resolve(*stmt.elseBranch);
+  resolve(stmt.condition);
+  resolve(stmt.thenBranch);
+  if (stmt.elseBranch != nullptr) resolve(stmt.elseBranch);
 
 }
 
@@ -170,27 +178,27 @@ void Resolver::visitFunctionStmt(FunctionStmt* stmt) {
 }
 
 void Resolver::visitPrintStmt(PrintStmt& stmt) {
-  resolve(*stmt.expression);
+  resolve(stmt.expression);
 
 }
 
 void Resolver::visitReturnStmt(ReturnStmt& stmt) {
-  if (stmt.value != nullptr) resolve(*stmt.value);
+  if (stmt.value != nullptr) resolve(stmt.value);
 
 }
 
 void Resolver::visitVarStmt(VarStmt& stmt) {
   declare(stmt.name);
   if (stmt.initializer != nullptr) {
-    resolve(*stmt.initializer);
+    resolve(stmt.initializer);
   }
   define(stmt.name);
 
 }
 
 void Resolver::visitWhileStmt(WhileStmt& stmt) {
-  resolve(*stmt.condition);
-  resolve(*stmt.body);
+  resolve(stmt.condition);
+  resolve(stmt.body);
 
 }
 

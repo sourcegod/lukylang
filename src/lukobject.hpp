@@ -34,6 +34,8 @@ public:
         : id(++next_id) { 
         // std::cerr << "C.tor, id: " << id << "\n";
         type_id = LukType::Nil;  
+        p_string = nullptr;
+        p_callable = nullptr;
     }
 
     LukObject(bool val) 

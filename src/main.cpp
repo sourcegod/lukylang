@@ -5,6 +5,7 @@
 #include "token.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
+#include "resolver.hpp"
 #include "interpreter.hpp"
 
 using namespace std;
@@ -44,18 +45,13 @@ static void run(const std::string& source, LukError& lukErr) {
     // /*
     // parser
     Parser parser(std::move(tokens), lukErr);
-    // auto expr = parser.parse();
     auto stmts = parser.parse();
     // if found error during parsing, report
-    if (lukErr.hadError) {
-        return;
-    }
-    // */
-    
-    // Interpreter
+    if (lukErr.hadError)  return;
     static Interpreter  interp;
-    // convert smart pointer to raw pointer
-    // interp.print(expr.get());
+    Resolver resol(interp, lukErr);
+    resol.resolve((stmts));
+    // Interpreter
     interp.interpret(std::move(stmts));
 
 
