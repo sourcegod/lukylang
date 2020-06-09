@@ -51,6 +51,10 @@ static void run(const std::string& source, LukError& lukErr) {
     static Interpreter  interp;
     Resolver resol(interp, lukErr);
     resol.resolve((stmts));
+    
+    // Stop if there was a resolution error.
+    if (lukErr.hadError) return;
+    
     // Interpreter
     interp.interpret(std::move(stmts));
 

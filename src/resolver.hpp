@@ -48,18 +48,23 @@ public:
     void visitWhileStmt(WhileStmt& stmt) override;
 
 private:
+    enum class FunctionType {
+      None, Function, Method
+    };
+    
     const std::string errTitle = "ResolverError: ";
   Interpreter& m_interp;
   LukError& m_lukErr;
   std::vector< std::unordered_map<std::string, bool> > m_scopes;
-  
+  FunctionType m_curFunction = FunctionType::None;
+
   // resolve expression
   void resolve(PExpr& expr);
   void resolveLocal(Expr* expr, Token name);
   
   // resolve statements
   void resolve(PStmt& stmt);
-  void resolveFunction(FunctionStmt* func);
+  void resolveFunction(FunctionStmt& func, FunctionType ft);
   
 
   void beginScope();

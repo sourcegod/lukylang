@@ -1,0 +1,14 @@
+// test function and variable
+var a=37;
+var b=39;
+fun test() {
+var a="first, ";
+var b="second";
+  print a;
+  print b;
+  print a+b;
+}
+
+test();
+print a+b;
+

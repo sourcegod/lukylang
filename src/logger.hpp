@@ -117,20 +117,22 @@ private:
 // base case
 template <typename T>
 void logMsg(T val) {
-  if (LogConf.level >= log_DEBUG) {
+  // if (LogConf.level >= log_DEBUG) {
+#ifdef DEBUG // {
     std::cerr << val << "\n";
-  }
-
+  // }
+#endif
 }
 
 // recursive case
 template <typename T, typename... TArgs>
 void logMsg(T first, TArgs... args) {
-  if (LogConf.level >= log_DEBUG) {
+  // if (LogConf.level >= log_DEBUG) {
+#ifdef DEBUG // {
     std::cerr << first << " ";
     logMsg(args...);
-  }
-
+  // }
+#endif
 }
 
 

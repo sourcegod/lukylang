@@ -1,0 +1,4 @@
+var a=22;
+var b=28;
+print "voici a+b: ";
+print a+b;
