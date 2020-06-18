@@ -1,6 +1,12 @@
 # Changelog for Luky project
 # Author: Coolbrother
 # Date: samedi, 24/08/1
+# Version 0.24: resolver
+Date: jeudi, 18/06/2020
+Adding: Resolver object
+Adding: ostream operator to print Token object. 
+Adding: tests directory with test's files.
+Issue: Bug in the REPL when calling function.
 
 # Version 0.23: closure
 Date: samedi, 09/05/2020

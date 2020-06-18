@@ -8,23 +8,12 @@
 // static variable must be initialized
 int Environment::next_id;
 TObject& Environment::get(Token name) {
-  TRACE_MSG("Environment Get Tracer: ");
     auto elem = m_values.find(name.lexeme);
-    logMsg("Env get: ", m_name);
     if (elem != m_values.end()) {
-        logMsg("var name: ", name.lexeme, ",", *elem->second);
-        if (elem->second->isCallable()) {
-          // logMsg("elem is callable, ", "bUG when calling function in the REPL");
-          logMsg("In get: ", elem->second->p_callable->addressOf());
-          logMsg(elem->second->p_callable);
-          logMsg("In get, Arity: ", elem->second->p_callable->arity());
-        }
-        
         return *elem->second;
     }
     
     if (m_enclosing != nullptr) {
-        logMsg("\nEnv enclosing: ", m_enclosing->m_name);
         return m_enclosing->get(name);
     }
 
@@ -49,29 +38,19 @@ void Environment::assign(Token name, TObject val) {
 }
 
 void Environment::define(const std::string& name, TObject val) {
-  logMsg("Env define simple, ", m_name, 
-      "name: ", name, ", val: ", val);
     m_values[name] =  std::make_shared<TObject>(val);
-}
-
-void Environment::define(const std::string& name, std::shared_ptr<TObject> val) {
-  m_values[name] = val;
-  logMsg("Env define, ", m_name, val->p_callable->addressOf());
-  logMsg("Env define: voici val->p_callable->arity: ", val->p_callable->arity());
 }
 
 TObject Environment::getAt(int distance, const std::string& name) {
   auto& values = ancestor(distance)->m_values;
-  // can be optimizing: values.find(name) ...
-  auto elem = ancestor(distance)->m_values.find(name);
+  auto elem = values.find(name);
   if (elem == values.end()) {
     std::ostringstream msg;
     msg << "Undefined variable '" << name << "' at distance: " << distance
       << " at depth: ";
     throw RuntimeError(msg.str());
   }
-  logMsg("env getat, ", m_name, 
-      "with name: ", name, ", found value: ", *elem->second.get()); 
+
   return *elem->second.get();
 }
 
@@ -87,7 +66,6 @@ Environment* Environment::ancestor(int distance) {
 }
 
 void Environment::assignAt(int distance, Token& name, std::shared_ptr<TObject> val) {
-  logMsg("Env assignat: ", name); 
   ancestor(distance)->m_values[name.lexeme] = val;
 
 }

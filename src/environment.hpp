@@ -57,7 +57,6 @@ public:
     void assign(Token name, TObject val);
 
     void define(const std::string& name, TObject val);
-    void define(const std::string& name, std::shared_ptr<TObject> val);
     TObject getAt(int distance, const std::string& name);
     Environment* ancestor(int distance);
     void assignAt(int distance, Token& name, std::shared_ptr<TObject> val);

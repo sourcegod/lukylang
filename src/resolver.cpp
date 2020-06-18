@@ -7,13 +7,11 @@ Resolver::Resolver(Interpreter& interp, LukError& lukErr)
   {}
 
 void Resolver::beginScope() {
-  logMsg("Resolver BeginScope");
   std::unordered_map<std::string, bool> scope;
   m_scopes.push_back(scope);
 }
 
 void Resolver::endScope() {
-  logMsg("Resolver EndScope");
   m_scopes.pop_back();
 }
 
@@ -26,7 +24,6 @@ void Resolver::declare(Token name) {
     m_lukErr.error(errTitle, name, "This Variable is allready declared in this scope.");
   }
   scope[name.lexeme] = false;
-  logMsg("Resolver declare: ", name, ", ", "false");
 
 }
 
@@ -34,13 +31,10 @@ void Resolver::define(Token& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
   scope.at(name.lexeme) = true;
-  logMsg("Resolver define: ", name, ", ", "true");
-
 }
 
 // resolve vector
 void Resolver::resolve(std::vector<std::unique_ptr<Stmt>>& statements) {
-  logMsg("\n--- Starts Resolver");
     if (statements.empty()) {
         m_lukErr.error(errTitle, "Vector is empty.\n");
         return;
@@ -49,25 +43,19 @@ void Resolver::resolve(std::vector<std::unique_ptr<Stmt>>& statements) {
     for (auto& stmt : statements) {
         resolve(stmt);
     }
-  logMsg("\n--- End Resolver");
-    
  
 }
-
 
 // resolve statement
 void Resolver::resolve(PStmt& stmt) {
   stmt->accept(*this);
-
 }
 
 void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
-  logMsg("\n--- Resolver  Starts Function");
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
   for (Token& param: func.params) {
-    logMsg("Func param: ", param.lexeme);
     declare(param);
     define(param);
   }
@@ -75,7 +63,6 @@ void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
   resolve(func.body);
   endScope();
   m_curFunction = enclosingFt;
-  logMsg("\n--- Resolver End function\n");
 }
 
 // resolve expressions
@@ -90,8 +77,6 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
     auto elem = scope.find(name.lexeme);
     if (elem != scope.end()) {
       int val = m_scopes.size() -1 - i;
-      logMsg("resolve local: expr name: ", name, 
-          ", typename: ", expr->typeName());
       m_interp.resolve(*expr, val);
     }
   }
@@ -101,8 +86,6 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
 
 // expressions
 TObject Resolver::visitAssignExpr(AssignExpr& expr) {
-  logMsg("Resolve assign: name: ", expr.name,
-      ", value: ", expr.typeName());
   resolve(expr.value);
   resolveLocal(&expr, expr.name);
   
@@ -117,7 +100,6 @@ TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
 }
 
 TObject Resolver::visitCallExpr(CallExpr& expr) {
-  logMsg("Resolver callExpr: ", expr.typeName());
   resolve(expr.callee);
   for (std::unique_ptr<Expr>& arg : expr.args) {
     resolve(arg);
@@ -133,7 +115,7 @@ TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
 }
 
 TObject Resolver::visitLiteralExpr(LiteralExpr& expr) {
-   logMsg("Resolve literalExpr: ", expr.value);
+
   return TObject();
 }
 
@@ -151,7 +133,6 @@ TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 TObject Resolver::visitVariableExpr(VariableExpr& expr) {
-  logMsg("Resolver VariableExpr: ", expr.name);
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
     auto elem = scope.find(expr.name.lexeme);
@@ -208,8 +189,6 @@ void Resolver::visitReturnStmt(ReturnStmt& stmt) {
 }
 
 void Resolver::visitVarStmt(VarStmt& stmt) {
-  auto expr = stmt.initializer.get();
-  logMsg("Resolver VarStmt, name: ", stmt.name, ", val: ", expr->typeName());
   declare(stmt.name);
   if (stmt.initializer != nullptr) {
     resolve(stmt.initializer);
