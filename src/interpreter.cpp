@@ -14,23 +14,24 @@
 #include <sstream> // for stringstream
 
 Interpreter::Interpreter() {
+    LogConf.headers = true;
+    LogConf.level = log_DEBUG;
+    CLog(log_WARN) << "log_WARN: Coucou les gens";
+    
+    logMsg("\n--- Starts Interpreter");
     m_globals = std::make_shared<Environment>();
     m_environment = m_globals;
     m_globals->m_name = "Globals, " + m_globals->m_name;
     // TRACE_ALL;
     TRACE_MSG("Env globals tracer: ");
-    logMsg("Env globals: ", m_globals->m_name);
-    LogConf.headers = true;
-    // LogConf.level = log_DEBUG;
-    CLog(log_WARN) << "log_WARN: Coucou les gens";
-    // std::shared_ptr<LukCallable>  
-    // auto func = std::make_shared<ClockFunc>();
+    // logMsg("Env globals: ", m_globals->m_name);
     auto func = std::make_shared<ClockFunc>();
     m_globals->define("clock", LukObject(func));
 
 }
 
 void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
+  logMsg("\n--- Starts Loop Interpreter");
     if (statements.empty()) 
         std::cerr << "Interp: vector is empty.\n";
     try {
@@ -52,25 +53,21 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     if (!m_result.isNil())
         printResult();
 
+  logMsg("\n--- End Interpreter");
 
     return;
 }
 
 void Interpreter::printResult() {
-    // std::cerr << "printResult avant \n";
+    // CLog(log_DEBUG) << "printResult avant \n";
     std::cout << stringify(m_result) << "\n";
-    // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
-    // std::cerr << stringify(m_result) << "\n";
     // reinitialize m_result to nil
-    // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
     m_result = TObject();
-    // std::cerr << "printResult à la fin,  m_result.p_string: " << m_result.p_string << std::endl;
     
 }
 
 
 TObject Interpreter::evaluate(PExpr& expr) { 
-    // std::cerr << "evaluate\n";
     return expr->accept(*this);
 }
 
@@ -78,21 +75,16 @@ void Interpreter::execute(PStmt& stmt) {
     stmt->accept(*this);
 }
 
-void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
-    TRACE_MSG("executeblock Tracer: ");
-    auto previous = m_environment;
-    // std::cerr << "dans executeblock: \n";
-    // std::cerr << "statements.size: " << statements.size() << "\n";
-    // std::cerr << "env->size: " <<  env->size() << "\n";
-    // std::cerr << "m_env.size: " << m_environment->size() << "\n";
-    logMsg("statements.size: ", statements.size(),
-        "\nenv name ", env->m_name, "size: ", env->size(),
-        "\nm_environment name: ", m_environment->m_name, "size: ", m_environment->size());
+void Interpreter::resolve(Expr& expr, int depth) {
+  // FIX: abstract class Expr cannot be in map
+  // so, we store its uniq id in the map
+  m_locals[expr.id()] = depth;
+}
 
-    
+void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
+    auto previous = m_environment;
     try {
         m_environment = env;
-        
         for (auto& stmt: statements) {
             if (stmt)
                 // not use move because for reuse of the block
@@ -103,19 +95,12 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
 
     // Note: must catch all exceptions, event the Return exception.
     } catch(...) {
-        // std::cerr << "Je catch\n"; 
         m_environment = previous;
-        logMsg("Catch exception, m_environment name: ", m_environment->m_name, "size: ", m_environment->size());
         // throw up the exception
         throw;
     }
     // finally, whether no exception
     m_environment = previous;
-    
-    // std::cerr << "a la fin de executebloc:\n";
-    // std::cerr << "env.size: " << env->size() << "\n";
-    // std::cerr << "m_globals.size: " << m_globals->size() << "\n";
-    // std::cerr << "m_environment.size: " << m_environment->size() << "\n";
 
 }
 
@@ -141,15 +126,10 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 }
 
 void Interpreter::visitFunctionStmt(FunctionStmt* stmt) {
-    TRACE_MSG("Visit function Tracer: ");
     auto func = std::make_shared<LukFunction>(stmt, m_environment);
-    // auto func = std::make_shared<LukFunction>(stmt->params, stmt->body);
-    logMsg("Create function: ", stmt->name.lexeme);
-    auto obj = LukObject(func);
-    m_environment->define(stmt->name.lexeme, obj); // LukObject(func));
+    m_environment->define(stmt->name.lexeme, LukObject(func));
     
 }
-
 
 void Interpreter::visitIfStmt(IfStmt& stmt) {
     auto val  = evaluate(stmt.condition);
@@ -168,14 +148,12 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    // std::cerr << "visitPrintStmt: avant value\n";
     TObject value = evaluate(stmt.expression);
-    // std::cerr << "après value : " << value << std::endl;
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
-    // std::cerr << "visitPrintStmt: à la fin: \n";
 
 }
+
 void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
     TObject value;
     if (stmt.value != nullptr) { 
@@ -202,7 +180,6 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
     auto val  = evaluate(stmt.condition);
     while (isTruthy(val)) {
         try {
-            // stmt.body->accept(*this);
             execute(stmt.body);
             val  = evaluate(stmt.condition);
         } catch(Jump jmp) {
@@ -216,12 +193,19 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
 TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
     TObject value = evaluate(expr.value);
-    m_environment->assign(expr.name, value);
+    // search the variable in locals map, if not, search in the globals map.
+    auto elem = m_locals.find(expr.id());
+    if (elem != m_locals.end()) {
+      auto val = std::make_shared<TObject>(value);
+      m_environment->assignAt(elem->second, expr.name, val);
+    } else {
+      m_globals->assign(expr.name, value);
+    }
+    
     return value;
 }
 
 TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
-    // std::cerr << "visitBinaryExpr\n";
     // method get allow to convert smart pointer to raw pointer
     TObject left = evaluate(expr.left);
     TObject right = evaluate(expr.right);
@@ -272,7 +256,6 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     return TObject();
 }
 TObject Interpreter::visitCallExpr(CallExpr& expr) {
-    TRACE_MSG("CallExpr Tracer: ");
     auto callee = evaluate(expr.callee);
     if (! callee.isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
@@ -282,9 +265,7 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
     for (auto& arg: expr.args) {
         v_args.push_back(evaluate(arg));
     }
-     
     const auto& func = callee.getCallable();
-    logMsg("Func name: ", func->toString());
     if (v_args.size() != func->arity()) {
         std::ostringstream msg;
         msg << "Expected " << func->arity() 
@@ -298,7 +279,6 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
 
 TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.expression);
-    // return TObject();
 }
 
 TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
@@ -313,11 +293,7 @@ TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
 }
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
-    // std::cerr << "visitLiteralExpr\n";
-    auto obj = expr.value;
-    // std::cout << "voici obj.p_string: " << obj.p_string << std::endl;
-    // return expr.value;
-    return obj;
+    return expr.value;
 }
 
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
@@ -336,9 +312,21 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
-    return m_environment->get(expr.name);
+    return lookUpVariable(expr.name, expr);
 }
 
+TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
+  // TODO: must be factorized
+  // searching the depth in locals map
+  // whether not, get the variable in globals map
+  auto elem = m_locals.find(expr.id());
+  if (elem != m_locals.end()) {
+    // elem->second is the depth
+    return m_environment->getAt(elem->second, name.lexeme);
+  }
+
+  return m_globals->get(name);
+}
 
 bool Interpreter::isTruthy(TObject& obj) {
     if (obj.isNil()) return false;
@@ -371,8 +359,6 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 }
 
 std::string Interpreter::stringify(TObject& obj) { 
-    // std::cerr << "in stringify, objtype: " << obj.getType() << "\n";
-    // if (obj.isNil()) return "";
     if (obj.isNil() || obj.isBool()) return obj.value();
     if (obj.isNumber()) {
         std::string text = obj.value(); 

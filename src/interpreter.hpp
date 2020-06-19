@@ -6,6 +6,8 @@
 #include "environment.hpp"
 #include <string>
 #include <vector>
+#include <unordered_map>
+
 using PObject = std::unique_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
@@ -16,38 +18,44 @@ public:
 
     void interpret(std::vector<std::unique_ptr<Stmt>>&&);
     void printResult();
+
+    // statements    
+    void visitBlockStmt(BlockStmt& stmt) override;
+    void visitBreakStmt(BreakStmt& stmt) override;
+    void visitExpressionStmt(ExpressionStmt&) override;
+    void visitFunctionStmt(FunctionStmt* stmt) override;
+    void visitIfStmt(IfStmt& stmt) override;
+    void visitPrintStmt(PrintStmt&) override;
+    void visitReturnStmt(ReturnStmt& stmt) override;
+    void visitVarStmt(VarStmt& stmt) override;
+    void visitWhileStmt(WhileStmt& stmt) override;
     
-    void visitBlockStmt(BlockStmt& stmt);
-    void visitBreakStmt(BreakStmt& stmt);
-    void visitExpressionStmt(ExpressionStmt&);
-    void visitFunctionStmt(FunctionStmt* stmt);
-    void visitIfStmt(IfStmt& stmt);
-    void visitPrintStmt(PrintStmt&);
-    void visitReturnStmt(ReturnStmt& stmt);
-    void visitVarStmt(VarStmt& stmt);
-    void visitWhileStmt(WhileStmt& stmt);
-    
-    TObject visitAssignExpr(AssignExpr& expr);
-    TObject visitBinaryExpr(BinaryExpr& expr);
-    TObject visitCallExpr(CallExpr& expr);
-    TObject visitGroupingExpr(GroupingExpr& expr);
-    TObject visitLogicalExpr(LogicalExpr& expr);
-    TObject visitLiteralExpr(LiteralExpr& expr); 
-    TObject visitUnaryExpr(UnaryExpr& expr);
-    TObject visitVariableExpr(VariableExpr& expr);
+    // expressions
+    TObject visitAssignExpr(AssignExpr& expr) override;
+    TObject visitBinaryExpr(BinaryExpr& expr) override;
+    TObject visitCallExpr(CallExpr& expr) override;
+    TObject visitGroupingExpr(GroupingExpr& expr) override;
+    TObject visitLogicalExpr(LogicalExpr& expr) override;
+    TObject visitLiteralExpr(LiteralExpr& expr) override; 
+    TObject visitUnaryExpr(UnaryExpr& expr) override;
+    TObject visitVariableExpr(VariableExpr& expr) override;
 
     TObject evaluate(PExpr& expr);
     void execute(PStmt& stmt);
+    void resolve(Expr& expr, int depth);
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
 
 private:
     PEnvironment m_environment;
     TObject m_result;
     const std::string errTitle = "InterpretError: ";
+    std::unordered_map<unsigned, int> m_locals;
+
     bool isTruthy(TObject& obj);
     bool isEqual(TObject& a, TObject& b);
     void checkNumberOperand(Token& op, TObject& operand);
     void checkNumberOperands(Token& op, TObject& left, TObject& right);
+    TObject lookUpVariable(Token& name, Expr& expr);
 
     // starts and ends for string
     inline bool startsWith(const std::string& str, const std::string& start) {

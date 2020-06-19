@@ -19,11 +19,11 @@ class Environment {
 protected:
     static int next_id;
 public:
-    int id;
+    int m_id;
     std::string m_name;
     
     Environment() 
-    : id(++next_id) { 
+    : m_id(++next_id) { 
         m_enclosing = nullptr;
         setName();
         // DEBUG_MSG("Ceci est un debug message.");
@@ -32,7 +32,7 @@ public:
     }
     
     explicit Environment(PEnvironment encl)
-        : id(++next_id), m_enclosing(encl) {
+        : m_id(++next_id), m_enclosing(encl) {
             setName();
             // std::cerr << "Env: copy ctor: " << m_name << "\n"; 
             logMsg("Env: copy ctor", m_name);
@@ -48,16 +48,21 @@ public:
 
     // construct name
     const std::string setName() { 
-        return m_name = "id: " + std::to_string(id) + ", (" + addressOf() + ")";
+        return m_name = "id: " + std::to_string(m_id) + ", (" + addressOf() + ")";
     }
 
+    size_t size() {  return m_values.size(); }
+
     TObject& get(Token name);
-    void assign(Token name, TObject value);
-    void define(const std::string& name, TObject value);
-    size_t size() {  return values.size(); }
+    void assign(Token name, TObject val);
+
+    void define(const std::string& name, TObject val);
+    TObject getAt(int distance, const std::string& name);
+    Environment* ancestor(int distance);
+    void assignAt(int distance, Token& name, std::shared_ptr<TObject> val);
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<TObject>> values = {};
+    std::unordered_map<std::string, std::shared_ptr<TObject>> m_values = {};
     PEnvironment m_enclosing;
 
 };

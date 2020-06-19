@@ -34,6 +34,8 @@ public:
         : id(++next_id) { 
         // std::cerr << "C.tor, id: " << id << "\n";
         type_id = LukType::Nil;  
+        p_string = nullptr;
+        p_callable = nullptr;
     }
 
     LukObject(bool val) 
@@ -62,14 +64,12 @@ public:
         p_string = std::make_shared<std::string>(val);
     }
     
-    // /* 
     LukObject(std::shared_ptr<LukCallable> callable)
         : id(++next_id) { 
         type_id = LukType::Callable;
         p_callable = callable; // std::make_shared<LukCallable>(callable);
         p_string = std::make_shared<std::string>(callable->toString());
     }
-    // */
 
         
     LukObject(Token tok);

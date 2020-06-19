@@ -33,7 +33,7 @@ public:
     LukFunction(const LukFunction&) = delete;
     LukFunction(LukFunction&&) = delete;
 
-    ~LukFunction() {} 
+    ~LukFunction() { std::cerr << "Destructor lukfunction: " << this << "\n"; } 
     virtual std::string addressOf()  override {  
         std::ostringstream oss;
         oss << "LukFunction address: " << this;
@@ -54,17 +54,13 @@ public:
         }
         
         try {
-            logMsg("LukFunction, env name: ", env->m_name, "size: ", env->size(), 
-                "\nm_closure name: ", m_closure->m_name, "size: ", m_closure->size());
             interp.executeBlock(m_declaration->body, env);
         } catch(Return& ret) {
-            logMsg("Catch Return Value: ", ret.value.value());
             return ret.value;
         }
         
-        return LukObject();
+        return TObject();
    }
-   
 
    virtual std::string toString() const override { return "<Function " + m_declaration->name.lexeme + ">"; }
 

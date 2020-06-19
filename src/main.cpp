@@ -5,6 +5,7 @@
 #include "token.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
+#include "resolver.hpp"
 #include "interpreter.hpp"
 
 using namespace std;
@@ -44,18 +45,17 @@ static void run(const std::string& source, LukError& lukErr) {
     // /*
     // parser
     Parser parser(std::move(tokens), lukErr);
-    // auto expr = parser.parse();
     auto stmts = parser.parse();
     // if found error during parsing, report
-    if (lukErr.hadError) {
-        return;
-    }
-    // */
+    if (lukErr.hadError)  return;
+    static Interpreter  interp;
+    Resolver resol(interp, lukErr);
+    resol.resolve((stmts));
+    
+    // Stop if there was a resolution error.
+    if (lukErr.hadError) return;
     
     // Interpreter
-    static Interpreter  interp;
-    // convert smart pointer to raw pointer
-    // interp.print(expr.get());
     interp.interpret(std::move(stmts));
 
 
@@ -117,7 +117,8 @@ int main(int argc, char* argv[]) {
             const std::string line = argv[2];
             runCommand(line, lukErr);
         } else {
-            cout << "Usage: luky [filename]" << endl;
+            cout << "Usage: luky [filename]\n" 
+              << "-c: line" << endl;
         }
     } else if (argc == 2) {
         cout << "Run file " << argv[1] << endl;

@@ -14,6 +14,7 @@ public:
     void error(const std::string& title, int line, int col, 
             const std::string& message);
     void error(const std::string& title, Token& token, const std::string& message);
+    void error(const std::string& title, const std::string& message);
     void report(const std::string& title, int line, int col, 
             const std::string& where, 
             const std::string& message) const;
