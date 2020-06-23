@@ -37,6 +37,11 @@ void Environment::assign(Token name, TObject val) {
 
 }
 
+void Environment::assign(Token name, std::shared_ptr<LukCallable> callable) {
+  assign(name, LukObject(callable));
+
+}
+
 void Environment::define(const std::string& name, TObject val) {
     m_values[name] =  std::make_shared<TObject>(val);
 }

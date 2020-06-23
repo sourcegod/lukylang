@@ -48,6 +48,18 @@ PStmt Parser::statement() {
     return  expressionStatement();
 }
 
+std::vector<PStmt> Parser::block() {
+    std::vector<PStmt> statements;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        statements.emplace_back( declaration() );
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+
+    return statements;
+}
+
+
 PStmt Parser::breakStatement() {
     Token keyword = previous();
     consume(TokenType::SEMICOLON, "Expect ';' after break statement");
@@ -155,6 +167,36 @@ PStmt Parser::varDeclaration() {
     return PStmt(new VarStmt(name, std::move(initializer)) );
 }
 
+PStmt Parser::classDeclaration() {
+    // TODO: convert all unique_ptr to shared_ptr 
+    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
+    
+    std::vector<PStmt> methods;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+      methods.push_back(function("method"));
+
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
+  
+    return PStmt(new ClassStmt(name, std::move(methods) ));
+}
+
+PStmt Parser::declaration() {
+    try {
+        if  (match({TokenType::CLASS})) return classDeclaration();
+        if (match({TokenType::FUN})) return function("function");
+        if (match({TokenType::VAR})) return varDeclaration();
+        
+        return statement();
+    } catch (ParseError err) {
+        synchronize();
+        return nullptr;
+    }
+
+}
+
 PStmt Parser::expressionStatement() {
     PExpr expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
@@ -185,17 +227,6 @@ PStmt Parser::function(std::string kind) {
 
 }
 
-
-std::vector<PStmt> Parser::block() {
-    std::vector<PStmt> statements;
-    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-        statements.emplace_back( declaration() );
-    }
-
-    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
-
-    return statements;
-}
 
 PExpr Parser::expression() {
     return assignment();
@@ -238,22 +269,6 @@ PExpr Parser::logicAnd() {
 
     return left;
 }
-
-
-PStmt Parser::declaration() {
-    try {
-        
-        if (match({TokenType::FUN})) return function("function");
-        if (match({TokenType::VAR})) return varDeclaration();
-        
-        return statement();
-    } catch (ParseError err) {
-        synchronize();
-        return nullptr;
-    }
-
-}
-
 
 PExpr Parser::equality() {
     PExpr expr = comparison();

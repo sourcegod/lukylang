@@ -162,6 +162,13 @@ void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
 
 }
 
+void Resolver::visitClassStmt(ClassStmt& stmt) {
+  declare(stmt.m_name);
+  define(stmt.m_name);
+
+}
+
+
 void Resolver::visitIfStmt(IfStmt& stmt) {
   resolve(stmt.condition);
   resolve(stmt.thenBranch);

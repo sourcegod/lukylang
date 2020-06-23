@@ -55,6 +55,7 @@ public:
 
     TObject& get(Token name);
     void assign(Token name, TObject val);
+    void assign(Token name, std::shared_ptr<LukCallable> callable);
 
     void define(const std::string& name, TObject val);
     TObject getAt(int distance, const std::string& name);

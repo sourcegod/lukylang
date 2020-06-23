@@ -39,12 +39,15 @@ private:
     PStmt statement();
     std::vector<PStmt> block();
     PStmt breakStatement();
+    PStmt classDeclaration();
+    PStmt declaration();
     PStmt expressionStatement();
     PStmt forStatement();
     PStmt function(std::string kind);
     PStmt ifStatement();
     PStmt printStatement();
     PStmt returnStatement();
+    PStmt varDeclaration();
     PStmt whileStatement();
     
     PExpr expression();
@@ -52,9 +55,7 @@ private:
     PExpr logicOr();
     PExpr logicAnd();
     
-    PStmt declaration();
-    PStmt varDeclaration();
-    
+   
     PExpr equality();
     PExpr comparison();
     PExpr addition();

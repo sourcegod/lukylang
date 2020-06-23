@@ -22,6 +22,7 @@ public:
     // statements    
     void visitBlockStmt(BlockStmt& stmt) override;
     void visitBreakStmt(BreakStmt& stmt) override;
+    void visitClassStmt(ClassStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt&) override;
     void visitFunctionStmt(FunctionStmt* stmt) override;
     void visitIfStmt(IfStmt& stmt) override;

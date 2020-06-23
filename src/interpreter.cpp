@@ -6,6 +6,7 @@
 #include "lukfunction.hpp"
 #include "return.hpp"
 #include "logger.hpp"
+#include "lukclass.hpp"
 
 #include <iostream>
 #include <string>
@@ -120,6 +121,12 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
          
 }
 
+void Interpreter::visitClassStmt(ClassStmt& stmt) {
+    m_environment->define(stmt.m_name.lexeme, TObject());
+    auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme);
+    m_environment->assign(stmt.m_name, klass);
+
+}
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
     m_result = evaluate(stmt.expression);

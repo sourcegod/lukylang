@@ -11,6 +11,7 @@
 // forward declarations
 class BlockStmt;
 class BreakStmt;
+class ClassStmt;
 class Expr;
 class ExpressionStmt;
 class FunctionStmt;
@@ -23,10 +24,12 @@ class WhileStmt;
 
 using PStmt = std::unique_ptr<Stmt>;
 using PExpr =  std::unique_ptr<Expr>;
+using PFunc = std::unique_ptr<FunctionStmt>;
 
 class StmtVisitor {
 public:
     virtual void visitBlockStmt(BlockStmt&) =0;
+    virtual void visitClassStmt(ClassStmt&) =0;
     virtual void visitBreakStmt(BreakStmt&) =0;
     virtual void visitExpressionStmt(ExpressionStmt&) =0;
     virtual void visitFunctionStmt(FunctionStmt*) =0;
@@ -55,6 +58,22 @@ public:
     std::vector<PStmt> statements;
 
 };
+
+class ClassStmt : public Stmt {
+public:
+    ClassStmt(Token name, std::vector<PStmt>&& methods) {
+      m_name = name;  
+      m_methods = std::move(methods);
+    }
+
+    void accept(StmtVisitor& v) override {
+        v.visitClassStmt(*this);
+    }
+    Token m_name;
+    std::vector<PStmt> m_methods;
+
+};
+
 
 class BreakStmt : public Stmt {
 public:
