@@ -53,7 +53,9 @@ std::string LukObject::value() {
             case LukType::String: 
                 // return m_string;
                 return *p_string;
-            case LukType::Callable:  return *p_string;
+            case LukType::Callable: 
+            case LukType::Instance:  
+              return *p_string;
         }
 
         return "";
@@ -106,7 +108,9 @@ bool LukObject::_toBool() const {
         case LukType::Number: return m_number != 0;
         case LukType::String: return p_string != nullptr;
         // callables and classes are true by default
-        case LukType::Callable: return true;
+        case LukType::Callable:
+        case LukType::Instance: 
+            return true;
     }
     
     throw std::runtime_error("Invalid convertion to bool\n");
@@ -139,6 +143,7 @@ double LukObject::_toNumber() const {
         break;
 
         case LukType::Callable:  
+        case LukType::Instance:  
         break;
         
     }
@@ -153,7 +158,9 @@ std::string LukObject::_toString() const {
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Number: return std::to_string(m_number);
         case LukType::String: return *p_string;
-        case LukType::Callable: return *p_string;
+        case LukType::Callable: 
+        case LukType::Instance: 
+          return *p_string;
     }
     throw std::runtime_error("Cannot convert object to string.");
 
@@ -167,7 +174,9 @@ void LukObject::cast(LukType tp) {
         case LukType::Bool: m_bool = (bool)(*this); break;
         case LukType::Number: m_number = (double)(*this); break;
         case LukType::String: m_string = (std::string)(*this); break;
-        case LukType::Callable: break;
+        case LukType::Callable: 
+        case LukType::Instance: 
+            break;
     
     }
     type_id = tp;

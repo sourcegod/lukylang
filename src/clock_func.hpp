@@ -16,7 +16,7 @@ public:
     
     virtual size_t arity() const override { return 0; }
     virtual LukObject  call(Interpreter& interp, 
-           std::vector<LukObject>& args) const override {
+           std::vector<LukObject>& args) override {
         double dur = std::chrono::duration<double>(TClock::now() - m_start).count();
 
         return LukObject(dur);

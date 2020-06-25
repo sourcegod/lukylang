@@ -25,7 +25,7 @@ public:
     }
  
     virtual size_t arity() const = 0;
-    virtual LukObject call(Interpreter&, VArguments& v_args)  const = 0;
+    virtual LukObject call(Interpreter&, VArguments& v_args) =0;
     virtual std::string toString() const = 0;
 };
 

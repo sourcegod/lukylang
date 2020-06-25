@@ -42,7 +42,7 @@ public:
     
     virtual size_t arity() const override { return m_declaration->params.size(); }
     virtual LukObject  call(Interpreter& interp, 
-           std::vector<LukObject>& v_args) const override {
+           std::vector<LukObject>& v_args) override {
 
         TRACE_MSG("Call Function Tracer: ");
         // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";

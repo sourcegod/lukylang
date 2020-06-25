@@ -2,6 +2,8 @@
 #define LUKOBJECT_HPP
 
 #include "lukcallable.hpp"
+#include "lukinstance.hpp"
+
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
@@ -9,11 +11,12 @@
 
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
-    Callable =4
+    Callable =4, Instance=5
 };
 
 class Token;
 class LukCallable;
+// class LukInstance;
 
 class LukObject {
 protected:
@@ -27,6 +30,7 @@ public:
     std::string m_string = "";
     std::shared_ptr<std::string> p_string;
     std::shared_ptr<LukCallable> p_callable;
+    std::shared_ptr<LukInstance> p_instance;
 
  
     // constructors
@@ -36,6 +40,7 @@ public:
         type_id = LukType::Nil;  
         p_string = nullptr;
         p_callable = nullptr;
+        p_instance = nullptr;
     }
 
     LukObject(bool val) 
@@ -69,6 +74,13 @@ public:
         type_id = LukType::Callable;
         p_callable = callable; // std::make_shared<LukCallable>(callable);
         p_string = std::make_shared<std::string>(callable->toString());
+    }
+
+    LukObject(std::shared_ptr<LukInstance> instance)
+        : id(++next_id) { 
+        type_id = LukType::Instance;
+        p_instance = instance; 
+        p_string = std::make_shared<std::string>(instance->toString());
     }
 
         
@@ -107,6 +119,7 @@ public:
     bool isDouble() { return type_id == LukType::Number; }
     bool isString() { return type_id == LukType::String; }
     bool isCallable() { return type_id == LukType::Callable; }
+    bool isInstance() { return type_id == LukType::Instance; }
 
     // getters
     LukObject getNil() {
@@ -119,6 +132,7 @@ public:
     std::string& getString() { return m_string; }
     std::shared_ptr<std::string> getPtrString() { return p_string; }
     std::shared_ptr<LukCallable> getCallable() { return p_callable; }
+    std::shared_ptr<LukInstance> getInstance() { return p_instance; }
     
 
     // casting to the right type
