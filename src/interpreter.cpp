@@ -94,7 +94,7 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
 
         }
 
-    // Note: must catch all exceptions, event the Return exception.
+    // Note: must catch all exceptions, even the Return exception.
     } catch(...) {
         m_environment = previous;
         // throw up the exception
@@ -142,7 +142,7 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
     auto val  = evaluate(stmt.condition);
     if (isTruthy(val)) {
         // Note: no moving statement pointer, because
-        // it will be necessary for function call
+        // it will be necessary later, for function call
         // execute(std::move(stmt.thenBranch));
         // stmt.thenBranch->accept(*this);
         execute(stmt.thenBranch);

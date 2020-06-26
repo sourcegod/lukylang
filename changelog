@@ -32,7 +32,7 @@ Date: mardi, 17/12/19
 Date: mercredi, 11/12/19
 -- Adding: LukFunction, FunctionStmt object.
 Note: C++11 can only store polymorphic or derived class with pointers or smart
-pointers.
+pointers in container like vector or unordered_map.
 Otherwise, derived object will be slicing.
 It took me more one month to realize this, and fixe this bug in LukFunction
 object.

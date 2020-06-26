@@ -8,9 +8,9 @@ size_t LukClass::arity() const { return 0; }
 LukObject  LukClass::call(Interpreter& interp, 
            std::vector<LukObject>& v_args) {
     // Note: "this" is a const pointer, 
-    // so the function should be not const
-    // otherwire "this" is const type* const
-    // so bug, when to pass it as parameter.
+    // so the current function should be not const
+    // otherwire "this" is casting const type* const
+    // so not compile, when passing it as parameter to lukinstance object.
     auto instance = std::make_shared<LukInstance>( this );
     return LukObject(instance);
 }

@@ -1,0 +1,65 @@
+Notes on Luky development in C++11
+Date: vendredi, 26/06/2020
+Author: Coolbrother
+  1. Compile
+-- Using SConstruct file with scons script.
+-- Release version:
+g++ -std=c++11 -Wall -Wextra -pedantic -DNDEBUG *.cpp
+
+-- Debug version:
+With DEBUG option: -DDEBUG
+
+-- Tracer version: 
+with tracer option: -DTRACER
+
+-- Gdb version:
+with gdb option: -g
+
+  2. Tools
+-- Using rlwrap tool to adding readline and history feature to REPL luky
+interpreter.
+  3. Bugs
+-- In the REPL, after declaring an user function,
+cannot call this function, in a separate new line.
+Works well, when calling this function in the same line, so in the same
+interpreter instance.
+
+  4. lukfunction object
+-- In call function: 
+C++11 can only store polymorphic or derived class with pointers or smart
+pointers in container like vector or unordered_map.
+Otherwise, derived object will be slicing.
+It took me more one month to realize this, and fixe this bug in LukFunction
+object.
+
+
+  5. lukclass object 
+-- In call function:
+"this" is a const pointer, so the current function should be not const
+otherwire "this" is casting to const type* const
+so not compile, when passing it as parameter to lukinstance object.
+
+  6. Interpreter object
+-- In interpret function:
+When catching error, passing exception by reference to avoid copy
+
+--  In executeBlock function:
+Using catch(...) to catch all exceptions, even the Return exception.
+-- In visitIfStmt function:
+Not moving statement pointer, 
+like: execute(std::move(stmt.thenBranch));
+because it will be necessary later, for function call
+
+
+  7. Lukobject object
+-- Operators like equality operators, are non member functions
+therefore there are declared friends
+Also, for binary operators, object a is passing by copy not by reference
+so the original object a stay unchanged
+  
+-- In resolve function:
+FIX: abstract class "Expr" cannot be in map
+so, we store its uniq id in the map
+
+  8.
+
