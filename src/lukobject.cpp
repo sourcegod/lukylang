@@ -17,21 +17,21 @@ LukObject::LukObject(Token tok)
     // std::cerr << "C.tor with token, id: " << id << "\n";
     switch(tok.type) {
         case TokenType::NIL:
-            type_id = LukType::Nil; break;
+            m_type = LukType::Nil; break;
         case TokenType::TRUE: 
-            type_id = LukType::Bool;
+            m_type = LukType::Bool;
             m_bool = true; 
             break;
         case TokenType::FALSE: 
-            type_id = LukType::Bool;
+            m_type = LukType::Bool;
             m_bool = false; 
             break;
         case TokenType::NUMBER: 
-            type_id = LukType::Number;
+            m_type = LukType::Number;
             m_number = std::stod(tok.literal); 
             break;
         case TokenType::STRING: 
-            type_id = LukType::String;
+            m_type = LukType::String;
             // m_string = tok.literal;
             p_string = std::make_shared<std::string>(tok.literal);
             break;
@@ -43,7 +43,7 @@ LukObject::LukObject(Token tok)
 
 // returns the current value to string
 std::string LukObject::value() {
-        switch(type_id) {
+        switch(m_type) {
             case LukType::Nil: 
                 return "nil";
             case LukType::Bool: 
@@ -63,16 +63,16 @@ std::string LukObject::value() {
 
 // convertions
 bool LukObject::toBool() {
-        if (type_id == LukType::Bool) return m_bool;
+        if (m_type == LukType::Bool) return m_bool;
         m_bool = _toBool();
-        type_id = LukType::Bool;
+        m_type = LukType::Bool;
         return m_bool;
     }
 
 double LukObject::toNumber() {
-        if (type_id == LukType::Number) return m_number;
+        if (m_type == LukType::Number) return m_number;
         m_number = _toNumber();
-        type_id = LukType::Number;
+        m_type = LukType::Number;
         return m_number;
     }
     
@@ -95,14 +95,14 @@ T LukObject::stringToNumber(const std::string& stg)
     // double number = stringToNumber<double>("0.6");
 
 std::string LukObject::toString() {
-        if (type_id == LukType::String) return m_string;
+        if (m_type == LukType::String) return m_string;
         m_string = _toString();
-        type_id = LukType::String;
+        m_type = LukType::String;
         return m_string;
 }
 
 bool LukObject::_toBool() const {
-    switch(type_id) {
+    switch(m_type) {
         case LukType::Nil: return false;
         case LukType::Bool: return m_bool != 0;
         case LukType::Number: return m_number != 0;
@@ -119,7 +119,7 @@ bool LukObject::_toBool() const {
 }
 
 double LukObject::_toNumber() const {
-    switch(type_id) {
+    switch(m_type) {
         case LukType::Nil: return 0.;
         case LukType::Bool: return m_bool ? 1.0 : 0.0;
         case LukType::Number: return m_number;
@@ -153,7 +153,7 @@ double LukObject::_toNumber() const {
 }
 
 std::string LukObject::_toString() const {
-    switch(type_id) {
+    switch(m_type) {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Number: return std::to_string(m_number);
@@ -168,7 +168,7 @@ std::string LukObject::_toString() const {
 }
 // casting to the right type
 void LukObject::cast(LukType tp) {
-    if (type_id == tp) return;
+    if (m_type == tp) return;
     switch(tp) {
         case LukType::Nil: break;
         case LukType::Bool: m_bool = (bool)(*this); break;
@@ -179,14 +179,14 @@ void LukObject::cast(LukType tp) {
             break;
     
     }
-    type_id = tp;
+    m_type = tp;
 
 }
 
 // assignment operators
 /*
 LukObject& LukObject::operator=(nullptr_t nullptr) {
-        type_id = LukType::Nil;
+        m_type = LukType::Nil;
         return *this;
 }
 */
@@ -194,7 +194,7 @@ LukObject& LukObject::operator=(nullptr_t nullptr) {
 LukObject& LukObject::operator=(const bool&& val) 
 {
     id = ++next_id;
-    type_id = LukType::Bool;
+    m_type = LukType::Bool;
     m_bool = val;
     return *this;
 }
@@ -202,7 +202,7 @@ LukObject& LukObject::operator=(const bool&& val)
 LukObject& LukObject::operator=(const int&& val) 
 {
     id = ++next_id;
-    type_id = LukType::Number;
+    m_type = LukType::Number;
     m_number = val;
     return *this;
 }
@@ -210,7 +210,7 @@ LukObject& LukObject::operator=(const int&& val)
 LukObject& LukObject::operator=(const double&& val) 
 {
     id = ++next_id;
-    type_id = LukType::Number;
+    m_type = LukType::Number;
     m_number = val;
     return *this;
 }
@@ -219,7 +219,7 @@ LukObject& LukObject::operator=(const double&& val)
 LukObject& LukObject::operator=(const char* &&val) 
 {
     id = ++next_id;
-    type_id = LukType::String;
+    m_type = LukType::String;
     m_string = std::string(val);
     return *this;
 }
@@ -227,7 +227,7 @@ LukObject& LukObject::operator=(const char* &&val)
 
 LukObject& LukObject::operator=(const std::string&& val) { 
     id = ++next_id;
-    type_id = LukType::String;
+    m_type = LukType::String;
     m_string = val;
     return *this;
 }
@@ -237,7 +237,7 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     if (this == &obj) return *this;
     id = ++next_id;
     // std::cerr << "Copy Assignement, id: " << id << "\n";
-    type_id = obj.type_id;
+    m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
     // m_string = obj.m_string;
@@ -255,7 +255,7 @@ LukObject& LukObject::operator=(const LukObject&& obj) {
     if (this == &obj) return *this;
     id = ++next_id;
         // std::cerr << "Move Assignement, id: " << id << "\n";
-    type_id = obj.type_id;
+    m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
     // m_string = std::move(obj.m_string);
@@ -273,8 +273,8 @@ LukObject& LukObject::operator=(const LukObject&& obj) {
 // += operator
 LukObject& LukObject::operator+=(const LukObject& obj) {
     std::ostringstream oss;
-    if (type_id == obj.type_id)  {
-        switch(type_id) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
             case LukType::Nil:
                 throw std::runtime_error("Cannot add nil");
             case LukType::Bool:
@@ -294,12 +294,12 @@ LukObject& LukObject::operator+=(const LukObject& obj) {
         return (*this);
     }
     
-    if (type_id < obj.type_id) {
-        cast(obj.type_id);
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
         return (*this) += obj;
     } else {
         auto ob = obj;
-        ob.cast(type_id);
+        ob.cast(m_type);
         return (*this) += ob;
     }
 
@@ -307,8 +307,8 @@ LukObject& LukObject::operator+=(const LukObject& obj) {
 
 // -= operator
 LukObject& LukObject::operator-=(const LukObject& obj) {
-    if (type_id == obj.type_id)  {
-        switch(type_id) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
             case LukType::Nil:
                 throw std::runtime_error("Cannot substract nil");
             case LukType::Bool:
@@ -324,12 +324,12 @@ LukObject& LukObject::operator-=(const LukObject& obj) {
         return (*this);
     }
     
-    if (type_id < obj.type_id) {
-        cast(obj.type_id);
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
         return (*this) -= obj;
     } else {
         auto ob = obj;
-        ob.cast(type_id);
+        ob.cast(m_type);
         return (*this) -= ob;
     }
 
@@ -338,8 +338,8 @@ LukObject& LukObject::operator-=(const LukObject& obj) {
 
 // *= operator
 LukObject& LukObject::operator*=(const LukObject& obj) {
-    if (type_id == obj.type_id)  {
-        switch(type_id) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
             case LukType::Nil:
                 throw std::runtime_error("Cannot multiply nil");
             case LukType::Bool:
@@ -355,12 +355,12 @@ LukObject& LukObject::operator*=(const LukObject& obj) {
         return (*this);
     }
     
-    if (type_id < obj.type_id) {
-        cast(obj.type_id);
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
         return (*this) *= obj;
     } else {
         auto ob = obj;
-        ob.cast(type_id);
+        ob.cast(m_type);
         return (*this) *= ob;
     }
 
@@ -368,8 +368,8 @@ LukObject& LukObject::operator*=(const LukObject& obj) {
 
 // /= operator
 LukObject& LukObject::operator/=(const LukObject& obj) {
-    if (type_id == obj.type_id)  {
-        switch(type_id) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
             case LukType::Nil:
                 throw std::runtime_error("Cannot divide nil");
             case LukType::Bool:
@@ -385,12 +385,12 @@ LukObject& LukObject::operator/=(const LukObject& obj) {
         return (*this);
     }
     
-    if (type_id < obj.type_id) {
-        cast(obj.type_id);
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
         return (*this) /= obj;
     } else {
         auto ob = obj;
-        ob.cast(type_id);
+        ob.cast(m_type);
         return (*this) /= ob;
     }
 
@@ -399,7 +399,7 @@ LukObject& LukObject::operator/=(const LukObject& obj) {
 // unary operators
 // unary minus operator
 LukObject operator-(LukObject a) {
-    switch(a.type_id) {
+    switch(a.m_type) {
         case LukType::Number: a.m_number = -a.m_number; break;
         default: 
             throw std::runtime_error("Unary minus cannot apply for this type.");
@@ -410,7 +410,7 @@ LukObject operator-(LukObject a) {
    
 // unary not operator
 LukObject operator!(LukObject a) {
-    switch(a.type_id) {
+    switch(a.m_type) {
         case LukType::Nil: a.m_bool = true; break;
         case LukType::Bool:  a.m_bool = !a.m_bool; break;
         case LukType::Number: 
@@ -421,7 +421,7 @@ LukObject operator!(LukObject a) {
             throw std::runtime_error("cannot negate object.");
     }
 
-    a.type_id = LukType::Bool;
+    a.m_type = LukType::Bool;
     return a;
 }
 
@@ -429,8 +429,8 @@ LukObject operator!(LukObject a) {
 // equality == operator
 // /*
 bool operator==(const LukObject& a, const LukObject& b) {
-    if (a.type_id == b.type_id) {
-        switch(a.type_id) {
+    if (a.m_type == b.m_type) {
+        switch(a.m_type) {
             case LukType::Nil: return true;
             case LukType::Bool: return a.m_bool == b.m_bool;
             case LukType::Number: return a.m_number == b.m_number;
@@ -440,9 +440,9 @@ bool operator==(const LukObject& a, const LukObject& b) {
         }
     }
 
-    if (a.type_id > b.type_id) return b == a;
-    if (a.type_id == LukType::Nil || b.type_id == LukType::Nil) return false;
-    switch(a.type_id) {
+    if (a.m_type > b.m_type) return b == a;
+    if (a.m_type == LukType::Nil || b.m_type == LukType::Nil) return false;
+    switch(a.m_type) {
         case LukType::Bool: return a.m_bool == (bool)b;
         case LukType::Number: return a.m_number == (double)b;
         case LukType::String: return a.m_string == (std::string)b;
@@ -465,8 +465,8 @@ bool operator>(LukType a, LukType b) {
 
 
 bool operator<(const LukObject& a, const LukObject& b) {
-    if (a.type_id == b.type_id) {
-        switch(a.type_id) {
+    if (a.m_type == b.m_type) {
+        switch(a.m_type) {
             case LukType::Nil:
             case LukType::Bool:
                 throw std::runtime_error("Nil and Bool cannot odered.");

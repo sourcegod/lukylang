@@ -24,7 +24,7 @@ protected:
 
 public:
     int id;
-    LukType type_id;
+    LukType m_type;
     bool m_bool = false;
     double m_number =0;
     std::string m_string = "";
@@ -37,7 +37,7 @@ public:
     LukObject() 
         : id(++next_id) { 
         // std::cerr << "C.tor, id: " << id << "\n";
-        type_id = LukType::Nil;  
+        m_type = LukType::Nil;  
         p_string = nullptr;
         p_callable = nullptr;
         p_instance = nullptr;
@@ -45,40 +45,43 @@ public:
 
     LukObject(bool val) 
         : id(++next_id) {
-        type_id = LukType::Bool; m_bool = val; 
+        m_type = LukType::Bool; m_bool = val; 
     }
     
     LukObject(int val) 
-        : id(++next_id) { type_id = LukType::Number; m_number = val; }
+        : id(++next_id) { m_type = LukType::Number; m_number = val; }
 
     LukObject(double val) 
-        : id(++next_id)
-    { type_id = LukType::Number; m_number = val; }
+        : id(++next_id) {
+      m_type = LukType::Number; 
+      m_number = val; 
+    }
+    
     LukObject(const std::string& val) 
         : id(++next_id) { 
         // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
-        type_id = LukType::String; 
+        m_type = LukType::String; 
         // m_string = val; 
         p_string = std::make_shared<std::string>(val);
     }
 
     LukObject(const char* val) 
         : id(++next_id) { 
-        type_id = LukType::String; 
+        m_type = LukType::String; 
         // m_string = std::string(val); 
         p_string = std::make_shared<std::string>(val);
     }
     
     LukObject(std::shared_ptr<LukCallable> callable)
         : id(++next_id) { 
-        type_id = LukType::Callable;
+        m_type = LukType::Callable;
         p_callable = callable; // std::make_shared<LukCallable>(callable);
         p_string = std::make_shared<std::string>(callable->toString());
     }
 
     LukObject(std::shared_ptr<LukInstance> instance)
         : id(++next_id) { 
-        type_id = LukType::Instance;
+        m_type = LukType::Instance;
         p_instance = instance; 
         p_string = std::make_shared<std::string>(instance->toString());
     }
@@ -93,7 +96,7 @@ public:
 
        
     // get the type id
-    LukType getType() { return type_id; }
+    LukType getType() { return m_type; }
 
     // get the id name
     std::string getName() { 
@@ -113,13 +116,13 @@ public:
     T stringToNumber(const std::string& stg);
 
     // test type state
-    bool isNil() { return type_id == LukType::Nil; }
-    bool isBool() { return type_id == LukType::Bool; }
-    bool isNumber() { return type_id == LukType::Number; }
-    bool isDouble() { return type_id == LukType::Number; }
-    bool isString() { return type_id == LukType::String; }
-    bool isCallable() { return type_id == LukType::Callable; }
-    bool isInstance() { return type_id == LukType::Instance; }
+    bool isNil() { return m_type == LukType::Nil; }
+    bool isBool() { return m_type == LukType::Bool; }
+    bool isNumber() { return m_type == LukType::Number; }
+    bool isDouble() { return m_type == LukType::Number; }
+    bool isString() { return m_type == LukType::String; }
+    bool isCallable() { return m_type == LukType::Callable; }
+    bool isInstance() { return m_type == LukType::Instance; }
 
     // getters
     LukObject getNil() {
@@ -238,6 +241,7 @@ inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
         case Type::Number: return ost << "<Number>";
         case Type::String: return ost << "<String>";
         case Type::Callable: return ost << "<Callable>";
+        case Type::Instance: return ost << "<Instance>";
     }
     
     return ost << "Invalid Object type";

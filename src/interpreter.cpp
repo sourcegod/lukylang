@@ -77,7 +77,7 @@ void Interpreter::execute(PStmt& stmt) {
 }
 
 void Interpreter::resolve(Expr& expr, int depth) {
-  // FIX: abstract class Expr cannot be in map
+  // Note: FIX: abstract class Expr cannot be in map
   // so, we store its uniq id in the map
   m_locals[expr.id()] = depth;
 }
