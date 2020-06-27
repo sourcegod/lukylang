@@ -5,6 +5,8 @@
 
 #include "lukobject.hpp"
 #include "token.hpp"
+#include "lukcallable.hpp"
+#include "lukinstance.hpp"
 
 #include <iostream> // cout and cerr
 #include <sstream> // ostringstream
@@ -12,6 +14,61 @@
 
 int LukObject::next_id =0;
 // constructors
+    
+LukObject::LukObject() 
+    : id(++next_id) { 
+    // std::cerr << "C.tor, id: " << id << "\n";
+    m_type = LukType::Nil;  
+    p_string = nullptr;
+    p_callable = nullptr;
+    p_instance = nullptr;
+}
+
+LukObject::LukObject(bool val) 
+    : id(++next_id) {
+    m_type = LukType::Bool; m_bool = val; 
+}
+
+LukObject::LukObject(int val) 
+    : id(++next_id) { 
+      m_type = LukType::Number; m_number = val; 
+}
+
+LukObject::LukObject(double val) 
+    : id(++next_id) {
+  m_type = LukType::Number; 
+  m_number = val; 
+}
+
+LukObject::LukObject(const std::string& val) 
+    : id(++next_id) { 
+    // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
+    m_type = LukType::String; 
+    // m_string = val; 
+    p_string = std::make_shared<std::string>(val);
+}
+
+LukObject::LukObject(const char* val) 
+    : id(++next_id) { 
+    m_type = LukType::String; 
+    // m_string = std::string(val); 
+    p_string = std::make_shared<std::string>(val);
+}
+
+LukObject::LukObject(std::shared_ptr<LukCallable> callable)
+    : id(++next_id) { 
+    m_type = LukType::Callable;
+    p_callable = callable; // std::make_shared<LukCallable>(callable);
+    p_string = std::make_shared<std::string>(callable->toString());
+}
+
+LukObject::LukObject(std::shared_ptr<LukInstance> instance)
+        : id(++next_id) { 
+        m_type = LukType::Instance;
+        p_instance = instance; 
+        p_string = std::make_shared<std::string>(instance->toString());
+    }
+
 LukObject::LukObject(Token tok) 
         : id(++next_id) {
     // std::cerr << "C.tor with token, id: " << id << "\n";

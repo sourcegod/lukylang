@@ -1,22 +1,26 @@
 #ifndef LUKOBJECT_HPP
 #define LUKOBJECT_HPP
 
-#include "lukcallable.hpp"
-#include "lukinstance.hpp"
-
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
 #include <memory>
 
+// Note: best practice:
+// to avoid circular dependencies files,
+// make forward declarations in the header files,
+// and make definitions classes in the source (.cpp) files
+// and the include headers files.
+
+// forward declarations
+class Token;
+class LukCallable;
+class LukInstance;
+
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
     Callable =4, Instance=5
 };
-
-class Token;
-class LukCallable;
-// class LukInstance;
 
 class LukObject {
 protected:
@@ -34,59 +38,14 @@ public:
 
  
     // constructors
-    LukObject() 
-        : id(++next_id) { 
-        // std::cerr << "C.tor, id: " << id << "\n";
-        m_type = LukType::Nil;  
-        p_string = nullptr;
-        p_callable = nullptr;
-        p_instance = nullptr;
-    }
-
-    LukObject(bool val) 
-        : id(++next_id) {
-        m_type = LukType::Bool; m_bool = val; 
-    }
-    
-    LukObject(int val) 
-        : id(++next_id) { m_type = LukType::Number; m_number = val; }
-
-    LukObject(double val) 
-        : id(++next_id) {
-      m_type = LukType::Number; 
-      m_number = val; 
-    }
-    
-    LukObject(const std::string& val) 
-        : id(++next_id) { 
-        // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
-        m_type = LukType::String; 
-        // m_string = val; 
-        p_string = std::make_shared<std::string>(val);
-    }
-
-    LukObject(const char* val) 
-        : id(++next_id) { 
-        m_type = LukType::String; 
-        // m_string = std::string(val); 
-        p_string = std::make_shared<std::string>(val);
-    }
-    
-    LukObject(std::shared_ptr<LukCallable> callable)
-        : id(++next_id) { 
-        m_type = LukType::Callable;
-        p_callable = callable; // std::make_shared<LukCallable>(callable);
-        p_string = std::make_shared<std::string>(callable->toString());
-    }
-
-    LukObject(std::shared_ptr<LukInstance> instance)
-        : id(++next_id) { 
-        m_type = LukType::Instance;
-        p_instance = instance; 
-        p_string = std::make_shared<std::string>(instance->toString());
-    }
-
-        
+    LukObject();
+    LukObject(bool val); 
+    LukObject(int val); 
+    LukObject(double val);
+    LukObject(const std::string& val);
+    LukObject(const char* val);
+    LukObject(std::shared_ptr<LukCallable> callable);
+    LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
    
     // destructor is necessary

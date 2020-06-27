@@ -1,14 +1,11 @@
 #ifndef LUKINSTANCE_HPP
 #define LUKINSTANCE_HPP
 
-// #include "lukobject.hpp"
-#include "lukclass.hpp"
-
 #include <string>
 #include <vector>
 #include <memory>
 
-
+class LukClass;
 class LukInstance  {
 public:
     explicit LukInstance(LukClass* klass)

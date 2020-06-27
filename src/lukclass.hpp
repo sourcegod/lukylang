@@ -2,7 +2,6 @@
 #define LUKCLASS_HPP
 
 #include "lukcallable.hpp"
-
 #include <string>
 #include <vector>
 #include <memory>

@@ -23,15 +23,12 @@ class Interpreter;
 
 class LukFunction : public LukCallable {
 public:
-    // WARNING: cannot copy assignment derived object like FunctionStmt ..
-    // so passing it by pointer.
+    // Note: WARNING: cannot copy assignment derived object like FunctionStmt ..
+    // so passing it by raw pointer.
     LukFunction(FunctionStmt* declaration, PEnvironment closure) : 
       m_declaration(declaration),
       m_closure(closure) {}
     
-    LukFunction() = delete;
-    LukFunction(const LukFunction&) = delete;
-    LukFunction(LukFunction&&) = delete;
 
     ~LukFunction() { std::cerr << "Destructor lukfunction: " << this << "\n"; } 
     virtual std::string addressOf()  override {  
