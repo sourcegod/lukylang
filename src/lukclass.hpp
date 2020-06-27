@@ -14,9 +14,7 @@ public:
     : m_name(name) {}
 
     virtual size_t arity() const override;
-    virtual LukObject  call(Interpreter& interp, 
-           std::vector<LukObject>& v_args) override;
-
+    virtual LukObject  call(Interpreter& interp, std::vector<LukObject>& v_args) override;
    virtual std::string toString() const override;
 
 private:
