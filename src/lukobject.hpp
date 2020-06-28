@@ -1,6 +1,7 @@
 #ifndef LUKOBJECT_HPP
 #define LUKOBJECT_HPP
 
+#include "lukinstance.hpp"
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
@@ -15,9 +16,8 @@
 // forward declarations
 class Token;
 class LukCallable;
-class LukInstance;
 class LukObject;
-
+class LukInstance;
 using TObject = LukObject;
 using ObjPtr = std::shared_ptr<LukObject>;
 

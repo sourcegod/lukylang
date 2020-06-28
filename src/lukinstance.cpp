@@ -2,16 +2,20 @@
 #include "lukobject.hpp"
 #include "lukclass.hpp"
 #include "token.hpp"
+#include "runtimeerror.hpp"
 
 #include <memory>
 
-std::shared_ptr<LukObject> LukInstance::get(Token& tok) {
-    auto elem = m_fields.find(tok.lexeme);
+ObjPtr LukInstance::get(Token& name) {
+    auto elem = m_fields.find(name.lexeme);
     if (elem != m_fields.end()) {
       return elem->second;
     }
   
-    // return
+    throw RuntimeError(name, 
+        "Undefined property '" + name.lexeme + "'.");
+    // unrichable
+    return TObject::getNilPtr();
 }
 
 std::ostream& operator<<(std::ostream& oss, const LukInstance& li) {

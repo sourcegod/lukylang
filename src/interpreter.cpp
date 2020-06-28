@@ -287,8 +287,8 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
 TObject Interpreter::visitGetExpr(GetExpr& expr) {
   auto obj = evaluate(expr.m_object);
   if (obj.isInstance()) {
-    return TObject();
-    // return obj.getInstance()->get(expr.m_name.lexeme);
+    auto obj_ptr = obj.getInstance()->get(expr.m_name);
+    return obj_ptr.get();
   }
 
   throw RuntimeError(expr.m_name,

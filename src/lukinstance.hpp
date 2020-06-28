@@ -1,6 +1,6 @@
 #ifndef LUKINSTANCE_HPP
 #define LUKINSTANCE_HPP
-
+#include "lukobject.hpp"
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -10,17 +10,19 @@ class LukObject;
 class Token;
 
 class LukInstance  {
+  // FIXME: temporary, this alias is allready in lukobject.hpp
+    using ObjPtr = std::shared_ptr<LukObject>;
 public:
     explicit LukInstance(LukClass* klass)
       : m_klass(klass)
     {}
 
     virtual std::string toString() const { return  "<m_klass->m_name  instance>"; }
-    std::shared_ptr<LukObject> get(Token& tok);
+    ObjPtr get(Token& name);
 
 private:
    LukClass* m_klass;
-   std::unordered_map<std::string, std::shared_ptr<LukObject>> m_fields;
+   std::unordered_map<std::string, ObjPtr> m_fields;
 
 };
 
