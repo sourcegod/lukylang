@@ -316,6 +316,21 @@ TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
     return expr.value;
 }
 
+TObject Interpreter::visitSetExpr(SetExpr& expr) {
+  auto obj = evaluate(expr.m_object);
+  if (not obj.isInstance()) {
+    throw RuntimeError(expr.m_name,
+      "Only instances have fields.");
+  }
+  // TODO: evaluate function must returns lukobject with smart pointer
+  auto value = evaluate(expr.m_value);
+  auto val_ptr = std::make_shared<LukObject>(value);
+  obj.getInstance()->set(expr.m_name, val_ptr);
+ 
+  return value;
+}
+
+
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
     TObject right = evaluate(expr.right);
     switch(expr.op.type) {

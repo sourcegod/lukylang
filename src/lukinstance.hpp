@@ -1,5 +1,6 @@
 #ifndef LUKINSTANCE_HPP
 #define LUKINSTANCE_HPP
+
 #include "lukobject.hpp"
 #include <string>
 #include <memory>
@@ -19,6 +20,7 @@ public:
 
     virtual std::string toString() const { return  "<m_klass->m_name  instance>"; }
     ObjPtr get(Token& name);
+    void set(Token& name, ObjPtr value);
 
 private:
    LukClass* m_klass;

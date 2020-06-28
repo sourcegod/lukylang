@@ -16,6 +16,7 @@ class GetExpr;
 class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
+class SetExpr;
 class UnaryExpr;
 class VariableExpr;
 
@@ -31,6 +32,7 @@ class ExprVisitor {
         virtual TObject visitGroupingExpr(GroupingExpr&) =0;
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
         virtual TObject visitLogicalExpr(LogicalExpr&) =0;
+        virtual TObject visitSetExpr(SetExpr&) =0;
         virtual TObject visitUnaryExpr(UnaryExpr&) =0;
         virtual TObject visitVariableExpr(VariableExpr&) =0;
 };
@@ -47,8 +49,12 @@ public:
     virtual TObject accept(ExprVisitor &v) =0;
     virtual bool isCallExpr() const { return false; }
     virtual bool isGetExpr() const { return false; }
+    virtual bool isSetExpr() const { return false; }
     virtual bool isVariableExpr() const { return false; }
     virtual std::string typeName() const { return "Expr"; }
+    virtual Token getName() const { return Token(); }
+    virtual PExpr getObject() const { return nullptr; }
+
     virtual unsigned id() const { return m_id; }
 
 private:
@@ -118,8 +124,9 @@ public:
       m_name(name) {}
     bool isGetExpr() const override { return true; }
     std::string typeName() const override { return "GetExpr"; }
-    // Token getName() const override { return m_name; }
+    Token getName() const override { return m_name; }
     // PExpr getObject() const override { return m_object; }
+
 
     TObject accept(ExprVisitor &v) override {
         return v.visitGetExpr(*this); 
@@ -128,7 +135,6 @@ public:
     PExpr m_object;
     Token m_name;
 };
-
 
 class GroupingExpr : public Expr {
 public:
@@ -176,6 +182,29 @@ public:
     Token op;
     PExpr right;
 };
+
+class SetExpr : public Expr {
+public:
+    SetExpr(PExpr&& object, Token name, PExpr&& value) :
+      m_object(std::move(object)),
+      m_name(name),
+      m_value(std::move(value)) {}
+
+    bool isSetExpr() const override { return true; }
+    std::string typeName() const override { return "SetExpr"; }
+    Token getName() const override { return m_name; }
+    // note: cannot return an instance of unique_ptr
+    // PExpr getObject() const override { return m_object; }
+
+    TObject accept(ExprVisitor &v) override {
+        return v.visitSetExpr(*this); 
+    }
+
+    PExpr m_object;
+    Token m_name;
+    PExpr m_value;
+};
+
 
 class UnaryExpr : public Expr {
 public:

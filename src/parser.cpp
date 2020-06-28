@@ -238,8 +238,14 @@ PExpr Parser::assignment() {
         Token equals = previous();
         PExpr value = assignment();
         if ( left->isVariableExpr() ) {
-            Token name = static_cast<VariableExpr*>( left.get() )->name;
+            // Token name = static_cast<VariableExpr*>( left.get() )->name;
+            Token name = left->getName();
             return PExpr(new AssignExpr(name, std::move(value)));
+        } else if (left->isGetExpr()) {
+          // TODO: returns left->getObject() when switching with shared_ptr
+          auto m_obj = static_cast<GetExpr*>( left.get() )->getObject();
+          return PExpr(new SetExpr(std::move(left->getObject()),
+                left->getName(), std::move(value) ));
         }
         
         error(equals, "Invalid assignment target.");

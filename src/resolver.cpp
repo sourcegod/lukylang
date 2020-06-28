@@ -132,6 +132,14 @@ TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
   return TObject();
 }
 
+TObject Resolver::visitSetExpr(SetExpr& expr) {
+  resolve(expr.m_value);
+  resolve(expr.m_object);
+
+  return TObject();
+}
+
+
 TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
   resolve(expr.right);
   

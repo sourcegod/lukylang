@@ -17,6 +17,10 @@ ObjPtr LukInstance::get(Token& name) {
     // unrichable
     return TObject::getNilPtr();
 }
+void LukInstance::set(Token& name, ObjPtr value) {
+  m_fields[name.lexeme] = value;
+
+}
 
 std::ostream& operator<<(std::ostream& oss, const LukInstance& li) {
   oss << li.toString();
