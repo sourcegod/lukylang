@@ -284,6 +284,19 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
     return func->call(*this, v_args);
 }
 
+TObject Interpreter::visitGetExpr(GetExpr& expr) {
+  auto obj = evaluate(expr.m_object);
+  if (obj.isInstance()) {
+    return TObject();
+    // return obj.getInstance()->get(expr.m_name.lexeme);
+  }
+
+  throw RuntimeError(expr.m_name,
+    "Only instances have properties.");
+  
+  return TObject();
+}
+
 TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.expression);
 }

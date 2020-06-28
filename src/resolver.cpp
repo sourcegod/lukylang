@@ -108,6 +108,12 @@ TObject Resolver::visitCallExpr(CallExpr& expr) {
   return TObject();
 }
 
+TObject Resolver::visitGetExpr(GetExpr& expr) {
+  resolve(expr.m_object);
+
+  return TObject();
+}
+
 TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
   resolve(expr.expression);
  

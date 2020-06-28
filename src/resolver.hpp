@@ -30,6 +30,7 @@ public:
     TObject visitAssignExpr(AssignExpr& expr) override;
     TObject visitBinaryExpr(BinaryExpr& expr) override;
     TObject visitCallExpr(CallExpr& expr) override;
+    TObject visitGetExpr(GetExpr& expr) override;
     TObject visitGroupingExpr(GroupingExpr& expr) override;
     TObject visitLiteralExpr(LiteralExpr& expr) override; 
     TObject visitLogicalExpr(LogicalExpr& expr) override;

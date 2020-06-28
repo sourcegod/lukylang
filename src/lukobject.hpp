@@ -16,6 +16,10 @@
 class Token;
 class LukCallable;
 class LukInstance;
+class LukObject;
+
+using TObject = LukObject;
+using ObjPtr = std::shared_ptr<LukObject>;
 
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
@@ -75,26 +79,31 @@ public:
     T stringToNumber(const std::string& stg);
 
     // test type state
-    bool isNil() { return m_type == LukType::Nil; }
-    bool isBool() { return m_type == LukType::Bool; }
-    bool isNumber() { return m_type == LukType::Number; }
-    bool isDouble() { return m_type == LukType::Number; }
-    bool isString() { return m_type == LukType::String; }
-    bool isCallable() { return m_type == LukType::Callable; }
-    bool isInstance() { return m_type == LukType::Instance; }
+    bool isNil() const { return m_type == LukType::Nil; }
+    bool isBool() const { return m_type == LukType::Bool; }
+    bool isNumber() const { return m_type == LukType::Number; }
+    bool isDouble() const { return m_type == LukType::Number; }
+    bool isString() const { return m_type == LukType::String; }
+    bool isCallable() const { return m_type == LukType::Callable; }
+    bool isInstance() const { return m_type == LukType::Instance; }
 
     // getters
-    LukObject getNil() {
-        LukObject obj;
+    static LukObject getNil() {
+        static LukObject obj;
         return obj;
     }
+    
+    static ObjPtr getNilPtr()  {
+      static ObjPtr nilPtr = std::make_shared<LukObject>(getNil());
+      return nilPtr;
+    }
 
-    bool getBool() { return m_bool; }
-    double getNumber() { return m_number; }
-    std::string& getString() { return m_string; }
-    std::shared_ptr<std::string> getPtrString() { return p_string; }
-    std::shared_ptr<LukCallable> getCallable() { return p_callable; }
-    std::shared_ptr<LukInstance> getInstance() { return p_instance; }
+    bool getBool() const noexcept { return m_bool; }
+    double getNumber() const noexcept { return m_number; }
+    std::string getString() const noexcept { return m_string; }
+    std::shared_ptr<std::string> getPtrString() const noexcept { return p_string; }
+    std::shared_ptr<LukCallable> getCallable() const noexcept { return p_callable; }
+    std::shared_ptr<LukInstance> getInstance() const noexcept { return p_instance; }
     
 
     // casting to the right type

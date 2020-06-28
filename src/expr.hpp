@@ -12,6 +12,7 @@ class LukObject;
 class AssignExpr;
 class BinaryExpr;
 class CallExpr;
+class GetExpr;
 class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
@@ -19,7 +20,6 @@ class UnaryExpr;
 class VariableExpr;
 
 using PExpr = std::unique_ptr<Expr>;
-using TObject = LukObject;
 
 // create visitor object
 class ExprVisitor {
@@ -27,6 +27,7 @@ class ExprVisitor {
         virtual TObject visitAssignExpr(AssignExpr&) =0;
         virtual TObject visitBinaryExpr(BinaryExpr&) =0;
         virtual TObject visitCallExpr(CallExpr&) =0;
+        virtual TObject visitGetExpr(GetExpr&) =0;
         virtual TObject visitGroupingExpr(GroupingExpr&) =0;
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
         virtual TObject visitLogicalExpr(LogicalExpr&) =0;
@@ -45,6 +46,7 @@ public:
     
     virtual TObject accept(ExprVisitor &v) =0;
     virtual bool isCallExpr() const { return false; }
+    virtual bool isGetExpr() const { return false; }
     virtual bool isVariableExpr() const { return false; }
     virtual std::string typeName() const { return "Expr"; }
     virtual unsigned id() const { return m_id; }
@@ -108,6 +110,25 @@ public:
     Token paren;
     std::vector<PExpr> args;
 };
+
+class GetExpr : public Expr {
+public:
+    GetExpr(PExpr&& object, Token name) :
+      m_object(std::move(object)),
+      m_name(name) {}
+    bool isGetExpr() const override { return true; }
+    std::string typeName() const override { return "GetExpr"; }
+    // Token getName() const override { return m_name; }
+    // PExpr getObject() const override { return m_object; }
+
+    TObject accept(ExprVisitor &v) override {
+        return v.visitGetExpr(*this); 
+    }
+
+    PExpr m_object;
+    Token m_name;
+};
+
 
 class GroupingExpr : public Expr {
 public:

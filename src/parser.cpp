@@ -327,6 +327,10 @@ PExpr Parser::call() {
     while (true) {
         if (match({TokenType::LEFT_PAREN})) {
             expr = finishCall(std::move(expr));
+        } else if (match({TokenType::DOT})) {
+          Token name = consume(TokenType::IDENTIFIER,
+            "Expect property name after '.'.");
+          expr = PExpr(new GetExpr(std::move(expr), name));
         } else {
             break;
         }
