@@ -31,7 +31,7 @@ Interpreter::Interpreter() {
 
 }
 
-void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>>&& statements) {
+void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
   logMsg("\n--- Starts Loop Interpreter");
     if (statements.empty()) 
         std::cerr << "Interp: vector is empty.\n";

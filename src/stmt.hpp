@@ -45,7 +45,7 @@ public:
 
 class BlockStmt : public Stmt {
 public:
-    BlockStmt(std::vector<PStmt>&& _statements) {
+    BlockStmt(std::vector<PStmt> _statements) {
         statements = std::move(_statements);
     }
 
@@ -58,7 +58,7 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(Token name, std::vector<PStmt>&& methods) {
+    ClassStmt(Token name, std::vector<PStmt> methods) {
       m_name = name;  
       m_methods = std::move(methods);
     }
@@ -88,7 +88,7 @@ public:
 
 class ExpressionStmt : public Stmt {
 public:
-    ExpressionStmt(std::shared_ptr<Expr>&& _expr) {
+    ExpressionStmt(std::shared_ptr<Expr> _expr) {
         expression = std::move(_expr);
     }
 
@@ -101,8 +101,8 @@ public:
 
 class IfStmt : public Stmt {
 public:
-    IfStmt(PExpr&& _condition, PStmt&& _thenBranch, 
-            PStmt&& _elseBranch) {
+    IfStmt(PExpr _condition, PStmt _thenBranch, 
+            PStmt _elseBranch) {
         condition = std::move(_condition);
         thenBranch  = std::move(_thenBranch);
         elseBranch = std::move(_elseBranch);
@@ -121,7 +121,7 @@ public:
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(Token _name, std::vector<Token>&& _params, std::vector<PStmt>&& _body) {
+    FunctionStmt(Token _name, std::vector<Token> _params, std::vector<PStmt> _body) {
         name = _name;
         params = std::move(_params);
         body  = std::move(_body);
@@ -139,7 +139,7 @@ public:
 
 class PrintStmt : public Stmt {
 public:
-    PrintStmt(std::shared_ptr<Expr>&& _expr) {
+    PrintStmt(std::shared_ptr<Expr> _expr) {
         expression = std::move(_expr);
     }
 
@@ -153,7 +153,7 @@ public:
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(Token _name, std::shared_ptr<Expr>&& _expr) {
+    ReturnStmt(Token _name, std::shared_ptr<Expr> _expr) {
         name = _name;
         value = std::move(_expr);
     }
@@ -169,7 +169,7 @@ public:
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(Token _name, std::shared_ptr<Expr>&& _expr) {
+    VarStmt(Token _name, std::shared_ptr<Expr> _expr) {
         name = _name;
         initializer = std::move(_expr);
     }
@@ -184,7 +184,7 @@ public:
 
 class WhileStmt : public Stmt {
 public:
-    WhileStmt(PExpr&& _condition, PStmt&& _body) { 
+    WhileStmt(PExpr _condition, PStmt _body) { 
         condition = std::move(_condition);
         body  = std::move(_body);
     }

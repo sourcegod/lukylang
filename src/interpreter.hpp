@@ -16,7 +16,7 @@ public:
     Interpreter();
     ~Interpreter() { }
 
-    void interpret(std::vector<std::shared_ptr<Stmt>>&&);
+    void interpret(std::vector<std::shared_ptr<Stmt>> statements);
     void printResult();
 
     // statements    

@@ -81,7 +81,7 @@ public:
 
 class BinaryExpr : public Expr {
 public:
-    BinaryExpr(PExpr&& _left, Token _op, PExpr&& _right) {
+    BinaryExpr(PExpr _left, Token _op, PExpr _right) {
         left = std::move(_left);
         op = _op;
         right = std::move(_right);
@@ -98,7 +98,7 @@ public:
 
 class CallExpr : public Expr {
 public:
-    CallExpr(PExpr&& _callee, Token _paren, std::vector<PExpr>&& _args) {
+    CallExpr(PExpr _callee, Token _paren, std::vector<PExpr> _args) {
         callee = std::move(_callee);
         paren = _paren;
         args = std::move(_args);
@@ -118,7 +118,7 @@ public:
 
 class GetExpr : public Expr {
 public:
-    GetExpr(PExpr&& object, Token name) :
+    GetExpr(PExpr object, Token name) :
       m_object(std::move(object)),
       m_name(name) {}
     bool isGetExpr() const override { return true; }
@@ -137,7 +137,7 @@ public:
 
 class GroupingExpr : public Expr {
 public:
-    GroupingExpr(PExpr&& _expr) {
+    GroupingExpr(PExpr _expr) {
         expression = std::move(_expr);
     }
     
@@ -167,7 +167,7 @@ LukObject value;
 
 class LogicalExpr : public Expr {
 public:
-    LogicalExpr(PExpr&& _left, Token _op, PExpr&& _right) {
+    LogicalExpr(PExpr _left, Token _op, PExpr _right) {
         left = std::move(_left);
         op = _op;
         right = std::move(_right);
@@ -184,7 +184,7 @@ public:
 
 class SetExpr : public Expr {
 public:
-    SetExpr(PExpr&& object, Token name, PExpr&& value) :
+    SetExpr(PExpr object, Token name, PExpr value) :
       m_object(std::move(object)),
       m_name(name),
       m_value(std::move(value)) {}
@@ -207,7 +207,7 @@ public:
 
 class UnaryExpr : public Expr {
 public:
-    UnaryExpr(Token _op, PExpr&& _right) {
+    UnaryExpr(Token _op, PExpr _right) {
         op = _op;
         right = std::move(_right);
     }
