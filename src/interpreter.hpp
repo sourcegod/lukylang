@@ -8,7 +8,7 @@
 #include <vector>
 #include <unordered_map>
 
-using PObject = std::unique_ptr<LukObject>;
+using PObject = std::shared_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     PEnvironment m_globals;
@@ -16,7 +16,7 @@ public:
     Interpreter();
     ~Interpreter() { }
 
-    void interpret(std::vector<std::unique_ptr<Stmt>>&&);
+    void interpret(std::vector<std::shared_ptr<Stmt>>&&);
     void printResult();
 
     // statements    

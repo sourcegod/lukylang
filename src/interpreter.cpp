@@ -31,14 +31,13 @@ Interpreter::Interpreter() {
 
 }
 
-void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
+void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>>&& statements) {
   logMsg("\n--- Starts Loop Interpreter");
     if (statements.empty()) 
         std::cerr << "Interp: vector is empty.\n";
     try {
          for (auto& stmt : statements) {
             if (stmt) {
-                // execute(std::move(stmt));
                 execute((stmt));
                 // v_ptr.emplace_back(std::move(stmt));
                 // v_ptr.back()->accept(*this);
