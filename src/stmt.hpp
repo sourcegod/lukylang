@@ -22,10 +22,7 @@ class Stmt;
 class VarStmt;
 class WhileStmt;
 
-using PStmt = std::unique_ptr<Stmt>;
-using PExpr =  std::unique_ptr<Expr>;
-using PFunc = std::unique_ptr<FunctionStmt>;
-
+using PStmt = std::shared_ptr<Stmt>;
 class StmtVisitor {
 public:
     virtual void visitBlockStmt(BlockStmt&) =0;
@@ -49,7 +46,7 @@ public:
 class BlockStmt : public Stmt {
 public:
     BlockStmt(std::vector<PStmt>&& _statements) {
-        statements = std::move(_statements);
+        statements = (_statements);
     }
 
     void accept(StmtVisitor& v) override {
@@ -63,7 +60,7 @@ class ClassStmt : public Stmt {
 public:
     ClassStmt(Token name, std::vector<PStmt>&& methods) {
       m_name = name;  
-      m_methods = std::move(methods);
+      m_methods = (methods);
     }
 
     void accept(StmtVisitor& v) override {
@@ -91,33 +88,33 @@ public:
 
 class ExpressionStmt : public Stmt {
 public:
-    ExpressionStmt(std::unique_ptr<Expr>&& _expr) {
-        expression = std::move(_expr);
+    ExpressionStmt(std::shared_ptr<Expr>&& _expr) {
+        expression = (_expr);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitExpressionStmt(*this);
     }
 
-    std::unique_ptr<Expr> expression;
+    std::shared_ptr<Expr> expression;
 };
 
 class IfStmt : public Stmt {
 public:
     IfStmt(PExpr&& _condition, PStmt&& _thenBranch, 
             PStmt&& _elseBranch) {
-        condition = std::move(_condition);
-        thenBranch  = std::move(_thenBranch);
-        elseBranch = std::move(_elseBranch);
+        condition = (_condition);
+        thenBranch  = (_thenBranch);
+        elseBranch = (_elseBranch);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitIfStmt(*this);
     }
 
-    std::unique_ptr<Expr> condition;
-    std::unique_ptr<Stmt> thenBranch;
-    std::unique_ptr<Stmt> elseBranch;
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> thenBranch;
+    std::shared_ptr<Stmt> elseBranch;
 
 };
 
@@ -126,8 +123,8 @@ public:
     FunctionStmt() {}
     FunctionStmt(Token _name, std::vector<Token>&& _params, std::vector<PStmt>&& _body) {
         name = _name;
-        params = std::move(_params);
-        body  = std::move(_body);
+        params = (_params);
+        body  = (_body);
     }
 
     void accept(StmtVisitor& v) override {
@@ -142,62 +139,62 @@ public:
 
 class PrintStmt : public Stmt {
 public:
-    PrintStmt(std::unique_ptr<Expr>&& _expr) {
-        expression = std::move(_expr);
+    PrintStmt(std::shared_ptr<Expr>&& _expr) {
+        expression = (_expr);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitPrintStmt(*this);
     }
 
-    std::unique_ptr<Expr> expression;
+    std::shared_ptr<Expr> expression;
 
 };
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(Token _name, std::unique_ptr<Expr>&& _expr) {
+    ReturnStmt(Token _name, std::shared_ptr<Expr>&& _expr) {
         name = _name;
-        value = std::move(_expr);
+        value = (_expr);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitReturnStmt(*this);
     }
     Token name;
-    std::unique_ptr<Expr> value;
+    std::shared_ptr<Expr> value;
 
 };
 
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(Token _name, std::unique_ptr<Expr>&& _expr) {
+    VarStmt(Token _name, std::shared_ptr<Expr>&& _expr) {
         name = _name;
-        initializer = std::move(_expr);
+        initializer = (_expr);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitVarStmt(*this);
     }
     Token name;
-    std::unique_ptr<Expr> initializer;
+    std::shared_ptr<Expr> initializer;
 
 };
 
 class WhileStmt : public Stmt {
 public:
     WhileStmt(PExpr&& _condition, PStmt&& _body) { 
-        condition = std::move(_condition);
-        body  = std::move(_body);
+        condition = (_condition);
+        body  = (_body);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitWhileStmt(*this);
     }
 
-    std::unique_ptr<Expr> condition;
-    std::unique_ptr<Stmt> body;
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> body;
 };
 
 

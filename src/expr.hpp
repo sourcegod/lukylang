@@ -20,8 +20,7 @@ class SetExpr;
 class UnaryExpr;
 class VariableExpr;
 
-using PExpr = std::unique_ptr<Expr>;
-
+using PExpr = std::shared_ptr<Expr>;
 // create visitor object
 class ExprVisitor {
     public:
@@ -68,7 +67,7 @@ class AssignExpr : public Expr {
 public:
     AssignExpr(Token _name, PExpr _value) {
         name = _name;
-        value = std::move(_value);
+        value = (_value);
     }
     
     TObject accept(ExprVisitor &v) override {
@@ -83,9 +82,9 @@ public:
 class BinaryExpr : public Expr {
 public:
     BinaryExpr(PExpr&& _left, Token _op, PExpr&& _right) {
-        left = std::move(_left);
+        left = (_left);
         op = _op;
-        right = std::move(_right);
+        right = (_right);
     }
     
     TObject accept(ExprVisitor &v) override {
@@ -100,9 +99,9 @@ public:
 class CallExpr : public Expr {
 public:
     CallExpr(PExpr&& _callee, Token _paren, std::vector<PExpr>&& _args) {
-        callee = std::move(_callee);
+        callee = (_callee);
         paren = _paren;
-        args = std::move(_args);
+        args = (_args);
     }
     
     TObject accept(ExprVisitor &v) override {
@@ -120,7 +119,7 @@ public:
 class GetExpr : public Expr {
 public:
     GetExpr(PExpr&& object, Token name) :
-      m_object(std::move(object)),
+      m_object((object)),
       m_name(name) {}
     bool isGetExpr() const override { return true; }
     std::string typeName() const override { return "GetExpr"; }
@@ -139,7 +138,7 @@ public:
 class GroupingExpr : public Expr {
 public:
     GroupingExpr(PExpr&& _expr) {
-        expression = std::move(_expr);
+        expression = (_expr);
     }
     
     TObject accept(ExprVisitor &v) override {
@@ -169,9 +168,9 @@ LukObject value;
 class LogicalExpr : public Expr {
 public:
     LogicalExpr(PExpr&& _left, Token _op, PExpr&& _right) {
-        left = std::move(_left);
+        left = (_left);
         op = _op;
-        right = std::move(_right);
+        right = (_right);
     }
     
     TObject accept(ExprVisitor &v) override {
@@ -186,9 +185,9 @@ public:
 class SetExpr : public Expr {
 public:
     SetExpr(PExpr&& object, Token name, PExpr&& value) :
-      m_object(std::move(object)),
+      m_object((object)),
       m_name(name),
-      m_value(std::move(value)) {}
+      m_value((value)) {}
 
     bool isSetExpr() const override { return true; }
     std::string typeName() const override { return "SetExpr"; }
@@ -210,7 +209,7 @@ class UnaryExpr : public Expr {
 public:
     UnaryExpr(Token _op, PExpr&& _right) {
         op = _op;
-        right = std::move(_right);
+        right = (_right);
     }
     
     TObject accept(ExprVisitor &v) override {
