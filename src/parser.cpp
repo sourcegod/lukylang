@@ -240,12 +240,12 @@ PExpr Parser::assignment() {
         if ( left->isVariableExpr() ) {
             // Token name = static_cast<VariableExpr*>( left.get() )->name;
             Token name = left->getName();
-            return PExpr(new AssignExpr(name, std::move(value)));
+            return  std::make_shared<AssignExpr>(name, value);
         } else if (left->isGetExpr()) {
           // TODO: returns left->getObject() when switching with shared_ptr
           auto m_obj = static_cast<GetExpr*>( left.get() )->getObject();
-          return PExpr(new SetExpr(std::move(left->getObject()),
-                left->getName(), std::move(value) ));
+          return std::make_shared<SetExpr>(left->getObject(),
+                left->getName(), value );
         }
         
         error(equals, "Invalid assignment target.");
@@ -259,7 +259,7 @@ PExpr Parser::logicOr() {
     while (match({TokenType::OR})) {
         Token op = previous();
         PExpr right = logicAnd();
-        left =  PExpr(new LogicalExpr( std::move(left), op, std::move(right) ));
+        left =  std::make_shared<LogicalExpr>(left, op, right);
     }
 
     return left;
@@ -270,7 +270,7 @@ PExpr Parser::logicAnd() {
     while (match({TokenType::AND})) {
         Token op = previous();
         PExpr right = equality();
-        left =  PExpr(new LogicalExpr( std::move(left), op, std::move(right) ));
+        left =  std::make_shared<LogicalExpr>(left, op, right);
     }
 
     return left;
@@ -281,7 +281,7 @@ PExpr Parser::equality() {
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         Token op = previous();
         PExpr right    = comparison();
-        expr = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
+        expr = std::make_shared<BinaryExpr>(expr, op, right);
     }
     return expr;
 }
@@ -292,8 +292,8 @@ PExpr Parser::comparison() {
         match({TokenType::GREATER, TokenType::LESS, 
             TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
         Token op = previous();
-        PExpr right    = addition();
-        expr           = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
+        PExpr right = addition();
+        expr = std::make_shared<BinaryExpr>(expr, op, right);
     }
     return expr;
 }
@@ -302,8 +302,8 @@ PExpr Parser::addition() {
     PExpr expr = multiplication();
     while (match({TokenType::MINUS, TokenType::PLUS})) {
         Token Operator = previous();
-        PExpr right    = multiplication();
-        expr           = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
+        PExpr right = multiplication();
+        expr = std::make_shared<BinaryExpr>(expr, Operator, right);
     }
     return expr;
 }
@@ -313,7 +313,7 @@ PExpr Parser::multiplication() {
     while (match({TokenType::SLASH, TokenType::STAR})) {
         Token Operator = previous();
         PExpr right = unary();
-        expr = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
+        expr = std::make_shared>BinaryExpr>(expr, Operator, right);
     }
     return expr;
 }
@@ -322,7 +322,7 @@ PExpr Parser::unary() {
     if (match({TokenType::BANG, TokenType::MINUS})) {
         Token Operator = previous();
         PExpr right    = unary();
-        return PExpr(new UnaryExpr(Operator, std::move(right)));
+        return std::make_shared<UnaryExpr>(Operator, right);
     }
 
     return call();
@@ -336,7 +336,7 @@ PExpr Parser::call() {
         } else if (match({TokenType::DOT})) {
           Token name = consume(TokenType::IDENTIFIER,
             "Expect property name after '.'.");
-          expr = PExpr(new GetExpr(std::move(expr), name));
+          expr = std::make_shared<GetExpr>(expr, name);
         } else {
             break;
         }
@@ -358,7 +358,7 @@ PExpr Parser::finishCall(PExpr callee) {
 
     Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
 
-    return PExpr(new CallExpr(std::move(callee), paren, std::move(args) ));
+    return std::make_shared<CallExpr>(callee, paren, args);
 }
 
 PExpr Parser::primary() {
@@ -368,17 +368,17 @@ PExpr Parser::primary() {
                 TokenType::NUMBER, TokenType::STRING})) {
         const auto obj = LukObject( previous() );
         // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
-        return PExpr(new LiteralExpr( ( obj ) ));
+        return std::make_shared<LiteralExpr>( obj );
     }
 
     if (match({TokenType::IDENTIFIER})) {
-        return PExpr(new VariableExpr(previous()) );
+        return std::make_shared<VariableExpr>(previous());
     }
 
     if (match({TokenType::LEFT_PAREN})) {
         PExpr expr = expression();
         consume(TokenType::RIGHT_PAREN, "Exppect ')' after expression.");
-        return PExpr(new GroupingExpr(std::move(expr)));
+        return std::make_shared<GroupingExpr>(expr);
     }
     
     

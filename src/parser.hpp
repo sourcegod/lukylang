@@ -14,12 +14,12 @@ class LukError;
 class LukObject;
 class Stmt;
 
-using PExpr = std::unique_ptr<Expr>;
-using PStmt = std::unique_ptr<Stmt>;
-using PObject = std::unique_ptr<LukObject>;
+using PExpr = std::shared_ptr<Expr>;
+using PStmt = std::shared_ptr<Stmt>;
+using PObject = std::shared_ptr<LukObject>;
 
 class ParseError : public std::runtime_error {
-  public:
+public:
     ParseError(const std::string& msg, Token& token);
     Token m_token;
 };
