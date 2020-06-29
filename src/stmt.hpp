@@ -46,7 +46,7 @@ public:
 class BlockStmt : public Stmt {
 public:
     BlockStmt(std::vector<PStmt>&& _statements) {
-        statements = (_statements);
+        statements = std::move(_statements);
     }
 
     void accept(StmtVisitor& v) override {
@@ -60,7 +60,7 @@ class ClassStmt : public Stmt {
 public:
     ClassStmt(Token name, std::vector<PStmt>&& methods) {
       m_name = name;  
-      m_methods = (methods);
+      m_methods = std::move(methods);
     }
 
     void accept(StmtVisitor& v) override {
@@ -89,7 +89,7 @@ public:
 class ExpressionStmt : public Stmt {
 public:
     ExpressionStmt(std::shared_ptr<Expr>&& _expr) {
-        expression = (_expr);
+        expression = std::move(_expr);
     }
 
     void accept(StmtVisitor& v) override {
@@ -103,9 +103,9 @@ class IfStmt : public Stmt {
 public:
     IfStmt(PExpr&& _condition, PStmt&& _thenBranch, 
             PStmt&& _elseBranch) {
-        condition = (_condition);
-        thenBranch  = (_thenBranch);
-        elseBranch = (_elseBranch);
+        condition = std::move(_condition);
+        thenBranch  = std::move(_thenBranch);
+        elseBranch = std::move(_elseBranch);
     }
 
     void accept(StmtVisitor& v) override {
@@ -123,8 +123,8 @@ public:
     FunctionStmt() {}
     FunctionStmt(Token _name, std::vector<Token>&& _params, std::vector<PStmt>&& _body) {
         name = _name;
-        params = (_params);
-        body  = (_body);
+        params = std::move(_params);
+        body  = std::move(_body);
     }
 
     void accept(StmtVisitor& v) override {
@@ -140,7 +140,7 @@ public:
 class PrintStmt : public Stmt {
 public:
     PrintStmt(std::shared_ptr<Expr>&& _expr) {
-        expression = (_expr);
+        expression = std::move(_expr);
     }
 
     void accept(StmtVisitor& v) override {
@@ -155,7 +155,7 @@ class ReturnStmt : public Stmt {
 public:
     ReturnStmt(Token _name, std::shared_ptr<Expr>&& _expr) {
         name = _name;
-        value = (_expr);
+        value = std::move(_expr);
     }
 
     void accept(StmtVisitor& v) override {
@@ -171,7 +171,7 @@ class VarStmt : public Stmt {
 public:
     VarStmt(Token _name, std::shared_ptr<Expr>&& _expr) {
         name = _name;
-        initializer = (_expr);
+        initializer = std::move(_expr);
     }
 
     void accept(StmtVisitor& v) override {
@@ -185,8 +185,8 @@ public:
 class WhileStmt : public Stmt {
 public:
     WhileStmt(PExpr&& _condition, PStmt&& _body) { 
-        condition = (_condition);
-        body  = (_body);
+        condition = std::move(_condition);
+        body  = std::move(_body);
     }
 
     void accept(StmtVisitor& v) override {

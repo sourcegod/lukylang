@@ -14,7 +14,7 @@ Parser::Parser(const std::vector<Token>&& tokens, LukError& _lukErr)
     , lukErr(_lukErr) {}
 
 std::vector<PStmt> Parser::parse() {
-    std::vector<std::unique_ptr<Stmt>> statements;
+    std::vector<PStmt> statements;
     try {
         while (!isAtEnd()) {
         statements.emplace_back(declaration() );
@@ -43,7 +43,7 @@ PStmt Parser::statement() {
     if (match({TokenType::WHILE})) 
         return whileStatement();
     if (match({TokenType::LEFT_BRACE}))
-        return std::make_sharec<BlockStmt>( block() );
+        return std::make_shared<BlockStmt>( block() );
     
     return  expressionStatement();
 }
@@ -93,15 +93,15 @@ PStmt Parser::forStatement() {
 
     if (increment != nullptr) {
         std::vector<PStmt> stmts;
-        stmts.emplace_back(body);
-        stmts.emplace_back(increment);
+        stmts.push_back(body);
+        stmts.push_back(increment);
         body = std::make_shared<BlockStmt>( stmts );
     }
     body = std::make_shared<WhileStmt>(condition, body);
     if (initializer) {
         std::vector<PStmt> stmts;
-        stmts.emplace_back( initializer );
-        stmts.emplace_back( body );
+        stmts.push_back( initializer );
+        stmts.push_back( body );
         return std::make_shared<BlockStmt>(stmts);
     }
 
@@ -307,7 +307,7 @@ PExpr Parser::multiplication() {
     while (match({TokenType::SLASH, TokenType::STAR})) {
         Token Operator = previous();
         PExpr right = unary();
-        expr = std::make_shared>BinaryExpr>(expr, Operator, right);
+        expr = std::make_shared<BinaryExpr>(expr, Operator, right);
     }
     return expr;
 }
