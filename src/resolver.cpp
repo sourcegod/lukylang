@@ -34,7 +34,7 @@ void Resolver::define(Token& name) {
 }
 
 // resolve vector
-void Resolver::resolve(std::vector<std::unique_ptr<Stmt>>& statements) {
+void Resolver::resolve(std::vector<std::shared_ptr<Stmt>>& statements) {
     if (statements.empty()) {
         m_lukErr.error(errTitle, "Vector is empty.\n");
         return;
@@ -101,7 +101,7 @@ TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
 
 TObject Resolver::visitCallExpr(CallExpr& expr) {
   resolve(expr.callee);
-  for (std::unique_ptr<Expr>& arg : expr.args) {
+  for (std::shared_ptr<Expr>& arg : expr.args) {
     resolve(arg);
   }
 

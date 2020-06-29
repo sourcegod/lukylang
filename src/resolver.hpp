@@ -24,7 +24,7 @@ class CTracer;
 class Resolver : public ExprVisitor,  public StmtVisitor {
 public:
   explicit Resolver(Interpreter& interp, LukError& lukErr);
-  void resolve(std::vector<std::unique_ptr<Stmt>>& statements);
+  void resolve(std::vector<std::shared_ptr<Stmt>>& statements);
     
     // expressions
     TObject visitAssignExpr(AssignExpr& expr) override;
