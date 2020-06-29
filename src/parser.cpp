@@ -43,7 +43,7 @@ PStmt Parser::statement() {
     if (match({TokenType::WHILE})) 
         return whileStatement();
     if (match({TokenType::LEFT_BRACE}))
-        return PStmt(new BlockStmt(std::move(block())) );
+        return std::make_sharec<BlockStmt>( block() );
     
     return  expressionStatement();
 }
@@ -63,7 +63,7 @@ std::vector<PStmt> Parser::block() {
 PStmt Parser::breakStatement() {
     Token keyword = previous();
     consume(TokenType::SEMICOLON, "Expect ';' after break statement");
-    return PStmt(new BreakStmt(keyword) );
+    return std::make_shared<BreakStmt>(keyword);
 }
 
 PStmt Parser::forStatement() {
@@ -85,7 +85,7 @@ PStmt Parser::forStatement() {
     
     PStmt increment = nullptr;
     if (!check(TokenType::RIGHT_PAREN)) {
-        increment = PStmt(new ExpressionStmt(expression()) );
+        increment = std::make_shared<ExpressionStmt>(expression() );
     }
     consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
 
@@ -93,19 +93,16 @@ PStmt Parser::forStatement() {
 
     if (increment != nullptr) {
         std::vector<PStmt> stmts;
-        stmts.emplace_back(std::move(body));
-        stmts.emplace_back(std::move(increment));
-        body = PStmt(new BlockStmt(
-                    std::move(stmts)) );
+        stmts.emplace_back(body);
+        stmts.emplace_back(increment);
+        body = std::make_shared<BlockStmt>( stmts );
     }
-    body = PStmt(new WhileStmt(
-                std::move(condition),
-                std::move(body)) );
+    body = std::make_shared<WhileStmt>(condition, body);
     if (initializer) {
         std::vector<PStmt> stmts;
-        stmts.emplace_back( std::move(initializer) );
-        stmts.emplace_back( std::move(body) );
-        return PStmt(new BlockStmt( std::move(stmts) ));
+        stmts.emplace_back( initializer );
+        stmts.emplace_back( body );
+        return std::make_shared<BlockStmt>(stmts);
     }
 
     return body;
@@ -121,17 +118,15 @@ PStmt Parser::ifStatement() {
         elseBranch = statement();
     }
 
-    return PStmt(new IfStmt(
-                std::move(condition), 
-                std::move(thenBranch),
-                std::move(elseBranch) ));
+    return std::make_shared<IfStmt>(condition, thenBranch,
+                elseBranch);
 }
 
 PStmt Parser::printStatement() {
     PExpr value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
 
-    return PStmt(new PrintStmt(std::move(value)) );
+    return std::make_shared<PrintStmt>(value);
 }
 
 PStmt Parser::returnStatement() {
@@ -142,7 +137,7 @@ PStmt Parser::returnStatement() {
     }
     consume(TokenType::SEMICOLON, "Expect ';' after return value.");
 
-    return PStmt(new ReturnStmt(keyword, std::move(value)) );
+    return std::make_shared<ReturnStmt>(keyword, value);
 }
 
 
@@ -152,8 +147,7 @@ PStmt Parser::whileStatement() {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
     PStmt body = statement();
 
-    return PStmt(new WhileStmt( std::move(condition), 
-                std::move(body) ));
+    return std::make_shared<WhileStmt>(condition, body);
 }
 
 PStmt Parser::varDeclaration() {
@@ -164,7 +158,7 @@ PStmt Parser::varDeclaration() {
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     
-    return PStmt(new VarStmt(name, std::move(initializer)) );
+    return std::make_shared<VarStmt>(name, initializer);
 }
 
 PStmt Parser::classDeclaration() {
@@ -180,7 +174,7 @@ PStmt Parser::classDeclaration() {
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
   
-    return PStmt(new ClassStmt(name, std::move(methods) ));
+    return std::make_shared<ClassStmt>(name, methods);
 }
 
 PStmt Parser::declaration() {
@@ -200,7 +194,7 @@ PStmt Parser::declaration() {
 PStmt Parser::expressionStatement() {
     PExpr expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
-    return PStmt(new ExpressionStmt(std::move(expr)) );
+    return std::make_shared<ExpressionStmt>(expr);
 }
 
 PStmt Parser::function(std::string kind) {
@@ -223,7 +217,7 @@ PStmt Parser::function(std::string kind) {
 
     std::vector<PStmt> body = block();
     
-    return PStmt(new FunctionStmt(name, std::move(params), std::move(body) ));
+    return std::make_shared<FunctionStmt>(name, params, body);
 
 }
 
@@ -332,7 +326,7 @@ PExpr Parser::call() {
     PExpr expr = primary();
     while (true) {
         if (match({TokenType::LEFT_PAREN})) {
-            expr = finishCall(std::move(expr));
+            expr = finishCall(expr);
         } else if (match({TokenType::DOT})) {
           Token name = consume(TokenType::IDENTIFIER,
             "Expect property name after '.'.");
