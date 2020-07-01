@@ -6,6 +6,10 @@
 
 #include <memory>
 
+std::string LukInstance::toString() const { 
+  return  "<" + m_klass->m_name  + " instance>"; 
+}
+
 ObjPtr LukInstance::get(Token& name) {
     auto elem = m_fields.find(name.lexeme);
     if (elem != m_fields.end()) {

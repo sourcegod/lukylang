@@ -127,7 +127,7 @@ public:
     bool isGetExpr() const override { return true; }
     std::string typeName() const override { return "GetExpr"; }
     Token getName() const override { return m_name; }
-    // PExpr getObject() const override { return m_object; }
+    PExpr getObject() const override { return m_object; }
 
 
     TObject accept(ExprVisitor &v) override {
@@ -195,8 +195,8 @@ public:
     bool isSetExpr() const override { return true; }
     std::string typeName() const override { return "SetExpr"; }
     Token getName() const override { return m_name; }
-    // note: cannot return an instance of unique_ptr
-    // PExpr getObject() const override { return m_object; }
+    // Fix: can now an instance of shared_ptr instead unique_ptr
+    PExpr getObject() const override { return m_object; }
 
     TObject accept(ExprVisitor &v) override {
         return v.visitSetExpr(*this); 
