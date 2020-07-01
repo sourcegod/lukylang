@@ -110,6 +110,7 @@ public:
 
     bool isCallExpr() const override { return true; }
     std::string typeName() const override { return "CallExpr"; }
+    virtual Token getName() const { return paren; }
 
     PExpr callee;
     Token paren;
@@ -232,6 +233,8 @@ public:
 
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
+    Token getName() const override { return name; }
+
 
     Token name;
 };

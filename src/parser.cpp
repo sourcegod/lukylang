@@ -236,8 +236,6 @@ PExpr Parser::assignment() {
             Token name = left->getName();
             return  std::make_shared<AssignExpr>(name, value);
         } else if (left->isGetExpr()) {
-          // TODO: returns left->getObject() when switching with shared_ptr
-          // auto m_obj = static_cast<GetExpr*>( left.get() )->getObject();
           return std::make_shared<SetExpr>(left->getObject(),
                 left->getName(), value );
         }
