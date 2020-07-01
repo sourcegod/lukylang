@@ -50,6 +50,8 @@ public:
     virtual bool isGetExpr() const { return false; }
     virtual bool isSetExpr() const { return false; }
     virtual bool isVariableExpr() const { return false; }
+    // Note: the two folowing virtual func must be implemented
+    // in callexpr, variableexpr, getexpr, setexpr objects.
     virtual std::string typeName() const { return "Expr"; }
     virtual Token getName() const { return Token(); }
     virtual PExpr getObject() const { return nullptr; }
@@ -230,7 +232,6 @@ public:
     TObject accept(ExprVisitor &v) override {
         return v.visitVariableExpr(*this); 
     }
-
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
     Token getName() const override { return name; }
