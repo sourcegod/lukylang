@@ -43,7 +43,7 @@ private:
     PStmt declaration();
     PStmt expressionStatement();
     PStmt forStatement();
-    PStmt function(std::string kind);
+    PFunc function(const std::string& kind);
     PStmt ifStatement();
     PStmt printStatement();
     PStmt returnStatement();

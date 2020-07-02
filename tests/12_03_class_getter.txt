@@ -1,0 +1,12 @@
+class Fruits {
+  serveOn() {
+  var a=55;
+  var b="apple";
+    return "Scones";
+  }
+}
+
+var frt = Fruits();
+print frt;
+print frt.serveOn();
+print frt.serveOn().a;

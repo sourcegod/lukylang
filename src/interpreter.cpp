@@ -122,6 +122,13 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
     m_environment->define(stmt.m_name.lexeme, TObject());
+    std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
+    for (auto meth: stmt.m_methods) {
+      auto func = std::make_shared<LukFunction>(meth.get(), m_environment);
+      auto obj = std::make_shared<LukObject>(func);
+      methods[meth->name.lexeme] = obj;
+    }
+    
     auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme);
     m_environment->assign(stmt.m_name, klass);
 
@@ -188,7 +195,8 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
         try {
             execute(stmt.body);
             val  = evaluate(stmt.condition);
-        } catch(Jump jmp) {
+            // Note: catching must be by reference, not by value
+        } catch(Jump& jmp) {
             if (jmp.keyword.lexeme == "break") break;
             if (jmp.keyword.lexeme == "continue") continue;
         }

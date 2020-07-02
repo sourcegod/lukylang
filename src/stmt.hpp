@@ -23,6 +23,7 @@ class VarStmt;
 class WhileStmt;
 
 using PStmt = std::shared_ptr<Stmt>;
+using PFunc = std::shared_ptr<FunctionStmt>;
 class StmtVisitor {
 public:
     virtual void visitBlockStmt(BlockStmt&) =0;
@@ -58,7 +59,7 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(Token name, std::vector<PStmt> methods) {
+    ClassStmt(Token name, std::vector<PFunc> methods) {
       m_name = name;  
       m_methods = std::move(methods);
     }
@@ -67,7 +68,7 @@ public:
         v.visitClassStmt(*this);
     }
     Token m_name;
-    std::vector<PStmt> m_methods;
+    std::vector<PFunc> m_methods;
 
 };
 

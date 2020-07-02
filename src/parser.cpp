@@ -18,8 +18,9 @@ std::vector<PStmt> Parser::parse() {
     try {
         while (!isAtEnd()) {
         statements.emplace_back(declaration() );
-        }
-    } catch(ParseError err) {
+    }
+    // Note: catching exception should be by reference, not by value
+    } catch(ParseError& err) {
             std::cerr << errTitle << err.what() << std::endl;
     }
 
@@ -166,7 +167,7 @@ PStmt Parser::classDeclaration() {
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
     consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
     
-    std::vector<PStmt> methods;
+    std::vector<PFunc> methods;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
       methods.push_back(function("method"));
 
@@ -197,7 +198,7 @@ PStmt Parser::expressionStatement() {
     return std::make_shared<ExpressionStmt>(expr);
 }
 
-PStmt Parser::function(std::string kind) {
+PFunc Parser::function(const std::string& kind) {
     Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<Token> params;

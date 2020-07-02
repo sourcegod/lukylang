@@ -179,6 +179,10 @@ void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
 void Resolver::visitClassStmt(ClassStmt& stmt) {
   declare(stmt.m_name);
   define(stmt.m_name);
+  for (auto method: stmt.m_methods) {
+    auto declaration = FunctionType::Method;
+    resolveFunction(*method, declaration);
+  }
 
 }
 
