@@ -78,7 +78,12 @@ so, we store its uniq id in the map
 so passing it by raw pointer.
 
 5.6
+-- In getexpr function
+shared_ptr.get() returns the stored pointer, not the managed pointer.
+and *shared_ptr dereference the smart pointer
 
+
+5.7 
 
 
 

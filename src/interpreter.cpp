@@ -129,7 +129,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
       methods[meth->name.lexeme] = obj;
     }
     
-    auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme);
+    auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
     m_environment->assign(stmt.m_name, klass);
 
 }
@@ -295,7 +295,9 @@ TObject Interpreter::visitGetExpr(GetExpr& expr) {
   auto obj = evaluate(expr.m_object);
   if (obj.isInstance()) {
     auto obj_ptr = obj.getInstance()->get(expr.m_name);
-    return obj_ptr.get();
+    // Note: shared_ptr.get() returns the stored pointer, not the managed pointer.
+    // *shared_ptr dereference the smart pointer
+    return *obj_ptr;
   }
 
   throw RuntimeError(expr.m_name,

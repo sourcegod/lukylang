@@ -15,7 +15,19 @@ LukObject  LukClass::call(Interpreter& interp,
     return LukObject(instance);
 }
 
-std::string LukClass::toString() const { return  "<Class " + m_name + ">"; }
+std::string LukClass::toString() const {  
+  return  "<Class " + m_name + ">";
+}
+
+ObjPtr LukClass::findMethod(const std::string& name) {
+  auto elem = m_methods.find(name);
+  if (elem != m_methods.end()) {
+    return elem->second;
+  }
+  
+  return nullptr;
+}
+
 
 std::ostream& operator<<(std::ostream& oss, const LukClass& lc) {
   oss << lc.m_name;

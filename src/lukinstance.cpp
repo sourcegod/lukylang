@@ -15,7 +15,8 @@ ObjPtr LukInstance::get(Token& name) {
     if (elem != m_fields.end()) {
       return elem->second;
     }
-  
+    ObjPtr method = m_klass->findMethod(name.lexeme);  
+    if (method != nullptr) return method;
     throw RuntimeError(name, 
         "Undefined property '" + name.lexeme + "'.");
     // unrichable

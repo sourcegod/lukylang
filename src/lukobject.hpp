@@ -115,6 +115,7 @@ public:
     operator std::string() const { return _toString(); }
 
     // assignment operators 
+    // TODO: convert nullptr to shared_ptr lukobject
     // LukObject& operator=(nullptr_t);
     LukObject& operator=(const bool&& val);
     LukObject& operator=(const int&& val);
