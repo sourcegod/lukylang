@@ -339,6 +339,9 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
   return value;
 }
 
+TObject Interpreter::visitThisExpr(ThisExpr& expr) {
+  return TObject();
+}
 
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
     TObject right = evaluate(expr.right);

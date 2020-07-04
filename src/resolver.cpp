@@ -139,6 +139,9 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
   return TObject();
 }
 
+TObject Resolver::visitThisExpr(ThisExpr& expr) {
+  return TObject();
+}
 
 TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
   resolve(expr.right);
