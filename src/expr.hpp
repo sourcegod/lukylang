@@ -17,6 +17,7 @@ class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
+class ThisExpr;
 class UnaryExpr;
 class VariableExpr;
 
@@ -32,6 +33,7 @@ class ExprVisitor {
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
         virtual TObject visitLogicalExpr(LogicalExpr&) =0;
         virtual TObject visitSetExpr(SetExpr&) =0;
+        virtual TObject visitThisExpr(ThisExpr&) =0;
         virtual TObject visitUnaryExpr(UnaryExpr&) =0;
         virtual TObject visitVariableExpr(VariableExpr&) =0;
 };
@@ -207,6 +209,18 @@ public:
     PExpr m_value;
 };
 
+class ThisExpr : public Expr {
+public:
+    ThisExpr(Token& keyword) {
+        m_keyword = keyword;
+    }
+    
+    TObject accept(ExprVisitor &v) override {
+        return v.visitThisExpr(*this); 
+    }
+
+    Token m_keyword;
+};
 
 class UnaryExpr : public Expr {
 public:
