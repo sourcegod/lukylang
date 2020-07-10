@@ -13,7 +13,8 @@ class LukClass : public LukCallable {
 public:
     std::string m_name;
 
-    LukClass(const std::string& name, const std::unordered_map<std::string, ObjPtr>& methods)
+    LukClass(const std::string& name, 
+        const std::unordered_map<std::string, ObjPtr>& methods)
       : m_name(name), 
     m_methods(methods) 
     {}

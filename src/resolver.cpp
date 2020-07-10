@@ -140,6 +140,7 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
 }
 
 TObject Resolver::visitThisExpr(ThisExpr& expr) {
+  resolveLocal(&expr, expr.m_keyword);
   return TObject();
 }
 
@@ -182,13 +183,18 @@ void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
 void Resolver::visitClassStmt(ClassStmt& stmt) {
   declare(stmt.m_name);
   define(stmt.m_name);
+  beginScope();
+  if (m_scopes.size() == 0) return;
+  auto& scope = m_scopes.back(); 
+  scope["this"] = true;
+
   for (auto method: stmt.m_methods) {
     auto declaration = FunctionType::Method;
     resolveFunction(*method, declaration);
   }
 
+  endScope();
 }
-
 
 void Resolver::visitIfStmt(IfStmt& stmt) {
   resolve(stmt.condition);

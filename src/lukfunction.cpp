@@ -1,6 +1,5 @@
 #include "lukfunction.hpp"
 #include "lukobject.hpp"
-#include "lukcallable.hpp"
 #include "environment.hpp"
 #include "interpreter.hpp"
 #include "return.hpp"
@@ -22,5 +21,17 @@ LukObject  LukFunction::call(Interpreter& interp, std::vector<LukObject>& v_args
     }
     
     return TObject();
+}
+
+ObjPtr LukFunction::bind(std::shared_ptr<LukInstance> instPtr) {
+  std::cerr << "\nIn LukFunction bind:\n";
+  auto env = std::make_shared<Environment>(m_closure);
+  // auto obj = LukObject(instPtr);
+  env->define("this", LukObject(instPtr));
+  auto funcPtr = std::make_shared<LukFunction>(m_declaration, env);
+  auto obj_ptr = std::make_shared<LukObject>(funcPtr);
+  std::cerr << "\nExit out LukFunction bind\n";
+  return obj_ptr;
+  // return TObject::getNilPtr();
 }
 

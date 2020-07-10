@@ -6,6 +6,7 @@
 #include "lukobject.hpp"
 #include "token.hpp"
 #include "lukcallable.hpp"
+#include "lukfunction.hpp"
 #include "lukinstance.hpp"
 
 #include <iostream> // cout and cerr
@@ -62,11 +63,13 @@ LukObject::LukObject(std::shared_ptr<LukCallable> callable)
     p_string = std::make_shared<std::string>(callable->toString());
 }
 
+// std::shared_ptr<LukFunction> LukObject::getFunc() { return std::make_shared<LukFunction>(p_callable); }
+
 LukObject::LukObject(std::shared_ptr<LukInstance> instance)
         : id(++next_id) { 
         m_type = LukType::Instance;
-        p_instance = instance; 
-        p_string = std::make_shared<std::string>(instance->toString());
+        p_instance = instance;
+        p_string = std::make_shared<std::string>(p_instance->toString());
     }
 
 LukObject::LukObject(Token tok) 
@@ -244,6 +247,9 @@ void LukObject::cast(LukType tp) {
 /*
 LukObject& LukObject::operator=(nullptr_t nullptr) {
         m_type = LukType::Nil;
+        p_string = nullptr;
+        p_callable = nullptr;
+        p_instance = nullptr;
         return *this;
 }
 */
@@ -293,6 +299,7 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     // avoid copy of same object
     if (this == &obj) return *this;
     id = ++next_id;
+    // std::cerr << "\nIn LukObject, operator=\n";
     // std::cerr << "Copy Assignement, id: " << id << "\n";
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
@@ -300,8 +307,8 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     // m_string = obj.m_string;
     p_string = obj.p_string;
     p_callable = obj.p_callable;
-    // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
-    // std::cerr << "Voici p_string: " << p_string << std::endl;
+    // Note: dont forget to associate p_instance in operator =
+    p_instance = obj.p_instance;
 
     return *this;
 }

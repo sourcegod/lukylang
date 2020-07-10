@@ -16,6 +16,7 @@
 // forward declarations
 class Token;
 class LukCallable;
+class LukFunction;
 class LukObject;
 class LukInstance;
 using TObject = LukObject;
@@ -39,7 +40,6 @@ public:
     std::shared_ptr<std::string> p_string;
     std::shared_ptr<LukCallable> p_callable;
     std::shared_ptr<LukInstance> p_instance;
-
  
     // constructors
     LukObject();
@@ -61,13 +61,17 @@ public:
     // get the type id
     LukType getType() { return m_type; }
 
-    // get the id name
+    // get id number
+    size_t getId() { return id; }
+    // get id name
     std::string getName() { 
         std::ostringstream oss;
         oss << this;
         return oss.str(); 
     }
-        
+    // clonable
+    std::shared_ptr<LukObject> clone()  { return std::make_shared<LukObject>(*this); }
+
     // convertions
     bool toBool();
     double toNumber();
@@ -103,6 +107,7 @@ public:
     std::string getString() const noexcept { return m_string; }
     std::shared_ptr<std::string> getPtrString() const noexcept { return p_string; }
     std::shared_ptr<LukCallable> getCallable() const noexcept { return p_callable; }
+    // std::shared_ptr<LukFunction> getFunc(); 
     std::shared_ptr<LukInstance> getInstance() const noexcept { return p_instance; }
     
 

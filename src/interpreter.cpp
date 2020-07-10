@@ -121,17 +121,21 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 }
 
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
-    m_environment->define(stmt.m_name.lexeme, TObject());
-    std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
+  std::cerr << "In visitClassStmt: name: " << stmt.m_name.lexeme << "\n";
+  m_environment->define(stmt.m_name.lexeme, TObject());
+  std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
     for (auto meth: stmt.m_methods) {
       auto func = std::make_shared<LukFunction>(meth.get(), m_environment);
-      auto obj = std::make_shared<LukObject>(func);
-      methods[meth->name.lexeme] = obj;
+      std::cerr << "func name: " << func->toString() << "\n";
+      auto obj_ptr = std::make_shared<LukObject>(func);
+      std::cerr << "obj_ptr type: " << obj_ptr->getType() << "\n";
+      std::cerr << "ObjPtr callable: " << obj_ptr->getCallable()->toString() << "\n";
+      methods[meth->name.lexeme] = obj_ptr;
     }
     
     auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
     m_environment->assign(stmt.m_name, klass);
-
+  std::cerr << "Exit out visitClassStmt\n";
 }
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
@@ -162,6 +166,7 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
     TObject value = evaluate(stmt.expression);
+    std::cerr << "in visitprint: value: " << value << ", id: " << value.getId() << "\n";
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
 
@@ -270,7 +275,9 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     return TObject();
 }
 TObject Interpreter::visitCallExpr(CallExpr& expr) {
+  std::cerr << "\nIn visitcallExpr: \n";
     auto callee = evaluate(expr.callee);
+    std::cerr << "voici callee: " << callee << "\n";
     if (! callee.isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
@@ -287,16 +294,21 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
             << v_args.size() << ".";
         throw RuntimeError(expr.paren, msg.str());
     }
+    std::cerr << "func->toString : " << func->toString() << "\n";
 
     return func->call(*this, v_args);
 }
 
 TObject Interpreter::visitGetExpr(GetExpr& expr) {
   auto obj = evaluate(expr.m_object);
+  std::cerr << "\nIn visitGetExpr: \n";
+  std::cerr << "obj: " << obj << ", type: " << obj.getType() << ", id: " << obj.getId() << "\n";
   if (obj.isInstance()) {
+    // obj_ptr is the method
     auto obj_ptr = obj.getInstance()->get(expr.m_name);
     // Note: shared_ptr.get() returns the stored pointer, not the managed pointer.
     // *shared_ptr dereference the smart pointer
+    std::cerr << "In interpreter getexpr: *obj_ptr: " << *obj_ptr << "\n";
     return *obj_ptr;
   }
 
@@ -326,6 +338,7 @@ TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
 }
 
 TObject Interpreter::visitSetExpr(SetExpr& expr) {
+    std::cerr << "In visitSet: \n";
   auto obj = evaluate(expr.m_object);
   if (not obj.isInstance()) {
     throw RuntimeError(expr.m_name,
@@ -334,13 +347,21 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
   // TODO: evaluate function must returns lukobject with smart pointer
   auto value = evaluate(expr.m_value);
   auto val_ptr = std::make_shared<LukObject>(value);
-  obj.getInstance()->set(expr.m_name, val_ptr);
+  std::cerr << "value: " << value << "\n";
+  std::cerr << "obj: " << obj << ", type: " << obj.getType() << "\n";
+  std::cerr << "obj.getId: " << obj.getId() << "\n";
+  auto instPtr = obj.getInstance();
+  std::cerr << "instptr tostring: " << instPtr->m_klass->toString() << "\n";
+  // instPtr->set(expr.m_name, val_ptr);
+    std::cerr << "Exit out visitSet: \n";
  
   return value;
 }
 
 TObject Interpreter::visitThisExpr(ThisExpr& expr) {
-  return TObject();
+  std::cerr << "Enter in visitThis\n";
+  std::cerr << "Exit out visitThis\n";
+  return lookUpVariable(expr.m_keyword, expr);
 }
 
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
@@ -418,6 +439,12 @@ std::string Interpreter::stringify(TObject& obj) {
     
     // return obj.value();
     // std::cerr << "End of stringify\n";
+    if (obj.isInstance()) {
+      std::cerr << "\nin stringify, obj: " << obj 
+        << ", type: " << obj.getType() << ", id: " << obj.getId() << ", \n"
+        << "obj.getInstance toString: " << *obj.getInstance() << "\n";
+    }
+    
     return *obj.getPtrString();
 }
 

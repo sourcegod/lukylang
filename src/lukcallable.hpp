@@ -8,7 +8,6 @@
 #include <vector>
 #include <iostream>
 #include <sstream> // osstringstream
-
 class LukObject;
 class Interpreter;
 using VArguments = std::vector<LukObject>;
@@ -27,6 +26,7 @@ public:
     virtual size_t arity() const = 0;
     virtual LukObject call(Interpreter&, VArguments& v_args) =0;
     virtual std::string toString() const = 0;
+   virtual std::string typeName() const { return "LukCallable"; }
 };
 
 
