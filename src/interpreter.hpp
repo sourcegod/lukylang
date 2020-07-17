@@ -8,16 +8,18 @@
 #include <vector>
 #include <unordered_map>
 
-using PObject = std::shared_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     PEnvironment m_globals;
 
     Interpreter();
-    ~Interpreter() { }
+    ~Interpreter() { 
+      logMsg("\n~Interpreter destructor\n");
+    }
 
     void interpret(std::vector<std::shared_ptr<Stmt>> statements);
     void printResult();
+    void logState();
 
     // statements    
     void visitBlockStmt(BlockStmt& stmt) override;

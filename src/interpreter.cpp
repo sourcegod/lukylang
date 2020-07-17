@@ -15,6 +15,7 @@
 #include <sstream> // for stringstream
 
 Interpreter::Interpreter() {
+    logMsg("\nIn Interpreter");
     LogConf.headers = true;
     LogConf.level = log_DEBUG;
     CLog(log_WARN) << "log_WARN: Coucou les gens";
@@ -28,11 +29,12 @@ Interpreter::Interpreter() {
     // logMsg("Env globals: ", m_globals->m_name);
     auto func = std::make_shared<ClockFunc>();
     m_globals->define("clock", LukObject(func));
+    logMsg("\nExit out Interpreter");
 
 }
 
 void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
-  logMsg("\n--- Starts Loop Interpreter");
+  logMsg("\nIn Interpret, starts loop");
     if (statements.empty()) 
         std::cerr << "Interp: vector is empty.\n";
     try {
@@ -52,8 +54,9 @@ void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
     // m_result += "tata ";
     if (!m_result.isNil())
         printResult();
+    logState();
 
-  logMsg("\n--- End Interpreter");
+  logMsg("\nExit out  Interpret");
 
     return;
 }
@@ -67,21 +70,57 @@ void Interpreter::printResult() {
 }
 
 
+void Interpreter::logState() {
+  logMsg("\nEnvironment state");
+ // Note: workaound to make an alias for a variable in c++ 
+ // int a; 
+ // int* const b = &a;
+ // b is an alias or pointer to a
+ // but not work for a map
+  // auto* values = &m_globals->m_values;
+  logMsg("Globals state");
+  auto& values = m_globals->getValues();
+  // Note: Pattern: looping over map
+  if (values.empty()) {
+      logMsg("m_globals env is empty");
+  } else {
+      // for (auto& elem: m_globals->m_values)  {
+      for (auto& elem: values)  {
+          logMsg(elem.first, ":", elem.second->toString());
+      }
+  }
+
+  logMsg("\nLocals state");
+  if (m_locals.empty()) {
+      logMsg("m_locals env is empty");
+  } else {
+      for (auto& elem: m_locals)  {
+          logMsg(elem.first, ":", elem.second);
+      }
+  
+  }
+   
+}
+
+
 TObject Interpreter::evaluate(PExpr& expr) { 
     return expr->accept(*this);
 }
 
 void Interpreter::execute(PStmt& stmt) {
+    logMsg("\nIn execute top level, *stmt: ", typeid(*stmt).name());
     stmt->accept(*this);
 }
 
 void Interpreter::resolve(Expr& expr, int depth) {
+  logMsg("\nIn Resolve expr, Interpreter");
   // Note: FIX: abstract class Expr cannot be in map
   // so, we store its uniq id in the map
   m_locals[expr.id()] = depth;
 }
 
 void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
+    logMsg("\nIn ExecuteBlock: ");
     auto previous = m_environment;
     try {
         m_environment = env;
@@ -121,21 +160,23 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 }
 
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
-  std::cerr << "In visitClassStmt: name: " << stmt.m_name.lexeme << "\n";
+  logMsg("In visitClassStmt: name: ", stmt.m_name.lexeme);
   m_environment->define(stmt.m_name.lexeme, TObject());
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
     for (auto meth: stmt.m_methods) {
       auto func = std::make_shared<LukFunction>(meth.get(), m_environment);
-      std::cerr << "func name: " << func->toString() << "\n";
+      logMsg("func name: ", func->toString());
       auto obj_ptr = std::make_shared<LukObject>(func);
-      std::cerr << "obj_ptr type: " << obj_ptr->getType() << "\n";
-      std::cerr << "ObjPtr callable: " << obj_ptr->getCallable()->toString() << "\n";
+      logMsg("obj_ptr type: ", obj_ptr->getType());
+      logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
+      logMsg("Adding meth to methods map: ", meth->name.lexeme);
       methods[meth->name.lexeme] = obj_ptr;
     }
     
     auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
+    logMsg("Assign klass: ", stmt.m_name, " to m_environment");
     m_environment->assign(stmt.m_name, klass);
-  std::cerr << "Exit out visitClassStmt\n";
+  logMsg("Exit out visitClassStmt\n");
 }
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
@@ -166,7 +207,7 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
     TObject value = evaluate(stmt.expression);
-    std::cerr << "in visitprint: value: " << value << ", id: " << value.getId() << "\n";
+    logMsg("\nIn visitprint: value: ", value, ", id: ", value.getId());
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
 
@@ -177,7 +218,7 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
     if (stmt.value != nullptr) { 
         value = evaluate(stmt.value);
     } else {
-        std::cout << "okok\n";
+        std::cout,"okok\n";
         value = nullptr;;
     }
 
@@ -192,6 +233,7 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
     }
     m_environment->define(stmt.name.lexeme, value);
 
+    logState();
 }
 
 void Interpreter::visitWhileStmt(WhileStmt& stmt) {
@@ -275,9 +317,9 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     return TObject();
 }
 TObject Interpreter::visitCallExpr(CallExpr& expr) {
-  std::cerr << "\nIn visitcallExpr: \n";
+  logMsg("\nIn visitcallExpr: "); 
     auto callee = evaluate(expr.callee);
-    std::cerr << "voici callee: " << callee << "\n";
+  logMsg("callee: ", callee);
     if (! callee.isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
@@ -289,26 +331,27 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
     const auto& func = callee.getCallable();
     if (v_args.size() != func->arity()) {
         std::ostringstream msg;
-        msg << "Expected " << func->arity() 
-            << " arguments but got " 
-            << v_args.size() << ".";
+        msg,"Expected ",func->arity() 
+           ," arguments but got " 
+           ,v_args.size(),".";
         throw RuntimeError(expr.paren, msg.str());
     }
-    std::cerr << "func->toString : " << func->toString() << "\n";
+    logMsg("func->toString : ",func->toString());
 
     return func->call(*this, v_args);
 }
 
 TObject Interpreter::visitGetExpr(GetExpr& expr) {
+  logMsg("\nIn visitGetExpr, name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
-  std::cerr << "\nIn visitGetExpr: \n";
-  std::cerr << "obj: " << obj << ", type: " << obj.getType() << ", id: " << obj.getId() << "\n";
+  logMsg("obj: ", obj, ", type: ", obj.getType(), ", id: ", obj.getId());
   if (obj.isInstance()) {
+    logMsg("obj is an instance");
     // obj_ptr is the method
     auto obj_ptr = obj.getInstance()->get(expr.m_name);
     // Note: shared_ptr.get() returns the stored pointer, not the managed pointer.
     // *shared_ptr dereference the smart pointer
-    std::cerr << "In interpreter getexpr: *obj_ptr: " << *obj_ptr << "\n";
+    logMsg("In interpreter getexpr: *obj_ptr: ", *obj_ptr);
     return *obj_ptr;
   }
 
@@ -338,7 +381,8 @@ TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
 }
 
 TObject Interpreter::visitSetExpr(SetExpr& expr) {
-    std::cerr << "In visitSet: \n";
+    logMsg("\nIn visitSet: ");
+    logMsg("name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
   if (not obj.isInstance()) {
     throw RuntimeError(expr.m_name,
@@ -347,21 +391,26 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
   // TODO: evaluate function must returns lukobject with smart pointer
   auto value = evaluate(expr.m_value);
   auto val_ptr = std::make_shared<LukObject>(value);
-  std::cerr << "value: " << value << "\n";
-  std::cerr << "obj: " << obj << ", type: " << obj.getType() << "\n";
-  std::cerr << "obj.getId: " << obj.getId() << "\n";
+  logMsg("value: ", value);
+  logMsg("obj: ", obj, ", type: ", obj.getType());
+  logMsg("obj.getId: ", obj.getId());
   auto instPtr = obj.getInstance();
-  std::cerr << "instptr tostring: " << instPtr->m_klass->toString() << "\n";
-  // instPtr->set(expr.m_name, val_ptr);
-    std::cerr << "Exit out visitSet: \n";
+  logMsg("instptr tostring: ", instPtr->toString());
+  logMsg("set instance, name: ", expr.m_name, ", value: ", *val_ptr);
+  instPtr->set(expr.m_name, val_ptr);
+  logMsg("m_fields size from visitSet: ", instPtr->getFields().size());
+  logMsg("Exit out visitSet: \n");
  
   return value;
 }
 
 TObject Interpreter::visitThisExpr(ThisExpr& expr) {
-  std::cerr << "Enter in visitThis\n";
-  std::cerr << "Exit out visitThis\n";
-  return lookUpVariable(expr.m_keyword, expr);
+  logMsg("\nIn visitThis");
+  logMsg("keyword: ", expr.m_keyword);
+  auto obj = lookUpVariable(expr.m_keyword, expr);
+  logMsg("after lookUpVariable, returns obj: ", obj);
+  logMsg("Exit out visitThis\n");
+  return obj;
 }
 
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
@@ -384,6 +433,7 @@ TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
 }
 
 TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
+  logMsg("\nIn lookUpVariable name: ", name.lexeme);
   // TODO: must be factorized
   // searching the depth in locals map
   // whether not, get the variable in globals map
@@ -392,7 +442,6 @@ TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
     // elem->second is the depth
     return m_environment->getAt(elem->second, name.lexeme);
   }
-
   return m_globals->get(name);
 }
 
@@ -438,11 +487,11 @@ std::string Interpreter::stringify(TObject& obj) {
     } 
     
     // return obj.value();
-    // std::cerr << "End of stringify\n";
+    // logMsg("End of stringify\n";
     if (obj.isInstance()) {
-      std::cerr << "\nin stringify, obj: " << obj 
-        << ", type: " << obj.getType() << ", id: " << obj.getId() << ", \n"
-        << "obj.getInstance toString: " << *obj.getInstance() << "\n";
+      logMsg("\nIn stringify, obj: ", obj);
+      logMsg(", type: ", obj.getType(),", id: ", obj.getId());
+      logMsg("obj.getInstance toString: ", obj.getInstance()->toString());
     }
     
     return *obj.getPtrString();

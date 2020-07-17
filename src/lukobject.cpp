@@ -69,6 +69,7 @@ LukObject::LukObject(std::shared_ptr<LukInstance> instance)
         : id(++next_id) { 
         m_type = LukType::Instance;
         p_instance = instance;
+        logMsg("\nIn LukObject instance toString: ", instance->toString());
         p_string = std::make_shared<std::string>(p_instance->toString());
     }
 
@@ -155,10 +156,10 @@ T LukObject::stringToNumber(const std::string& stg)
     // double number = stringToNumber<double>("0.6");
 
 std::string LukObject::toString() {
-        if (m_type == LukType::String) return m_string;
-        m_string = _toString();
-        m_type = LukType::String;
-        return m_string;
+  // Warning: not change the m_type to string      
+  if (m_type == LukType::String) return *p_string;
+  // m_type = LukType::String;
+  return _toString();
 }
 
 bool LukObject::_toBool() const {
@@ -299,8 +300,8 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     // avoid copy of same object
     if (this == &obj) return *this;
     id = ++next_id;
-    // std::cerr << "\nIn LukObject, operator=\n";
-    // std::cerr << "Copy Assignement, id: " << id << "\n";
+    logMsg("\nIn LukObject, operator=");
+    logMsg("Copy Assignement, id: ", id);
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
@@ -318,7 +319,7 @@ LukObject& LukObject::operator=(const LukObject&& obj) {
     // avoid copy of same object
     if (this == &obj) return *this;
     id = ++next_id;
-        // std::cerr << "Move Assignement, id: " << id << "\n";
+        logMsg("Move Assignement, id: ", id);
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;

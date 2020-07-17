@@ -2,37 +2,57 @@
 #define LUKINSTANCE_HPP
 
 #include "lukobject.hpp"
+#include "lukclass.hpp"
+#include "logger.hpp"
+
 #include <iostream>
 #include <string>
 #include <memory>
 #include <unordered_map>
-#include "lukclass.hpp"
+
 class LukClass;
 class LukObject;
 class Token;
 using ObjPtr = std::shared_ptr<LukObject>;
 
-class LukInstance  {
+class LukInstance  : std::enable_shared_from_this<LukInstance> {
 // FIXME: temporary, this alias is allready in lukobject.hpp
 public:
-   std::unordered_map<std::string, int> m_map;
-    LukInstance(const LukInstance&) {
-      m_klass = nullptr;
-    }
-    explicit LukInstance(LukClass* klass)
+    explicit LukInstance(std::shared_ptr<LukClass> klass)
       : m_klass(klass) { 
-        std::cerr << "LukInstance in constructor\n";
-        std::cerr << "m_klass->tostring: " << m_klass->toString() << "\n";
-        std::cerr << "Exit out constructor\n";
+        logMsg("\nIn LukInstance constructor");
+        logMsg("m_klass->tostring: ", m_klass->toString());
+        logMsg("Exit out lukinstance constructor");
+    }
+      
+    explicit LukInstance(LukInstance& other) {
+      // Note: we should do a deep copy for this object
+      // cause this object is more sophisticated
+      // so the compiler default copy constructor cannot copy it entirely.
+      logMsg("LukInstance copy Ctor with deep copy");
+      m_klass = other.getKlass();
+      m_fields = other.getFields();
+    }
+    
+    ~LukInstance() { 
+      logMsg("~LukInstance destructor: ", this->toString()); 
+    }
+
+      std::shared_ptr<LukInstance> clone() {
+        return std::make_shared<LukInstance>(*this);
       }
+
+      std::shared_ptr<LukClass>& getKlass() { return m_klass; }
+      std::unordered_map<std::string, ObjPtr>& getFields() { return m_fields; }
 
     virtual std::string toString() const;
     ObjPtr get(Token& name);
     void set(Token name, ObjPtr valPtr);
 
-   LukClass* m_klass;
-   std::unordered_map<std::string, ObjPtr> m_fields = {};
 private:
+   // LukClass* m_klass;
+    std::shared_ptr<LukClass> m_klass;
+   std::unordered_map<std::string, ObjPtr> m_fields = {};
 
 };
 

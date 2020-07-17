@@ -23,21 +23,24 @@ public:
     LukFunction(FunctionStmt* declaration, std::shared_ptr<Environment> closure) : 
       m_declaration(declaration),
       m_closure(closure) {
-        std::cerr << "LukFunction constructor\n";
+        logMsg("LukFunction constructor: ", this->toString());
       }
 
-    ~LukFunction() { std::cerr << "Destructor lukfunction: " << this << "\n"; } 
-ObjPtr bind(std::shared_ptr<LukInstance> instPtr);
+    ~LukFunction() { 
+        logMsg("~Lukfunction destructor: ", this->toString()); 
+    } 
+    
     virtual std::string addressOf()  override {  
         std::ostringstream oss;
         oss << "LukFunction address: " << this;
         return oss.str();
     }
+    virtual std::string typeName() const override { return "LukFunction"; }
     
     virtual size_t arity() const override { return m_declaration->params.size(); }
     virtual LukObject  call(Interpreter& interp, std::vector<LukObject>& v_args) override;
-   virtual std::string toString() const override { return "<Function " + m_declaration->name.lexeme + ">"; }
-   virtual std::string typeName() const override { return "LukFunction"; }
+    virtual std::string toString() const override { return "<Function " + m_declaration->name.lexeme + ">"; }
+    ObjPtr bind(std::shared_ptr<LukInstance> instPtr);
 
 private:
    FunctionStmt* m_declaration;

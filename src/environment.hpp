@@ -52,6 +52,7 @@ public:
     }
 
     size_t size() {  return m_values.size(); }
+    auto& getValues() { return m_values; }
 
     TObject& get(Token name);
     void assign(Token name, TObject val);
@@ -63,7 +64,7 @@ public:
     void assignAt(int distance, Token& name, std::shared_ptr<TObject> val);
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<TObject>> m_values = {};
+    std::unordered_map<std::string, ObjPtr> m_values = {};
     PEnvironment m_enclosing;
 
 };

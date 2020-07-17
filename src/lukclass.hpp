@@ -2,6 +2,7 @@
 #define LUKCLASS_HPP
 
 #include "lukcallable.hpp"
+#include "logger.hpp"
 
 #include <string>
 #include <vector>
@@ -17,12 +18,19 @@ public:
         const std::unordered_map<std::string, ObjPtr>& methods)
       : m_name(name), 
     m_methods(methods) 
-    {}
+    {
+      logMsg("LukClass constructor: ", this->toString()); 
+    }
+
+    ~LukClass() {
+      logMsg("~LukClass destructor: ", this->toString()); 
+    }
 
     virtual size_t arity() const override;
     virtual LukObject  call(Interpreter& interp, std::vector<LukObject>& v_args) override;
     virtual std::string toString() const override;
     ObjPtr findMethod(const std::string& name);
+
 private:
   std::unordered_map<std::string, ObjPtr> m_methods;
 };
