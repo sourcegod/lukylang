@@ -71,6 +71,7 @@ void Interpreter::printResult() {
 
 
 void Interpreter::logState() {
+#ifdef DEBUG
   logMsg("\nEnvironment state");
  // Note: workaound to make an alias for a variable in c++ 
  // int a; 
@@ -99,7 +100,8 @@ void Interpreter::logState() {
       }
   
   }
-   
+#endif
+
 }
 
 
