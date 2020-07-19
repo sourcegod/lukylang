@@ -15,7 +15,7 @@ class LukObject;
 class Token;
 using ObjPtr = std::shared_ptr<LukObject>;
 
-class LukInstance  : std::enable_shared_from_this<LukInstance> {
+class LukInstance {
 // FIXME: temporary, this alias is allready in lukobject.hpp
 public:
     explicit LukInstance(std::shared_ptr<LukClass> klass)

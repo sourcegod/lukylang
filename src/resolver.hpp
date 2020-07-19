@@ -55,7 +55,11 @@ private:
     enum class FunctionType {
       None, Function, Method
     };
-    
+   
+    enum ClassType {
+      None, Class
+    };
+   ClassType  currentClass = ClassType::None;
     const std::string errTitle = "ResolverError: ";
   Interpreter& m_interp;
   LukError& m_lukErr;

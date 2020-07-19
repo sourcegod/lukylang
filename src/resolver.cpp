@@ -140,6 +140,12 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
 }
 
 TObject Resolver::visitThisExpr(ThisExpr& expr) {
+
+  if (currentClass == ClassType::None) {
+      m_lukErr.error(errTitle, expr.m_keyword,
+          "Cannot use 'this' outside of a class.");
+    }
+
   resolveLocal(&expr, expr.m_keyword);
   return TObject();
 }
@@ -181,6 +187,9 @@ void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
 }
 
 void Resolver::visitClassStmt(ClassStmt& stmt) {
+  ClassType enclosingClass = currentClass;
+  currentClass = ClassType::Class;
+  
   declare(stmt.m_name);
   define(stmt.m_name);
   beginScope();
@@ -194,6 +203,8 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   }
 
   endScope();
+  
+  currentClass = enclosingClass;
 }
 
 void Resolver::visitIfStmt(IfStmt& stmt) {
