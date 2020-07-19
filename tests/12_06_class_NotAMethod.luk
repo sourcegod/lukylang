@@ -1,0 +1,5 @@
+fun NotAMethod() {
+  print this;
+}
+
+NotAMethod();
