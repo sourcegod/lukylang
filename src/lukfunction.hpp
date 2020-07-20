@@ -20,9 +20,11 @@ public:
     // Note: WARNING: cannot copy assignment derived object like FunctionStmt ..
     // so passing it by raw pointer.
     LukFunction() {}    
-    LukFunction(FunctionStmt* declaration, std::shared_ptr<Environment> closure) : 
+    LukFunction(FunctionStmt* declaration, std::shared_ptr<Environment> closure,
+        bool isInitializer) : 
       m_declaration(declaration),
-      m_closure(closure) {
+      m_closure(closure), 
+  m_isInitializer(isInitializer) {
         logMsg("LukFunction constructor: ", this->toString());
       }
 
@@ -45,6 +47,7 @@ public:
 private:
    FunctionStmt* m_declaration;
    std::shared_ptr<Environment> m_closure;
+   bool m_isInitializer;
 
 };
 

@@ -166,7 +166,8 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   m_environment->define(stmt.m_name.lexeme, TObject());
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
     for (auto meth: stmt.m_methods) {
-      auto func = std::make_shared<LukFunction>(meth.get(), m_environment);
+      auto func = std::make_shared<LukFunction>(meth.get(), m_environment,
+          meth->name.lexeme == "init");
       logMsg("func name: ", func->toString());
       auto obj_ptr = std::make_shared<LukObject>(func);
       logMsg("obj_ptr type: ", obj_ptr->getType());
@@ -186,7 +187,7 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 }
 
 void Interpreter::visitFunctionStmt(FunctionStmt* stmt) {
-    auto func = std::make_shared<LukFunction>(stmt, m_environment);
+    auto func = std::make_shared<LukFunction>(stmt, m_environment, false);
     m_environment->define(stmt->name.lexeme, LukObject(func));
     
 }

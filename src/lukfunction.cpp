@@ -19,6 +19,8 @@ LukObject  LukFunction::call(Interpreter& interp, std::vector<LukObject>& v_args
     } catch(Return& ret) {
         return ret.value;
     }
+    if (m_isInitializer) return  m_closure->getAt(0, "this");
+    
     
     return TObject();
 }
@@ -32,7 +34,7 @@ ObjPtr LukFunction::bind(std::shared_ptr<LukInstance> instPtr) {
   env->define("this", LukObject(instPtr));
   logMsg("After define 'this', env->size: ", env->size());
     logMsg("with instance: ", instPtr->toString());
-  auto funcPtr = std::make_shared<LukFunction>(m_declaration, env);
+  auto funcPtr = std::make_shared<LukFunction>(m_declaration, env, m_isInitializer);
   auto obj_ptr = std::make_shared<LukObject>(funcPtr);
   logMsg("Returns new lukfunction: ", obj_ptr->toString());
   logMsg("\nExit out LukFunction bind");
