@@ -26,7 +26,7 @@ public:
       logMsg("~LukClass destructor: ", this->toString()); 
     }
 
-    virtual size_t arity() const override;
+    virtual size_t arity() override;
     virtual LukObject  call(Interpreter& interp, std::vector<LukObject>& v_args) override;
     virtual std::string toString() const override;
     ObjPtr findMethod(const std::string& name);
