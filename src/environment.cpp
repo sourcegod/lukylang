@@ -55,7 +55,6 @@ TObject Environment::getAt(int distance, const std::string& name) {
       << " at depth: ";
     throw RuntimeError(msg.str());
   }
-
   return *elem->second.get();
 }
 

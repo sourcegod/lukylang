@@ -17,6 +17,10 @@ LukObject  LukFunction::call(Interpreter& interp, std::vector<LukObject>& v_args
     try {
         interp.executeBlock(m_declaration->body, env);
     } catch(Return& ret) {
+        if (m_isInitializer) { 
+          return m_closure->getAt(0, "this");
+        }
+        
         return ret.value;
     }
     if (m_isInitializer) return  m_closure->getAt(0, "this");
