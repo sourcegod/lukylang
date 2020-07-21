@@ -52,14 +52,16 @@ public:
     void visitWhileStmt(WhileStmt& stmt) override;
 
 private:
+    // Note: why use of "enum class" instead "enum"???
     enum class FunctionType {
-      None, Function, Method
+      None, Function, Initializer, Method
     };
    
-    enum ClassType {
+    enum class ClassType {
       None, Class
     };
-   ClassType  currentClass = ClassType::None;
+    
+    ClassType  currentClass = ClassType::None;
     const std::string errTitle = "ResolverError: ";
   Interpreter& m_interp;
   LukError& m_lukErr;

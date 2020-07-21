@@ -199,7 +199,11 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
 
   for (auto method: stmt.m_methods) {
     auto declaration = FunctionType::Method;
-    resolveFunction(*method, declaration);
+    if (method->name.lexeme == "init") {
+      declaration = FunctionType::Initializer;
+    }
+
+    resolveFunction(*method, declaration); // [local] 
   }
 
   endScope();
@@ -229,7 +233,14 @@ void Resolver::visitPrintStmt(PrintStmt& stmt) {
 void Resolver::visitReturnStmt(ReturnStmt& stmt) {
   if (m_curFunction == FunctionType::None)
     m_lukErr.error(errTitle, stmt.name, "Cannot return from top-level code.");
-  if (stmt.value != nullptr) resolve(stmt.value);
+  if (stmt.value != nullptr) {
+    if (m_curFunction == FunctionType::Initializer) {
+        m_lukErr.error(errTitle, stmt.name,
+            "Cannot return a value from an initializer.");
+    }
+    
+    resolve(stmt.value);
+  }
 
 }
 
