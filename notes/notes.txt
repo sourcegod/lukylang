@@ -40,6 +40,10 @@ interpreter instance.
 make forward declarations in the header files,
 and make definitions classes in the source (.cpp) files
 and the include headers files.
+
+4.2 Virtual functions
+-- Apply the override specifier to every overrided virtual function you write.
+
   5. Release version
   
   6. Debug version
