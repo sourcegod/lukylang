@@ -221,8 +221,7 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
     if (stmt.value != nullptr) { 
         value = evaluate(stmt.value);
     } else {
-        std::cout,"okok\n";
-        value = nullptr;;
+        // value = nullptr;
     }
 
     throw Return(value);

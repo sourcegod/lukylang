@@ -4,4 +4,5 @@ class Foo {
   }
 }
 
-var foo = Foo(); // prints <Instance Foo>
+var foo = Foo(); 
+print foo; // prints <Instance Foo>
