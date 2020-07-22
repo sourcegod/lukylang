@@ -52,7 +52,8 @@ public:
     void visitWhileStmt(WhileStmt& stmt) override;
 
 private:
-    // Note: why use of "enum class" instead "enum"???
+    // Note: using enum class as scoped enumeration
+    // instead standard enumeration to avoid conflict between two enumerations.
     enum class FunctionType {
       None, Function, Initializer, Method
     };

@@ -44,6 +44,11 @@ and the include headers files.
 4.2 Virtual functions
 -- Apply the override specifier to every overrided virtual function you write.
 
+4.3 Enum class 
+-- It's better to define an enum class name, as a scoped enumeration instead of
+the standard enumeration.
+To avoid conflict between two enumerations in the same scope.
+
   5. Release version
   
   6. Debug version
