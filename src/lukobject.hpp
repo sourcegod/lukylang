@@ -78,9 +78,35 @@ public:
     std::string toString();
     std::string value();
 
-   // convert string to number  
+    // convert string to number  
+    // Note: template function must be defining in the header file, not in the implementation file.
+    // not used, is just as an exercise for template
+    // Note: usage:
+    // double number = stringToNumber<double>("0.6");
     template<typename T>
-    T stringToNumber(const std::string& stg);
+        T stringToNumber(const std::string& stg) {
+        T tValue;
+        std::stringstream stream(stg);
+        stream >> tValue;
+        if (stream.fail()) {
+            std::runtime_error e(stg);
+            throw e;
+        }
+
+        return tValue;
+    }
+ 
+    // Note: make dynamic casting to convert base object to derived one.
+    // Note: template function must be defining in the header file, not in the implementation file.
+    template <typename T>
+    std::shared_ptr<T> getDynCast()  {
+      if (p_callable == nullptr) {
+        std::runtime_error err("LukObjectError: cannot casting p_callable when its null");
+        throw err;
+      }
+
+      return std::dynamic_pointer_cast<T>(p_callable);
+    }
 
     // test type state
     bool isNil() const { return m_type == LukType::Nil; }

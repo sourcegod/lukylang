@@ -137,24 +137,6 @@ double LukObject::toNumber() {
         return m_number;
     }
     
-// Note: convert string to number  
-// not used, is just as an exercise for template
-template<typename T>
-T LukObject::stringToNumber(const std::string& stg)
-    {
-        T tValue;
-        std::stringstream stream(stg);
-        stream >> tValue;
-        if (stream.fail()) {
-            std::runtime_error e(stg);
-            throw e;
-        }
-  
-        return tValue;
-    }
-    // usage:
-    // double number = stringToNumber<double>("0.6");
-
 std::string LukObject::toString() {
   // Warning: not change the m_type to string      
   if (m_type == LukType::String) return *p_string;

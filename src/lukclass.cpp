@@ -9,7 +9,7 @@
 size_t LukClass::arity() { 
     ObjPtr method = findMethod("init"); 
     if (method != nullptr) {
-      std::shared_ptr<LukFunction> initializer = std::dynamic_pointer_cast<LukFunction>(method->getCallable());
+      std::shared_ptr<LukFunction> initializer = method->getDynCast<LukFunction>();
       if (initializer == nullptr) return 0;
       return initializer->arity();
     }
@@ -17,6 +17,7 @@ size_t LukClass::arity() {
   
   return 0;
 }
+
 LukObject  LukClass::call(Interpreter& interp, 
            std::vector<LukObject>& v_args) {
   logMsg("\nIn call, LukClass");
@@ -34,12 +35,9 @@ LukObject  LukClass::call(Interpreter& interp,
     logMsg("Exit out LukClass\n");
     ObjPtr method = findMethod("init"); 
     if (method != nullptr) {
-
           // Note: to get derived object from shared_ptr base object
           // yout must use: static_pointer_cast or dynamic_pointer_cast to cast it.
-          auto callable = method->getCallable();
-          // auto funcPtr = std::make_shared<LukFunction>(callable);
-          std::shared_ptr<LukFunction> initializer = std::dynamic_pointer_cast<LukFunction>(method->getCallable());
+          std::shared_ptr<LukFunction> initializer = method->getDynCast<LukFunction>();
           if (initializer != nullptr) {
             auto obj_ptr = initializer->bind(instPtr);
               obj_ptr->getCallable()->call(interp, v_args);

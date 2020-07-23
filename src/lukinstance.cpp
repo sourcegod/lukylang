@@ -37,7 +37,8 @@ ObjPtr LukInstance::get(Token& name) {
           // Note: to get derived object from shared_ptr base object
           // yout must use: static_pointer_cast or dynamic_pointer_cast to cast it.
           logMsg("Before dynamic_cast : ");
-          std::shared_ptr<LukFunction> funcPtr = std::dynamic_pointer_cast<LukFunction>(method->getCallable());
+          std::shared_ptr<LukFunction> funcPtr = method->getDynCast<LukFunction>();
+          // std::shared_ptr<LukFunction> funcPtr = std::dynamic_pointer_cast<LukFunction>(method->getCallable());
           // std::shared_ptr<LukFunction> funcPtr(method->getCallable());
           std::shared_ptr<LukCallable> callable = method->getCallable();
           logMsg("callable typeName: ", callable->typeName());
