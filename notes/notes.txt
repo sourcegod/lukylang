@@ -49,6 +49,10 @@ and the include headers files.
 the standard enumeration.
 To avoid conflict between two enumerations in the same scope.
 
+4.4 Template function
+-- template function must be defining in the header file, 
+not in the implementation file, because it's managed in compile time.
+
   5. Release version
   
   6. Debug version
@@ -105,6 +109,10 @@ so the original object a stay unchanged
 -- In resolve function:
 FIX: abstract class "Expr" cannot be in map
 so, we store its uniq id in the map
+
+-- In lukobject.hpp:
+Adding getDynCast function, to convert base object to derived one,
+using dynamic_pointer_cast.
 
 7.5 Lukfunction object
 -- WARNING: cannot copy assignment derived object like FunctionStmt ..
