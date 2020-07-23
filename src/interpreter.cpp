@@ -15,7 +15,7 @@
 #include <sstream> // for stringstream
 
 Interpreter::Interpreter() {
-    logMsg("\nIn Interpreter");
+    logMsg("\nIn Interpreter constructor");
     LogConf.headers = true;
     LogConf.level = log_DEBUG;
     CLog(log_WARN) << "log_WARN: Coucou les gens";
@@ -29,7 +29,7 @@ Interpreter::Interpreter() {
     // logMsg("Env globals: ", m_globals->m_name);
     auto func = std::make_shared<ClockFunc>();
     m_globals->define("clock", LukObject(func));
-    logMsg("\nExit out Interpreter");
+    logMsg("\nExit out Interpreter constructor");
 
 }
 
@@ -37,6 +37,7 @@ void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
   logMsg("\nIn Interpret, starts loop");
     if (statements.empty()) 
         std::cerr << "Interp: vector is empty.\n";
+    logState();
     try {
          for (auto& stmt : statements) {
             if (stmt) {

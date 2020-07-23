@@ -123,9 +123,14 @@ class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
     FunctionStmt(Token _name, std::vector<Token> _params, std::vector<PStmt> _body) {
+        logMsg("\nIn FunctionStmt constructor");
         name = _name;
         params = std::move(_params);
         body  = std::move(_body);
+    }
+
+    ~FunctionStmt() { 
+        logMsg("\n~FunctionStmt desstructor");
     }
 
     void accept(StmtVisitor& v) override {
