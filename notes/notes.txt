@@ -53,6 +53,18 @@ To avoid conflict between two enumerations in the same scope.
 -- template function must be defining in the header file, 
 not in the implementation file, because it's managed in compile time.
 
+4.5 Destructor
+-- To prevent destructor to be destroyed:
+to prevent deleting pointer object by user, you can use the delete operator:
+void operator delete(void *) = delete;
+or to prevent the auto destructor for an object:
+you can not defining a destructor: ~object();
+or your can make the destructor private,
+or in c++11, you can tell to the compiler do not provide a destructor deleted: ~object() = delete;
+or make a "union" between base and derived object...
+or create a smart pointer to this object.
+
+
   5. Release version
   
   6. Debug version

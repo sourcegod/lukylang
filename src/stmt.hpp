@@ -136,6 +136,8 @@ public:
     // you can not defining a destructor: ~object();
     // or your can make the destructor private,
     // or in c++11, you can tell to the compiler do not provide a destructor deleted: ~object() = delete;
+    // or make a "union" between base and derived object...
+    // or create a smart pointer to this object.
 
     ~FunctionStmt() { 
         logMsg("\n~FunctionStmt desstructor");
