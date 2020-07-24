@@ -129,10 +129,19 @@ public:
         body  = std::move(_body);
     }
 
+    
+    // Note: to prevent deleting pointer object by user, you can use the delete operator
+    // void operator delete(void *) = delete;
+    // and to prevent the auto destructor for an object:
+    // you can not defining a destructor: ~object();
+    // or your can make the destructor private,
+    // or in c++11, you can tell to the compiler do not provide a destructor deleted: ~object() = delete;
+
     ~FunctionStmt() { 
         logMsg("\n~FunctionStmt desstructor");
     }
-
+    
+    
     void accept(StmtVisitor& v) override {
         v.visitFunctionStmt(this);
     }
