@@ -45,7 +45,7 @@ public:
     void visitClassStmt(ClassStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt& stmt) override;
     void visitIfStmt(IfStmt& stmt) override;
-    void visitFunctionStmt(FunctionStmt* stmt) override;
+    void visitFunctionStmt(FunctionStmt& stmt) override;
     void visitPrintStmt(PrintStmt& stmt) override;
     void visitReturnStmt(ReturnStmt& stmt) override;
     void visitVarStmt(VarStmt& stmt) override;

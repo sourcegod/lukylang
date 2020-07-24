@@ -30,7 +30,7 @@ public:
     virtual void visitClassStmt(ClassStmt&) =0;
     virtual void visitBreakStmt(BreakStmt&) =0;
     virtual void visitExpressionStmt(ExpressionStmt&) =0;
-    virtual void visitFunctionStmt(FunctionStmt*) =0;
+    virtual void visitFunctionStmt(FunctionStmt&) =0;
     virtual void visitIfStmt(IfStmt&) =0;
     virtual void visitPrintStmt(PrintStmt&) =0;
     virtual void visitReturnStmt(ReturnStmt&) =0;
@@ -141,9 +141,8 @@ public:
         logMsg("\n~FunctionStmt desstructor");
     }
     
-    
     void accept(StmtVisitor& v) override {
-        v.visitFunctionStmt(this);
+        v.visitFunctionStmt(*this);
     }
     Token name;
     std::vector<Token> params;

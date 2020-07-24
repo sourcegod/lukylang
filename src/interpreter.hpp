@@ -26,7 +26,7 @@ public:
     void visitBreakStmt(BreakStmt& stmt) override;
     void visitClassStmt(ClassStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt&) override;
-    void visitFunctionStmt(FunctionStmt* stmt) override;
+    void visitFunctionStmt(FunctionStmt& stmt) override;
     void visitIfStmt(IfStmt& stmt) override;
     void visitPrintStmt(PrintStmt&) override;
     void visitReturnStmt(ReturnStmt& stmt) override;

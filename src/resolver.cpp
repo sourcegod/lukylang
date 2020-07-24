@@ -218,10 +218,10 @@ void Resolver::visitIfStmt(IfStmt& stmt) {
 
 }
 
-void Resolver::visitFunctionStmt(FunctionStmt* stmt) {
-  declare(stmt->name);
-  define(stmt->name);
-  resolveFunction(*stmt, FunctionType::Function);
+void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
+  declare(stmt.name);
+  define(stmt.name);
+  resolveFunction(stmt, FunctionType::Function);
 
 }
 
