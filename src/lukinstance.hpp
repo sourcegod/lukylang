@@ -20,9 +20,6 @@ class LukInstance {
 public:
     explicit LukInstance(std::shared_ptr<LukClass> klass)
       : m_klass(klass) { 
-        logMsg("\nIn LukInstance constructor");
-        logMsg("m_klass->tostring: ", m_klass->toString());
-        logMsg("Exit out lukinstance constructor");
     }
       
     explicit LukInstance(LukInstance& other) {
@@ -35,7 +32,6 @@ public:
     }
     
     ~LukInstance() { 
-      logMsg("~LukInstance destructor: ", this->toString()); 
     }
 
       std::shared_ptr<LukInstance> clone() {
