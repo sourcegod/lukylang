@@ -19,11 +19,9 @@ public:
       : m_name(name), 
     m_methods(methods) 
     {
-      logMsg("LukClass constructor: ", this->toString()); 
     }
 
     ~LukClass() {
-      logMsg("~LukClass destructor: ", this->toString()); 
     }
 
     virtual size_t arity() override;

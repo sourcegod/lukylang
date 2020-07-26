@@ -20,19 +20,12 @@ size_t LukClass::arity() {
 
 LukObject  LukClass::call(Interpreter& interp, 
            std::vector<LukObject>& v_args) {
-  logMsg("\nIn call, LukClass");
     // Note: "this" is a const pointer, 
     // so the current function should be not const
     // otherwire "this" is casting const type* const
     // so not compile, when passing it as parameter to lukinstance object.
     auto thisPtr = std::make_shared<LukClass>(*this);
     auto instPtr = std::make_shared<LukInstance>(thisPtr );
-    // assert(typeid(*this) == typeid(*instPtr));
-    logType("typeid(*this): ", *this);
-    logMsg("typeid(*instPtr): ", typeid(*instPtr).name());
-    logMsg("after instance: m_klass toString: ", instPtr->getKlass()->toString());
-    logMsg("instPtr->m_fields.size: ", instPtr->getFields().size());
-    logMsg("Exit out LukClass\n");
     ObjPtr method = findMethod("init"); 
     if (method != nullptr) {
           // Note: to get derived object from shared_ptr base object
