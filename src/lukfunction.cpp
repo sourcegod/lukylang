@@ -30,19 +30,10 @@ LukObject  LukFunction::call(Interpreter& interp, std::vector<LukObject>& v_args
 }
 
 ObjPtr LukFunction::bind(std::shared_ptr<LukInstance> instPtr) {
-  logMsg("\nIn LukFunction bind: ");
-  logMsg("Instance: ", instPtr->toString());
   auto env = std::make_shared<Environment>(m_closure);
-  logMsg("After define new environment, size: ", env->size());
-  logMsg("Adding 'this' to env with: ", instPtr->toString());
   env->define("this", LukObject(instPtr));
-  logMsg("After define 'this', env->size: ", env->size());
-    logMsg("with instance: ", instPtr->toString());
   auto funcPtr = std::make_shared<LukFunction>(m_declaration, env, m_isInitializer);
   auto obj_ptr = std::make_shared<LukObject>(funcPtr);
-  logMsg("Returns new lukfunction: ", obj_ptr->toString());
-  logMsg("\nExit out LukFunction bind");
   return obj_ptr;
-  // return TObject::getNilPtr();
 }
 

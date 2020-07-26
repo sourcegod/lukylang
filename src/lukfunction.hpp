@@ -22,15 +22,13 @@ public:
     LukFunction() {}    
     // LukFunction(FunctionStmt* declaration, std::shared_ptr<Environment> closure,
     LukFunction(std::shared_ptr<FunctionStmt>& declaration, std::shared_ptr<Environment> closure,
-        bool isInitializer) : 
+      bool isInitializer) : 
       m_declaration(declaration),
       m_closure(closure), 
-  m_isInitializer(isInitializer) {
-        logMsg("LukFunction constructor: ", this->toString());
-      }
+      m_isInitializer(isInitializer) {
+    }
 
     ~LukFunction() { 
-        logMsg("~Lukfunction destructor: ", this->toString()); 
     } 
     
     virtual std::string addressOf()  override {  
