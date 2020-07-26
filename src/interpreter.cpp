@@ -26,7 +26,6 @@ Interpreter::Interpreter() {
     m_globals->m_name = "Globals, " + m_globals->m_name;
     // TRACE_ALL;
     TRACE_MSG("Env globals tracer: ");
-    // logMsg("Env globals: ", m_globals->m_name);
     auto func = std::make_shared<ClockFunc>();
     m_globals->define("clock", LukObject(func));
     logMsg("\nExit out Interpreter constructor");
@@ -42,8 +41,6 @@ void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
          for (auto& stmt : statements) {
             if (stmt) {
                 execute((stmt));
-                // v_ptr.emplace_back(std::move(stmt));
-                // v_ptr.back()->accept(*this);
             }
         }
         
@@ -143,7 +140,8 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
     }
     // finally, whether no exception
     m_environment = previous;
-
+    
+    logMsg("\nExit out  ExecuteBlock: ");
 }
 
 void Interpreter::visitBlockStmt(BlockStmt& stmt) {
@@ -166,22 +164,21 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   logMsg("In visitClassStmt: name: ", stmt.m_name.lexeme);
   m_environment->define(stmt.m_name.lexeme, TObject());
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
-    for (auto meth: stmt.m_methods) {
-      // auto func = std::make_shared<LukFunction>(meth.get(), m_environment,
-      auto func = std::make_shared<LukFunction>(meth, m_environment,
-          meth->name.lexeme == "init");
-      logMsg("func name: ", func->toString());
-      auto obj_ptr = std::make_shared<LukObject>(func);
-      logMsg("obj_ptr type: ", obj_ptr->getType());
-      logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
-      logMsg("Adding meth to methods map: ", meth->name.lexeme);
-      methods[meth->name.lexeme] = obj_ptr;
-    }
-    
-    auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
-    logMsg("Assign klass: ", stmt.m_name, " to m_environment");
-    m_environment->assign(stmt.m_name, klass);
-  logMsg("Exit out visitClassStmt\n");
+  for (auto meth: stmt.m_methods) {
+    auto func = std::make_shared<LukFunction>(meth, m_environment,
+        meth->name.lexeme == "init");
+    logMsg("func name: ", func->toString());
+    auto obj_ptr = std::make_shared<LukObject>(func);
+    logMsg("obj_ptr type: ", obj_ptr->getType());
+    logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
+    logMsg("Adding meth to methods map: ", meth->name.lexeme);
+    methods[meth->name.lexeme] = obj_ptr;
+  }
+  
+  auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
+  logMsg("Assign klass: ", stmt.m_name, " to m_environment");
+  m_environment->assign(stmt.m_name, klass);
+logMsg("Exit out visitClassStmt\n");
 }
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
@@ -190,7 +187,6 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 
 void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
     auto stmtPtr = std::make_shared<FunctionStmt>(stmt);
-    // auto func = std::make_shared<LukFunction>(stmt, m_environment, false);
     auto func = std::make_shared<LukFunction>(stmtPtr, m_environment, false);
     m_environment->define(stmt.name.lexeme, LukObject(func));
     logMsg("FunctionStmt use_count: ", stmtPtr.use_count());
@@ -240,6 +236,7 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
     }
     m_environment->define(stmt.name.lexeme, value);
 
+    // log environment state for debugging
     logState();
 }
 
@@ -324,9 +321,9 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     return TObject();
 }
 TObject Interpreter::visitCallExpr(CallExpr& expr) {
-  logMsg("\nIn visitcallExpr: "); 
+    logMsg("\nIn visitcallExpr: "); 
     auto callee = evaluate(expr.callee);
-  logMsg("callee: ", callee);
+    logMsg("callee: ", callee);
     if (! callee.isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
@@ -344,8 +341,9 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
         throw RuntimeError(expr.paren, msg.str());
     }
     logMsg("func->toString : ",func->toString());
-
     logMsg("func.use_count: ", func.use_count());
+
+    logMsg("\nExit out visitcallExpr, before returns func->call:  "); 
     return func->call(*this, v_args);
 }
 
@@ -360,6 +358,7 @@ TObject Interpreter::visitGetExpr(GetExpr& expr) {
     // Note: shared_ptr.get() returns the stored pointer, not the managed pointer.
     // *shared_ptr dereference the smart pointer
     logMsg("In interpreter getexpr: *obj_ptr: ", *obj_ptr);
+  logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
     return *obj_ptr;
   }
 
@@ -396,8 +395,10 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
     throw RuntimeError(expr.m_name,
       "Only instances have fields.");
   }
+
   // TODO: evaluate function must returns lukobject with smart pointer
   auto value = evaluate(expr.m_value);
+
   auto val_ptr = std::make_shared<LukObject>(value);
   logMsg("value: ", value);
   logMsg("obj: ", obj, ", type: ", obj.getType());
@@ -416,7 +417,7 @@ TObject Interpreter::visitThisExpr(ThisExpr& expr) {
   logMsg("\nIn visitThis");
   logMsg("keyword: ", expr.m_keyword);
   auto obj = lookUpVariable(expr.m_keyword, expr);
-  logMsg("after lookUpVariable, returns obj: ", obj);
+
   logMsg("Exit out visitThis\n");
   return obj;
 }
@@ -494,14 +495,7 @@ std::string Interpreter::stringify(TObject& obj) {
         return text;
     } 
     
-    // return obj.value();
-    // logMsg("End of stringify\n";
-    if (obj.isInstance()) {
-      logMsg("\nIn stringify, obj: ", obj);
-      logMsg(", type: ", obj.getType(),", id: ", obj.getId());
-      logMsg("obj.getInstance toString: ", obj.getInstance()->toString());
-    }
-    
+   
     return *obj.getPtrString();
 }
 
