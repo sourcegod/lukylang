@@ -485,6 +485,7 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 }
 
 std::string Interpreter::stringify(TObject& obj) { 
+    logMsg("\nIn stringify, obj: ", obj);
     if (obj.isNil() || obj.isBool()) return obj.value();
     if (obj.isNumber()) {
         std::string text = obj.value(); 
@@ -496,6 +497,7 @@ std::string Interpreter::stringify(TObject& obj) {
     } 
     
    
+    logMsg("Exit out stringify \n");
     return *obj.getPtrString();
 }
 
