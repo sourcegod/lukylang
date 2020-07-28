@@ -1,19 +1,31 @@
 #ifndef LUKOBJECT_HPP
 #define LUKOBJECT_HPP
 
-#include "lukcallable.hpp"
+#include "lukinstance.hpp"
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
 #include <memory>
 
-enum class LukType { 
-    Nil=0, Bool=1, Number=2, String=3,
-    Callable =4
-};
+// Note: best practice:
+// to avoid circular dependencies files,
+// make forward declarations in the header files,
+// and make definitions classes in the source (.cpp) files
+// and the include headers files.
 
+// forward declarations
 class Token;
 class LukCallable;
+class LukFunction;
+class LukObject;
+class LukInstance;
+using TObject = LukObject;
+using ObjPtr = std::shared_ptr<LukObject>;
+
+enum class LukType { 
+    Nil=0, Bool=1, Number=2, String=3,
+    Callable =4, Instance=5
+};
 
 class LukObject {
 protected:
@@ -21,57 +33,23 @@ protected:
 
 public:
     int id;
-    LukType type_id;
+    LukType m_type;
     bool m_bool = false;
     double m_number =0;
     std::string m_string = "";
     std::shared_ptr<std::string> p_string;
     std::shared_ptr<LukCallable> p_callable;
-
+    std::shared_ptr<LukInstance> p_instance;
  
     // constructors
-    LukObject() 
-        : id(++next_id) { 
-        // std::cerr << "C.tor, id: " << id << "\n";
-        type_id = LukType::Nil;  
-        p_string = nullptr;
-        p_callable = nullptr;
-    }
-
-    LukObject(bool val) 
-        : id(++next_id) {
-        type_id = LukType::Bool; m_bool = val; 
-    }
-    
-    LukObject(int val) 
-        : id(++next_id) { type_id = LukType::Number; m_number = val; }
-
-    LukObject(double val) 
-        : id(++next_id)
-    { type_id = LukType::Number; m_number = val; }
-    LukObject(const std::string& val) 
-        : id(++next_id) { 
-        // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
-        type_id = LukType::String; 
-        // m_string = val; 
-        p_string = std::make_shared<std::string>(val);
-    }
-
-    LukObject(const char* val) 
-        : id(++next_id) { 
-        type_id = LukType::String; 
-        // m_string = std::string(val); 
-        p_string = std::make_shared<std::string>(val);
-    }
-    
-    LukObject(std::shared_ptr<LukCallable> callable)
-        : id(++next_id) { 
-        type_id = LukType::Callable;
-        p_callable = callable; // std::make_shared<LukCallable>(callable);
-        p_string = std::make_shared<std::string>(callable->toString());
-    }
-
-        
+    LukObject();
+    LukObject(bool val); 
+    LukObject(int val); 
+    LukObject(double val);
+    LukObject(const std::string& val);
+    LukObject(const char* val);
+    LukObject(std::shared_ptr<LukCallable> callable);
+    LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
    
     // destructor is necessary
@@ -81,44 +59,82 @@ public:
 
        
     // get the type id
-    LukType getType() { return type_id; }
+    LukType getType() { return m_type; }
 
-    // get the id name
+    // get id number
+    size_t getId() { return id; }
+    // get id name
     std::string getName() { 
         std::ostringstream oss;
         oss << this;
         return oss.str(); 
     }
-        
+    // clonable
+    std::shared_ptr<LukObject> clone()  { return std::make_shared<LukObject>(*this); }
+
     // convertions
     bool toBool();
     double toNumber();
     std::string toString();
     std::string value();
 
-   // convert string to number  
+    // convert string to number  
+    // Note: template function must be defining in the header file, not in the implementation file.
+    // not used, is just as an exercise for template
+    // Note: usage:
+    // double number = stringToNumber<double>("0.6");
     template<typename T>
-    T stringToNumber(const std::string& stg);
+        T stringToNumber(const std::string& stg) {
+        T tValue;
+        std::stringstream stream(stg);
+        stream >> tValue;
+        if (stream.fail()) {
+            std::runtime_error e(stg);
+            throw e;
+        }
 
-    // test type state
-    bool isNil() { return type_id == LukType::Nil; }
-    bool isBool() { return type_id == LukType::Bool; }
-    bool isNumber() { return type_id == LukType::Number; }
-    bool isDouble() { return type_id == LukType::Number; }
-    bool isString() { return type_id == LukType::String; }
-    bool isCallable() { return type_id == LukType::Callable; }
+        return tValue;
+    }
+ 
+    // Note: make dynamic casting to convert base object to derived one.
+    // Note: template function must be defining in the header file, not in the implementation file.
+    template <typename T>
+    std::shared_ptr<T> getDynCast()  {
+      if (p_callable == nullptr) {
+        std::runtime_error err("LukObjectError: cannot casting p_callable when its null");
+        throw err;
+      }
 
-    // getters
-    LukObject getNil() {
-        LukObject obj;
-        return obj;
+      return std::dynamic_pointer_cast<T>(p_callable);
     }
 
-    bool getBool() { return m_bool; }
-    double getNumber() { return m_number; }
-    std::string& getString() { return m_string; }
-    std::shared_ptr<std::string> getPtrString() { return p_string; }
-    std::shared_ptr<LukCallable> getCallable() { return p_callable; }
+    // test type state
+    bool isNil() const { return m_type == LukType::Nil; }
+    bool isBool() const { return m_type == LukType::Bool; }
+    bool isNumber() const { return m_type == LukType::Number; }
+    bool isDouble() const { return m_type == LukType::Number; }
+    bool isString() const { return m_type == LukType::String; }
+    bool isCallable() const { return m_type == LukType::Callable; }
+    bool isInstance() const { return m_type == LukType::Instance; }
+
+    // getters
+    static LukObject getNil() {
+        static LukObject obj;
+        return obj;
+    }
+    
+    static ObjPtr getNilPtr()  {
+      static ObjPtr nilPtr = std::make_shared<LukObject>(getNil());
+      return nilPtr;
+    }
+
+    bool getBool() const noexcept { return m_bool; }
+    double getNumber() const noexcept { return m_number; }
+    std::string getString() const noexcept { return m_string; }
+    std::shared_ptr<std::string> getPtrString() const noexcept { return p_string; }
+    std::shared_ptr<LukCallable> getCallable() const noexcept { return p_callable; }
+    // std::shared_ptr<LukFunction> getFunc(); 
+    std::shared_ptr<LukInstance> getInstance() const noexcept { return p_instance; }
     
 
     // casting to the right type
@@ -130,6 +146,7 @@ public:
     operator std::string() const { return _toString(); }
 
     // assignment operators 
+    // TODO: convert nullptr to shared_ptr lukobject
     // LukObject& operator=(nullptr_t);
     LukObject& operator=(const bool&& val);
     LukObject& operator=(const int&& val);
@@ -224,6 +241,7 @@ inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
         case Type::Number: return ost << "<Number>";
         case Type::String: return ost << "<String>";
         case Type::Callable: return ost << "<Callable>";
+        case Type::Instance: return ost << "<Instance>";
     }
     
     return ost << "Invalid Object type";

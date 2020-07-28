@@ -14,12 +14,13 @@ Parser::Parser(const std::vector<Token>&& tokens, LukError& _lukErr)
     , lukErr(_lukErr) {}
 
 std::vector<PStmt> Parser::parse() {
-    std::vector<std::unique_ptr<Stmt>> statements;
+    std::vector<PStmt> statements;
     try {
         while (!isAtEnd()) {
         statements.emplace_back(declaration() );
-        }
-    } catch(ParseError err) {
+    }
+    // Note: catching exception should be by reference, not by value
+    } catch(ParseError& err) {
             std::cerr << errTitle << err.what() << std::endl;
     }
 
@@ -43,15 +44,27 @@ PStmt Parser::statement() {
     if (match({TokenType::WHILE})) 
         return whileStatement();
     if (match({TokenType::LEFT_BRACE}))
-        return PStmt(new BlockStmt(std::move(block())) );
+        return std::make_shared<BlockStmt>( block() );
     
     return  expressionStatement();
 }
 
+std::vector<PStmt> Parser::block() {
+    std::vector<PStmt> statements;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        statements.emplace_back( declaration() );
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+
+    return statements;
+}
+
+
 PStmt Parser::breakStatement() {
     Token keyword = previous();
     consume(TokenType::SEMICOLON, "Expect ';' after break statement");
-    return PStmt(new BreakStmt(keyword) );
+    return std::make_shared<BreakStmt>(keyword);
 }
 
 PStmt Parser::forStatement() {
@@ -73,7 +86,7 @@ PStmt Parser::forStatement() {
     
     PStmt increment = nullptr;
     if (!check(TokenType::RIGHT_PAREN)) {
-        increment = PStmt(new ExpressionStmt(expression()) );
+        increment = std::make_shared<ExpressionStmt>(expression() );
     }
     consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
 
@@ -81,19 +94,16 @@ PStmt Parser::forStatement() {
 
     if (increment != nullptr) {
         std::vector<PStmt> stmts;
-        stmts.emplace_back(std::move(body));
-        stmts.emplace_back(std::move(increment));
-        body = PStmt(new BlockStmt(
-                    std::move(stmts)) );
+        stmts.push_back(body);
+        stmts.push_back(increment);
+        body = std::make_shared<BlockStmt>( stmts );
     }
-    body = PStmt(new WhileStmt(
-                std::move(condition),
-                std::move(body)) );
+    body = std::make_shared<WhileStmt>(condition, body);
     if (initializer) {
         std::vector<PStmt> stmts;
-        stmts.emplace_back( std::move(initializer) );
-        stmts.emplace_back( std::move(body) );
-        return PStmt(new BlockStmt( std::move(stmts) ));
+        stmts.push_back( initializer );
+        stmts.push_back( body );
+        return std::make_shared<BlockStmt>(stmts);
     }
 
     return body;
@@ -109,17 +119,15 @@ PStmt Parser::ifStatement() {
         elseBranch = statement();
     }
 
-    return PStmt(new IfStmt(
-                std::move(condition), 
-                std::move(thenBranch),
-                std::move(elseBranch) ));
+    return std::make_shared<IfStmt>(condition, thenBranch,
+                elseBranch);
 }
 
 PStmt Parser::printStatement() {
     PExpr value = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
 
-    return PStmt(new PrintStmt(std::move(value)) );
+    return std::make_shared<PrintStmt>(value);
 }
 
 PStmt Parser::returnStatement() {
@@ -130,7 +138,7 @@ PStmt Parser::returnStatement() {
     }
     consume(TokenType::SEMICOLON, "Expect ';' after return value.");
 
-    return PStmt(new ReturnStmt(keyword, std::move(value)) );
+    return std::make_shared<ReturnStmt>(keyword, value);
 }
 
 
@@ -140,8 +148,7 @@ PStmt Parser::whileStatement() {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
     PStmt body = statement();
 
-    return PStmt(new WhileStmt( std::move(condition), 
-                std::move(body) ));
+    return std::make_shared<WhileStmt>(condition, body);
 }
 
 PStmt Parser::varDeclaration() {
@@ -152,16 +159,46 @@ PStmt Parser::varDeclaration() {
     }
     consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     
-    return PStmt(new VarStmt(name, std::move(initializer)) );
+    return std::make_shared<VarStmt>(name, initializer);
+}
+
+PStmt Parser::classDeclaration() {
+    // TODO: convert all unique_ptr to shared_ptr 
+    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
+    
+    std::vector<PFunc> methods;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+      methods.push_back(function("method"));
+
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
+  
+    return std::make_shared<ClassStmt>(name, methods);
+}
+
+PStmt Parser::declaration() {
+    try {
+        if  (match({TokenType::CLASS})) return classDeclaration();
+        if (match({TokenType::FUN})) return function("function");
+        if (match({TokenType::VAR})) return varDeclaration();
+        
+        return statement();
+    } catch (ParseError err) {
+        synchronize();
+        return nullptr;
+    }
+
 }
 
 PStmt Parser::expressionStatement() {
     PExpr expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after expression.");
-    return PStmt(new ExpressionStmt(std::move(expr)) );
+    return std::make_shared<ExpressionStmt>(expr);
 }
 
-PStmt Parser::function(std::string kind) {
+PFunc Parser::function(const std::string& kind) {
     Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<Token> params;
@@ -181,21 +218,10 @@ PStmt Parser::function(std::string kind) {
 
     std::vector<PStmt> body = block();
     
-    return PStmt(new FunctionStmt(name, std::move(params), std::move(body) ));
+    return std::make_shared<FunctionStmt>(name, params, body);
 
 }
 
-
-std::vector<PStmt> Parser::block() {
-    std::vector<PStmt> statements;
-    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-        statements.emplace_back( declaration() );
-    }
-
-    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
-
-    return statements;
-}
 
 PExpr Parser::expression() {
     return assignment();
@@ -207,8 +233,12 @@ PExpr Parser::assignment() {
         Token equals = previous();
         PExpr value = assignment();
         if ( left->isVariableExpr() ) {
-            Token name = static_cast<VariableExpr*>( left.get() )->name;
-            return PExpr(new AssignExpr(name, std::move(value)));
+            // Token name = static_cast<VariableExpr*>( left.get() )->name;
+            Token name = left->getName();
+            return  std::make_shared<AssignExpr>(name, value);
+        } else if (left->isGetExpr()) {
+          return std::make_shared<SetExpr>(left->getObject(),
+                left->getName(), value );
         }
         
         error(equals, "Invalid assignment target.");
@@ -222,7 +252,7 @@ PExpr Parser::logicOr() {
     while (match({TokenType::OR})) {
         Token op = previous();
         PExpr right = logicAnd();
-        left =  PExpr(new LogicalExpr( std::move(left), op, std::move(right) ));
+        left =  std::make_shared<LogicalExpr>(left, op, right);
     }
 
     return left;
@@ -233,34 +263,18 @@ PExpr Parser::logicAnd() {
     while (match({TokenType::AND})) {
         Token op = previous();
         PExpr right = equality();
-        left =  PExpr(new LogicalExpr( std::move(left), op, std::move(right) ));
+        left =  std::make_shared<LogicalExpr>(left, op, right);
     }
 
     return left;
 }
-
-
-PStmt Parser::declaration() {
-    try {
-        
-        if (match({TokenType::FUN})) return function("function");
-        if (match({TokenType::VAR})) return varDeclaration();
-        
-        return statement();
-    } catch (ParseError err) {
-        synchronize();
-        return nullptr;
-    }
-
-}
-
 
 PExpr Parser::equality() {
     PExpr expr = comparison();
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         Token op = previous();
         PExpr right    = comparison();
-        expr = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
+        expr = std::make_shared<BinaryExpr>(expr, op, right);
     }
     return expr;
 }
@@ -271,8 +285,8 @@ PExpr Parser::comparison() {
         match({TokenType::GREATER, TokenType::LESS, 
             TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
         Token op = previous();
-        PExpr right    = addition();
-        expr           = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
+        PExpr right = addition();
+        expr = std::make_shared<BinaryExpr>(expr, op, right);
     }
     return expr;
 }
@@ -281,8 +295,8 @@ PExpr Parser::addition() {
     PExpr expr = multiplication();
     while (match({TokenType::MINUS, TokenType::PLUS})) {
         Token Operator = previous();
-        PExpr right    = multiplication();
-        expr           = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
+        PExpr right = multiplication();
+        expr = std::make_shared<BinaryExpr>(expr, Operator, right);
     }
     return expr;
 }
@@ -292,7 +306,7 @@ PExpr Parser::multiplication() {
     while (match({TokenType::SLASH, TokenType::STAR})) {
         Token Operator = previous();
         PExpr right = unary();
-        expr = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
+        expr = std::make_shared<BinaryExpr>(expr, Operator, right);
     }
     return expr;
 }
@@ -301,7 +315,7 @@ PExpr Parser::unary() {
     if (match({TokenType::BANG, TokenType::MINUS})) {
         Token Operator = previous();
         PExpr right    = unary();
-        return PExpr(new UnaryExpr(Operator, std::move(right)));
+        return std::make_shared<UnaryExpr>(Operator, right);
     }
 
     return call();
@@ -311,7 +325,11 @@ PExpr Parser::call() {
     PExpr expr = primary();
     while (true) {
         if (match({TokenType::LEFT_PAREN})) {
-            expr = finishCall(std::move(expr));
+            expr = finishCall(expr);
+        } else if (match({TokenType::DOT})) {
+          Token name = consume(TokenType::IDENTIFIER,
+            "Expect property name after '.'.");
+          expr = std::make_shared<GetExpr>(expr, name);
         } else {
             break;
         }
@@ -333,7 +351,7 @@ PExpr Parser::finishCall(PExpr callee) {
 
     Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
 
-    return PExpr(new CallExpr(std::move(callee), paren, std::move(args) ));
+    return std::make_shared<CallExpr>(callee, paren, args);
 }
 
 PExpr Parser::primary() {
@@ -343,17 +361,21 @@ PExpr Parser::primary() {
                 TokenType::NUMBER, TokenType::STRING})) {
         const auto obj = LukObject( previous() );
         // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
-        return PExpr(new LiteralExpr( ( obj ) ));
+        return std::make_shared<LiteralExpr>( obj );
+    }
+    if (match({TokenType::THIS})) {
+      auto keyword = previous();
+      return std::make_shared<ThisExpr>(keyword);
     }
 
     if (match({TokenType::IDENTIFIER})) {
-        return PExpr(new VariableExpr(previous()) );
+        return std::make_shared<VariableExpr>(previous());
     }
 
     if (match({TokenType::LEFT_PAREN})) {
         PExpr expr = expression();
         consume(TokenType::RIGHT_PAREN, "Exppect ')' after expression.");
-        return PExpr(new GroupingExpr(std::move(expr)));
+        return std::make_shared<GroupingExpr>(expr);
     }
     
     

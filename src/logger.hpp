@@ -5,6 +5,8 @@
 #include <chrono> // for datetime
 #include <ctime> // to convert chrono datetime
 #include <sstream>
+#include <typeinfo>
+
 // #define DEBUG  1 
 // Simple object logging
 enum TLogLevel { 
@@ -135,6 +137,13 @@ void logMsg(T first, TArgs... args) {
 #endif
 }
 
+// print type name
+template <typename T>
+void logType(const std::string& msg, T val) {
+#ifdef DEBUG // {
+    std::cerr << msg << typeid(val).name() << "\n";
+#endif
+}
 
 // macros to logging
 #ifdef DEBUG

@@ -7,13 +7,10 @@
 #include "lukerror.hpp"
 #include "token.hpp"
 
-// namespace luky {
 // forward declarations
-// class LukError;
 
 class Scanner {
   public:
-    // Scanner(const std::string& _source, LukError& _lukErr);
     Scanner(const std::string& _source, LukError& _lukErr);
     const std::vector<Token>& scanTokens();
 
@@ -47,6 +44,5 @@ class Scanner {
     // Reserved keywords
     std::unordered_map<std::string, TokenType> keywords;
 };
-// }
 
 #endif // SCANNER_HPP

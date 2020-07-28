@@ -1,6 +1,6 @@
 #!python3
 
-_ccflags = '-std=c++11 -Wall -Wextra -pedantic '
+_ccflags = '-std=c++17 -Wall -Wextra -pedantic '
 # if ARGUMENTS.get('debug', 0):
 if not BUILD_TARGETS:
     print("Building Release version")

@@ -34,7 +34,7 @@ void Resolver::define(Token& name) {
 }
 
 // resolve vector
-void Resolver::resolve(std::vector<std::unique_ptr<Stmt>>& statements) {
+void Resolver::resolve(std::vector<std::shared_ptr<Stmt>>& statements) {
     if (statements.empty()) {
         m_lukErr.error(errTitle, "Vector is empty.\n");
         return;
@@ -101,9 +101,15 @@ TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
 
 TObject Resolver::visitCallExpr(CallExpr& expr) {
   resolve(expr.callee);
-  for (std::unique_ptr<Expr>& arg : expr.args) {
+  for (std::shared_ptr<Expr>& arg : expr.args) {
     resolve(arg);
   }
+
+  return TObject();
+}
+
+TObject Resolver::visitGetExpr(GetExpr& expr) {
+  resolve(expr.m_object);
 
   return TObject();
 }
@@ -123,6 +129,24 @@ TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
   resolve(expr.left);
   resolve(expr.right);
   
+  return TObject();
+}
+
+TObject Resolver::visitSetExpr(SetExpr& expr) {
+  resolve(expr.m_value);
+  resolve(expr.m_object);
+
+  return TObject();
+}
+
+TObject Resolver::visitThisExpr(ThisExpr& expr) {
+
+  if (currentClass == ClassType::None) {
+      m_lukErr.error(errTitle, expr.m_keyword,
+          "Cannot use 'this' outside of a class.");
+    }
+
+  resolveLocal(&expr, expr.m_keyword);
   return TObject();
 }
 
@@ -162,6 +186,31 @@ void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
 
 }
 
+void Resolver::visitClassStmt(ClassStmt& stmt) {
+  ClassType enclosingClass = currentClass;
+  currentClass = ClassType::Class;
+  
+  declare(stmt.m_name);
+  define(stmt.m_name);
+  beginScope();
+  if (m_scopes.size() == 0) return;
+  auto& scope = m_scopes.back(); 
+  scope["this"] = true;
+
+  for (auto method: stmt.m_methods) {
+    auto declaration = FunctionType::Method;
+    if (method->name.lexeme == "init") {
+      declaration = FunctionType::Initializer;
+    }
+
+    resolveFunction(*method, declaration); // [local] 
+  }
+
+  endScope();
+  
+  currentClass = enclosingClass;
+}
+
 void Resolver::visitIfStmt(IfStmt& stmt) {
   resolve(stmt.condition);
   resolve(stmt.thenBranch);
@@ -169,10 +218,10 @@ void Resolver::visitIfStmt(IfStmt& stmt) {
 
 }
 
-void Resolver::visitFunctionStmt(FunctionStmt* stmt) {
-  declare(stmt->name);
-  define(stmt->name);
-  resolveFunction(*stmt, FunctionType::Function);
+void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
+  declare(stmt.name);
+  define(stmt.name);
+  resolveFunction(stmt, FunctionType::Function);
 
 }
 
@@ -184,7 +233,14 @@ void Resolver::visitPrintStmt(PrintStmt& stmt) {
 void Resolver::visitReturnStmt(ReturnStmt& stmt) {
   if (m_curFunction == FunctionType::None)
     m_lukErr.error(errTitle, stmt.name, "Cannot return from top-level code.");
-  if (stmt.value != nullptr) resolve(stmt.value);
+  if (stmt.value != nullptr) {
+    if (m_curFunction == FunctionType::Initializer) {
+        m_lukErr.error(errTitle, stmt.name,
+            "Cannot return a value from an initializer.");
+    }
+    
+    resolve(stmt.value);
+  }
 
 }
 

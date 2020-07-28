@@ -14,12 +14,12 @@ class LukError;
 class LukObject;
 class Stmt;
 
-using PExpr = std::unique_ptr<Expr>;
-using PStmt = std::unique_ptr<Stmt>;
-using PObject = std::unique_ptr<LukObject>;
+using PExpr = std::shared_ptr<Expr>;
+using PStmt = std::shared_ptr<Stmt>;
+using PObject = std::shared_ptr<LukObject>;
 
 class ParseError : public std::runtime_error {
-  public:
+public:
     ParseError(const std::string& msg, Token& token);
     Token m_token;
 };
@@ -39,12 +39,15 @@ private:
     PStmt statement();
     std::vector<PStmt> block();
     PStmt breakStatement();
+    PStmt classDeclaration();
+    PStmt declaration();
     PStmt expressionStatement();
     PStmt forStatement();
-    PStmt function(std::string kind);
+    PFunc function(const std::string& kind);
     PStmt ifStatement();
     PStmt printStatement();
     PStmt returnStatement();
+    PStmt varDeclaration();
     PStmt whileStatement();
     
     PExpr expression();
@@ -52,9 +55,7 @@ private:
     PExpr logicOr();
     PExpr logicAnd();
     
-    PStmt declaration();
-    PStmt varDeclaration();
-    
+   
     PExpr equality();
     PExpr comparison();
     PExpr addition();

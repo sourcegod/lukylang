@@ -56,7 +56,8 @@ static void run(const std::string& source, LukError& lukErr) {
     if (lukErr.hadError) return;
     
     // Interpreter
-    interp.interpret(std::move(stmts));
+    // interp.interpret(std::move(stmts));
+    interp.interpret((stmts));
 
 
     std::cout << std::endl;
