@@ -369,6 +369,17 @@ PExpr Parser::primary() {
         // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
         return std::make_shared<LiteralExpr>( obj );
     }
+    
+    if (match({TokenType::SUPER})) {
+      Token keyword = previous();
+      consume(TokenType::DOT, "Expect '.' after 'super'.");
+
+      Token method = consume(TokenType::IDENTIFIER,
+          "Expect superclass method name.");
+
+      return std::make_shared<SuperExpr>(keyword, method);
+    }
+    
     if (match({TokenType::THIS})) {
       auto keyword = previous();
       return std::make_shared<ThisExpr>(keyword);
