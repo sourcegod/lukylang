@@ -429,6 +429,12 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
   return value;
 }
 
+TObject Interpreter::visitSuperExpr(SuperExpr& expr) {
+
+  return TObject();
+}
+
+
 TObject Interpreter::visitThisExpr(ThisExpr& expr) {
   logMsg("\nIn visitThis");
   logMsg("keyword: ", expr.m_keyword);
