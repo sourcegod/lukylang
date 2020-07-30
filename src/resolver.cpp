@@ -139,6 +139,11 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
   return TObject();
 }
 
+TObject Resolver::visitSuperExpr(SuperExpr& expr) {
+  return TObject();
+}
+
+
 TObject Resolver::visitThisExpr(ThisExpr& expr) {
 
   if (currentClass == ClassType::None) {

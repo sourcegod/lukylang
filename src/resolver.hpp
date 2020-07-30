@@ -35,6 +35,7 @@ public:
     TObject visitLiteralExpr(LiteralExpr& expr) override; 
     TObject visitLogicalExpr(LogicalExpr& expr) override;
     TObject visitSetExpr(SetExpr& expr) override;
+    TObject visitSuperExpr(SuperExpr& expr) override;
     TObject visitThisExpr(ThisExpr& expr) override;
     TObject visitUnaryExpr(UnaryExpr& expr);
     TObject visitVariableExpr(VariableExpr& expr) override;
