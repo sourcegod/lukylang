@@ -17,6 +17,7 @@ class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
+class SuperExpr;
 class ThisExpr;
 class UnaryExpr;
 class VariableExpr;
@@ -33,6 +34,7 @@ class ExprVisitor {
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
         virtual TObject visitLogicalExpr(LogicalExpr&) =0;
         virtual TObject visitSetExpr(SetExpr&) =0;
+        virtual TObject visitSuperExpr(SuperExpr&) =0;
         virtual TObject visitThisExpr(ThisExpr&) =0;
         virtual TObject visitUnaryExpr(UnaryExpr&) =0;
         virtual TObject visitVariableExpr(VariableExpr&) =0;
@@ -207,6 +209,20 @@ public:
     PExpr m_object;
     Token m_name;
     PExpr m_value;
+};
+
+class SuperExpr : public Expr {
+public:
+    SuperExpr(Token keyword, Token method) :
+      m_keyword(keyword),
+      m_method(method) {}
+
+    TObject accept(ExprVisitor &v) override {
+        return v.visitSuperExpr(*this); 
+    }
+
+    Token m_keyword;
+    Token m_method;
 };
 
 class ThisExpr : public Expr {
