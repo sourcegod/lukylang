@@ -66,7 +66,7 @@ void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
 }
 
 // resolve expressions
-void Resolver::resolve(PExpr& expr) {
+void Resolver::resolve(PExpr expr) {
   expr->accept(*this);
 }
 
@@ -200,9 +200,8 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   }
 
   if (stmt.m_superclass != nullptr) {
-    // Convert shared_ptr<VariableExpr> to shared_ptr<Expr>
-    PExpr superclass = stmt.m_superclass;
-    resolve(superclass);
+    // Note: changing resolve(PExpr&) to resolve(Pexpr), to accept VariableExpr as parameter
+    resolve(stmt.m_superclass);
   }
   
   beginScope();

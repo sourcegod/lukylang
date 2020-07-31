@@ -70,7 +70,7 @@ private:
   FunctionType m_curFunction = FunctionType::None;
 
   // resolve expression
-  void resolve(PExpr& expr);
+  void resolve(PExpr expr);
   void resolveLocal(Expr* expr, Token name);
   
   // resolve statements

@@ -25,7 +25,7 @@ public:
     explicit LukInstance(LukInstance& other) {
       // Note: we should do a deep copy for this object
       // cause this object is more sophisticated
-      // so the compiler default copy constructor cannot copy it entirely.
+      // so the compiler's default copy constructor cannot copy it entirely.
       logMsg("LukInstance copy Ctor with deep copy");
       m_klass = other.getKlass();
       m_fields = other.getFields();
