@@ -103,7 +103,7 @@ void Interpreter::logState() {
 }
 
 
-TObject Interpreter::evaluate(PExpr& expr) { 
+TObject Interpreter::evaluate(PExpr expr) { 
     return expr->accept(*this);
 }
 
@@ -162,6 +162,17 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
   logMsg("In visitClassStmt: name: ", stmt.m_name.lexeme);
+  TObject superclass;
+  if (stmt.m_superclass != nullptr) {
+    // Note: changing evaluate(PExpr&) to evaluate(Pexpr) to passing VariableExpr object
+    superclass = evaluate(stmt.m_superclass);
+    logMsg("superclass: ", superclass);
+    if (!superclass.isInstance()) { //  instanceof LoxClass)) {
+      throw RuntimeError(stmt.m_superclass->name,
+            "Superclass must be a class.");
+    }
+
+  }
   m_environment->define(stmt.m_name.lexeme, TObject());
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
   for (auto meth: stmt.m_methods) {
@@ -175,6 +186,8 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     methods[meth->name.lexeme] = obj_ptr;
   }
   
+  // std::shared_ptr<LukClass> supKlass = superclass.getDynCast("class");
+  // auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, supKlass, methods);
   auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
   logMsg("Assign klass: ", stmt.m_name, " to m_environment");
   m_environment->assign(stmt.m_name, klass);

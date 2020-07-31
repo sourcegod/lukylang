@@ -192,6 +192,19 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   
   declare(stmt.m_name);
   define(stmt.m_name);
+
+  if (stmt.m_superclass != nullptr &&
+      stmt.m_name.lexeme == stmt.m_superclass->name.lexeme) {
+      m_lukErr.error(errTitle, stmt.m_superclass->name,
+        "A class cannot inherit from itself.");
+  }
+
+  if (stmt.m_superclass != nullptr) {
+    // Convert shared_ptr<VariableExpr> to shared_ptr<Expr>
+    PExpr superclass = stmt.m_superclass;
+    resolve(superclass);
+  }
+  
   beginScope();
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 

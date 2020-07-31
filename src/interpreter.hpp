@@ -46,7 +46,7 @@ public:
     TObject visitUnaryExpr(UnaryExpr& expr) override;
     TObject visitVariableExpr(VariableExpr& expr) override;
 
-    TObject evaluate(PExpr& expr);
+    TObject evaluate(PExpr expr);
     void execute(PStmt& stmt);
     void resolve(Expr& expr, int depth);
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);

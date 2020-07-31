@@ -239,6 +239,7 @@ public:
 
 class VariableExpr : public Expr {
 public:
+    VariableExpr();
     VariableExpr(Token _name) {
         name = _name;
     }
