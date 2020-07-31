@@ -49,7 +49,10 @@ ObjPtr LukClass::findMethod(const std::string& name) {
   if (elem != m_methods.end()) {
     return elem->second;
   }
-  
+
+  if (p_superclass != nullptr) {
+    return p_superclass->findMethod(name);
+  }
   return nullptr;
 }
 

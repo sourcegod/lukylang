@@ -14,6 +14,7 @@ class LukClass : public LukCallable {
 public:
   std::string m_name;
   std::shared_ptr<LukClass> p_superclass;
+
     LukClass(const std::string& name,
         std::shared_ptr<LukClass> superclass,
         const std::unordered_map<std::string, ObjPtr>& methods)

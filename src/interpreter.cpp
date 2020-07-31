@@ -163,6 +163,7 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
   logMsg("In visitClassStmt: name: ", stmt.m_name.lexeme);
   TObject superclass;
+  std::shared_ptr<LukClass> supKlass = nullptr;
   if (stmt.m_superclass != nullptr) {
     // Note: changing evaluate(PExpr&) to evaluate(Pexpr) to passing VariableExpr object
     superclass = evaluate(stmt.m_superclass);
@@ -171,6 +172,8 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     if (!superclass.isCallable()) { //  instanceof LoxClass)) {
       throw RuntimeError(stmt.m_superclass->name,
             "Superclass must be a class.");
+    } else {
+      supKlass = superclass.getDynCast<LukClass>();
     }
 
   }
@@ -186,8 +189,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     logMsg("Adding meth to methods map: ", meth->name.lexeme);
     methods[meth->name.lexeme] = obj_ptr;
   }
-  
-  std::shared_ptr<LukClass> supKlass = superclass.getDynCast<LukClass>();
+
   auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, supKlass, methods);
   // auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
   logMsg("Assign klass: ", stmt.m_name, " to m_environment");
