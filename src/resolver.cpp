@@ -71,6 +71,7 @@ void Resolver::resolve(PExpr expr) {
 }
 
 void Resolver::resolveLocal(Expr* expr, Token name) {
+  // TODO: why we cannot receive as argument an Expr& instead Expr* ???
   // TODO: pass token by pointer
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
@@ -140,6 +141,8 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
 }
 
 TObject Resolver::visitSuperExpr(SuperExpr& expr) {
+  resolveLocal(&expr, expr.m_keyword);
+  
   return TObject();
 }
 
@@ -209,6 +212,13 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
     resolve(stmt.m_superclass);
   }
   
+  if (stmt.m_superclass != nullptr) {
+    beginScope();
+    if (m_scopes.size() == 0) return;
+    auto& scope = m_scopes.back(); 
+    scope["super"] = true;
+  }
+  
   beginScope();
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
@@ -224,7 +234,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   }
 
   endScope();
-  
+  if (stmt.m_superclass != nullptr) endScope();
   currentClass = enclosingClass;
 }
 
