@@ -178,6 +178,13 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   }
   m_environment->define(stmt.m_name.lexeme, TObject());
+
+  if (stmt.m_superclass != nullptr) {
+    m_environment = std::make_shared<Environment>(m_environment);
+    m_environment->define("super", superclass);
+
+  }
+
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
   for (auto meth: stmt.m_methods) {
     auto func = std::make_shared<LukFunction>(meth, m_environment,
@@ -192,6 +199,10 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, supKlass, methods);
   // auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
+  if (stmt.m_superclass != nullptr) {
+    // Note: moving m_enclosing from private to public in Environment object
+    m_environment = m_environment->m_enclosing;
+  }
   logMsg("Assign klass: ", stmt.m_name, " to m_environment");
   m_environment->assign(stmt.m_name, LukObject(klass));
 logMsg("Exit out visitClassStmt\n");
@@ -430,6 +441,31 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
 }
 
 TObject Interpreter::visitSuperExpr(SuperExpr& expr) {
+  logMsg("\nIn visitSuperExpr: ");
+  logMsg("expr.m_method: ", expr.m_method, ", expr.id: ", expr.id());
+  auto elem = m_locals.find(expr.id());
+  if (elem != m_locals.end()) {
+    // elem->second is the depth
+    int distance = elem->second;
+    auto objClass = m_environment->getAt(distance, "super");
+    // TODO: it will better to test whether is classable
+    auto superclass = objClass.getDynCast<LukClass>();
+    
+    // "this" is always one level nearer than "super"'s environment.
+    auto objInst = m_environment->getAt(
+      distance - 1, "this");
+    auto instPtr = objInst.getInstance();
+    ObjPtr method = superclass->findMethod(expr.m_method.lexeme);
+    if (method == nullptr) {
+      throw RuntimeError(expr.m_method,
+          "Undefined property '" + expr.m_method.lexeme + "'.");
+    }
+
+    std::shared_ptr<LukFunction> funcPtr = method->getDynCast<LukFunction>();
+    logMsg("\nExit out visitSuperExpr before return  funtcPtr->bind");
+    return *funcPtr->bind(instPtr);
+
+  }
 
   return TObject();
 }

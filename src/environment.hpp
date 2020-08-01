@@ -22,6 +22,7 @@ public:
     int m_id;
     std::string m_name;
     
+    PEnvironment m_enclosing;
     Environment() 
     : m_id(++next_id) { 
         m_enclosing = nullptr;
@@ -65,7 +66,6 @@ public:
 
 private:
     std::unordered_map<std::string, ObjPtr> m_values = {};
-    PEnvironment m_enclosing;
 
 };
 
