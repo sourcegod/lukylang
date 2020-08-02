@@ -66,11 +66,12 @@ void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
 }
 
 // resolve expressions
-void Resolver::resolve(PExpr& expr) {
+void Resolver::resolve(PExpr expr) {
   expr->accept(*this);
 }
 
 void Resolver::resolveLocal(Expr* expr, Token name) {
+  // TODO: why we cannot receive as argument an Expr& instead Expr* ???
   // TODO: pass token by pointer
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
@@ -139,6 +140,21 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
   return TObject();
 }
 
+TObject Resolver::visitSuperExpr(SuperExpr& expr) {
+    if (currentClass == ClassType::None) {
+      m_lukErr.error(errTitle, expr.m_keyword,
+          "Cannot use 'super' outside of a class.");
+    } else if (currentClass != ClassType::Subclass) {
+      m_lukErr.error(errTitle, expr.m_keyword,
+          "Cannot use 'super' in a class with no superclass.");
+    }
+
+  resolveLocal(&expr, expr.m_keyword);
+  
+  return TObject();
+}
+
+
 TObject Resolver::visitThisExpr(ThisExpr& expr) {
 
   if (currentClass == ClassType::None) {
@@ -192,6 +208,26 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   
   declare(stmt.m_name);
   define(stmt.m_name);
+
+  if (stmt.m_superclass != nullptr &&
+      stmt.m_name.lexeme == stmt.m_superclass->name.lexeme) {
+      m_lukErr.error(errTitle, stmt.m_superclass->name,
+        "A class cannot inherit from itself.");
+  }
+
+  if (stmt.m_superclass != nullptr) {
+    // Note: changing resolve(PExpr&) to resolve(Pexpr), to accept VariableExpr as parameter
+    currentClass = ClassType::Subclass;
+    resolve(stmt.m_superclass);
+  }
+  
+  if (stmt.m_superclass != nullptr) {
+    beginScope();
+    if (m_scopes.size() == 0) return;
+    auto& scope = m_scopes.back(); 
+    scope["super"] = true;
+  }
+  
   beginScope();
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
@@ -207,7 +243,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   }
 
   endScope();
-  
+  if (stmt.m_superclass != nullptr) endScope();
   currentClass = enclosingClass;
 }
 

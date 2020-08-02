@@ -35,6 +35,7 @@ public:
     TObject visitLiteralExpr(LiteralExpr& expr) override; 
     TObject visitLogicalExpr(LogicalExpr& expr) override;
     TObject visitSetExpr(SetExpr& expr) override;
+    TObject visitSuperExpr(SuperExpr& expr) override;
     TObject visitThisExpr(ThisExpr& expr) override;
     TObject visitUnaryExpr(UnaryExpr& expr);
     TObject visitVariableExpr(VariableExpr& expr) override;
@@ -59,7 +60,7 @@ private:
     };
    
     enum class ClassType {
-      None, Class
+      None, Class, Subclass
     };
     
     ClassType  currentClass = ClassType::None;
@@ -70,7 +71,7 @@ private:
   FunctionType m_curFunction = FunctionType::None;
 
   // resolve expression
-  void resolve(PExpr& expr);
+  void resolve(PExpr expr);
   void resolveLocal(Expr* expr, Token name);
   
   // resolve statements

@@ -12,14 +12,16 @@
 using ObjPtr = std::shared_ptr<LukObject>;
 class LukClass : public LukCallable {
 public:
-    std::string m_name;
+  std::string m_name;
+  std::shared_ptr<LukClass> p_superclass;
 
-    LukClass(const std::string& name, 
+    LukClass(const std::string& name,
+        std::shared_ptr<LukClass> superclass,
         const std::unordered_map<std::string, ObjPtr>& methods)
-      : m_name(name), 
+      : m_name(name),
+      p_superclass(superclass),
     m_methods(methods) 
-    {
-    }
+    {}
 
     ~LukClass() {
     }

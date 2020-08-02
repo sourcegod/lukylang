@@ -165,6 +165,12 @@ PStmt Parser::varDeclaration() {
 PStmt Parser::classDeclaration() {
     // TODO: convert all unique_ptr to shared_ptr 
     Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    std::shared_ptr<VariableExpr> superclass = nullptr;
+    if (match({TokenType::LESS})) {
+      consume(TokenType::IDENTIFIER, "Expect superclass name.");
+      superclass = std::make_shared<VariableExpr>(previous());
+    }
+
     consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
     
     std::vector<PFunc> methods;
@@ -175,7 +181,7 @@ PStmt Parser::classDeclaration() {
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
   
-    return std::make_shared<ClassStmt>(name, methods);
+    return std::make_shared<ClassStmt>(name, superclass, methods);
 }
 
 PStmt Parser::declaration() {
@@ -363,6 +369,17 @@ PExpr Parser::primary() {
         // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
         return std::make_shared<LiteralExpr>( obj );
     }
+    
+    if (match({TokenType::SUPER})) {
+      Token keyword = previous();
+      consume(TokenType::DOT, "Expect '.' after 'super'.");
+
+      Token method = consume(TokenType::IDENTIFIER,
+          "Expect superclass method name.");
+
+      return std::make_shared<SuperExpr>(keyword, method);
+    }
+    
     if (match({TokenType::THIS})) {
       auto keyword = previous();
       return std::make_shared<ThisExpr>(keyword);
