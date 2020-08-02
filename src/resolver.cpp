@@ -141,6 +141,14 @@ TObject Resolver::visitSetExpr(SetExpr& expr) {
 }
 
 TObject Resolver::visitSuperExpr(SuperExpr& expr) {
+    if (currentClass == ClassType::None) {
+      m_lukErr.error(errTitle, expr.m_keyword,
+          "Cannot use 'super' outside of a class.");
+    } else if (currentClass != ClassType::Subclass) {
+      m_lukErr.error(errTitle, expr.m_keyword,
+          "Cannot use 'super' in a class with no superclass.");
+    }
+
   resolveLocal(&expr, expr.m_keyword);
   
   return TObject();
@@ -209,6 +217,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
 
   if (stmt.m_superclass != nullptr) {
     // Note: changing resolve(PExpr&) to resolve(Pexpr), to accept VariableExpr as parameter
+    currentClass = ClassType::Subclass;
     resolve(stmt.m_superclass);
   }
   

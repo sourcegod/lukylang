@@ -60,7 +60,7 @@ private:
     };
    
     enum class ClassType {
-      None, Class
+      None, Class, Subclass
     };
     
     ClassType  currentClass = ClassType::None;
