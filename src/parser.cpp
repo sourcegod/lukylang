@@ -365,9 +365,7 @@ PExpr Parser::primary() {
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING})) {
-        const auto obj = LukObject( previous() );
-        // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
-        return std::make_shared<LiteralExpr>( obj );
+        return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
     
     if (match({TokenType::SUPER})) {
