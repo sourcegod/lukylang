@@ -20,6 +20,7 @@ public:
     void interpret(std::vector<std::shared_ptr<Stmt>> statements);
     void printResult();
     void logState();
+    void logTest();
 
     // statements    
     void visitBlockStmt(BlockStmt& stmt) override;

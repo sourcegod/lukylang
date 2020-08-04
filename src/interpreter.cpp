@@ -18,9 +18,11 @@ Interpreter::Interpreter() {
     logMsg("\nIn Interpreter constructor");
     LogConf.headers = true;
     LogConf.level = log_DEBUG;
-    CLog(log_WARN) << "log_WARN: Coucou les gens";
+    CLog(log_WARN) << "log_WARN: Test on log warning.";
     
     logMsg("\n--- Starts Interpreter");
+    logTest();
+
     m_globals = std::make_shared<Environment>();
     m_environment = m_globals;
     m_globals->m_name = "Globals, " + m_globals->m_name;
@@ -33,7 +35,8 @@ Interpreter::Interpreter() {
 }
 
 void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
-  logMsg("\nIn Interpret, starts loop");
+    logMsg("\nIn Interpret, starts loop");
+
     if (statements.empty()) 
         std::cerr << "Interp: vector is empty.\n";
     logState();
@@ -102,6 +105,14 @@ void Interpreter::logState() {
 
 }
 
+
+void Interpreter::logTest() {
+#ifdef DEBUG
+  logMsg("\nIn logTest");
+
+  logMsg("\nExit out logTest");
+#endif
+}
 
 TObject Interpreter::evaluate(PExpr expr) { 
     return expr->accept(*this);
