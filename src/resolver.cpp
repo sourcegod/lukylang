@@ -19,8 +19,8 @@ void Resolver::declare(Token name) {
   // TODO: pass token by pointer
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back();
-  auto elem = scope.find(name.lexeme);
-  if (elem != scope.end()) {
+  auto iter = scope.find(name.lexeme);
+  if (iter != scope.end()) {
     m_lukErr.error(errTitle, name, "This Variable is allready declared in this scope.");
   }
   scope[name.lexeme] = false;
@@ -75,8 +75,8 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
   // TODO: pass token by pointer
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
-    auto elem = scope.find(name.lexeme);
-    if (elem != scope.end()) {
+    auto iter = scope.find(name.lexeme);
+    if (iter != scope.end()) {
       int val = m_scopes.size() -1 - i;
       m_interp.resolve(*expr, val);
     }
@@ -175,8 +175,8 @@ TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
 TObject Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
-    auto elem = scope.find(expr.name.lexeme);
-    if (elem != scope.end() && elem->second == false) {
+    auto iter = scope.find(expr.name.lexeme);
+    if (iter != scope.end() && iter->second == false) {
       m_lukErr.error(errTitle, expr.name, "Cannot read local variable in its own initializer.");
     }
   }

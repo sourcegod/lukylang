@@ -16,9 +16,9 @@ std::string LukInstance::toString() const {
 }
 
 ObjPtr LukInstance::get(Token& name) {
-    auto elem = m_fields.find(name.lexeme);
-    if (elem != m_fields.end()) {
-      return elem->second;
+    auto iter = m_fields.find(name.lexeme);
+    if (iter != m_fields.end()) {
+      return iter->second;
     }
     if (m_klass != nullptr) {
         ObjPtr method = m_klass->findMethod(name.lexeme); 

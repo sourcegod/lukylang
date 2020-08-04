@@ -45,9 +45,9 @@ std::string LukClass::toString() const {
 }
 
 ObjPtr LukClass::findMethod(const std::string& name) {
-  auto elem = m_methods.find(name);
-  if (elem != m_methods.end()) {
-    return elem->second;
+  auto iter = m_methods.find(name);
+  if (iter != m_methods.end()) {
+    return iter->second;
   }
 
   if (p_superclass != nullptr) {
