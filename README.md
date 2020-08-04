@@ -16,6 +16,12 @@ Additional features are supported, mostly based on tasks from book:
 - Comma operator ,
 - postfix and prefix increment/decrement operators
 - shorthand assignment operators +=, -=, *=, /=, **=
+- functions
 - lambdas
+- arrow functions
+- classes
+- member functions
+- inheritance
+- superclass
 
 # Work in progress!
