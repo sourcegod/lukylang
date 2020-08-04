@@ -227,15 +227,13 @@ void LukObject::cast(LukType tp) {
 }
 
 // assignment operators
-/*
-LukObject& LukObject::operator=(nullptr_t nullptr) {
+std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
         m_type = LukType::Nil;
         p_string = nullptr;
         p_callable = nullptr;
         p_instance = nullptr;
-        return *this;
+        return std::make_shared<LukObject>(*this);
 }
-*/
 
 LukObject& LukObject::operator=(const bool&& val) 
 {
