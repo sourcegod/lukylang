@@ -83,9 +83,9 @@ void Interpreter::logState() {
   if (values.empty()) {
       logMsg("m_globals env is empty");
   } else {
-      // for (auto& elem: m_globals->m_values)  {
-      for (auto& elem: values)  {
-          logMsg(elem.first, ":", elem.second->toString());
+      // for (auto& iter: m_globals->m_values)  {
+      for (auto& iter: values)  {
+          logMsg(iter.first, ":", iter.second->toString());
       }
   }
 
@@ -93,8 +93,8 @@ void Interpreter::logState() {
   if (m_locals.empty()) {
       logMsg("m_locals env is empty");
   } else {
-      for (auto& elem: m_locals)  {
-          logMsg(elem.first, ":", elem.second);
+      for (auto& iter: m_locals)  {
+          logMsg(iter.first, ":", iter.second);
       }
   
   }
@@ -286,10 +286,10 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
     TObject value = evaluate(expr.value);
     // search the variable in locals map, if not, search in the globals map.
-    auto elem = m_locals.find(expr.id());
-    if (elem != m_locals.end()) {
+    auto iter = m_locals.find(expr.id());
+    if (iter != m_locals.end()) {
       auto val = std::make_shared<TObject>(value);
-      m_environment->assignAt(elem->second, expr.name, val);
+      m_environment->assignAt(iter->second, expr.name, val);
     } else {
       m_globals->assign(expr.name, value);
     }
@@ -443,10 +443,10 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
 TObject Interpreter::visitSuperExpr(SuperExpr& expr) {
   logMsg("\nIn visitSuperExpr: ");
   logMsg("expr.m_method: ", expr.m_method, ", expr.id: ", expr.id());
-  auto elem = m_locals.find(expr.id());
-  if (elem != m_locals.end()) {
-    // elem->second is the depth
-    int distance = elem->second;
+  auto iter = m_locals.find(expr.id());
+  if (iter != m_locals.end()) {
+    // iter->second is the depth
+    int distance = iter->second;
     auto objClass = m_environment->getAt(distance, "super");
     // TODO: it will better to test whether is classable
     auto superclass = objClass.getDynCast<LukClass>();
@@ -504,10 +504,10 @@ TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
   // TODO: must be factorized
   // searching the depth in locals map
   // whether not, get the variable in globals map
-  auto elem = m_locals.find(expr.id());
-  if (elem != m_locals.end()) {
-    // elem->second is the depth
-    return m_environment->getAt(elem->second, name.lexeme);
+  auto iter = m_locals.find(expr.id());
+  if (iter != m_locals.end()) {
+    // iter->second is the depth
+    return m_environment->getAt(iter->second, name.lexeme);
   }
   return m_globals->get(name);
 }
@@ -556,7 +556,7 @@ std::string Interpreter::stringify(TObject& obj) {
     
    
     logMsg("Exit out stringify \n");
-    return *obj.getPtrString();
+    return obj.toString();
 }
 
 
