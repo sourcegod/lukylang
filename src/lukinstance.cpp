@@ -39,7 +39,7 @@ ObjPtr LukInstance::get(Token& name) {
     throw RuntimeError(name, 
         "Undefined property '" + name.lexeme + "'.");
     // unrichable
-    return TObject::getNilPtr();
+    return nilptr;
 }
 
 void LukInstance::set(Token name, ObjPtr valPtr) {

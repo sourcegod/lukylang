@@ -21,7 +21,7 @@ class LukObject;
 class LukInstance;
 using TObject = LukObject;
 using ObjPtr = std::shared_ptr<LukObject>;
-
+#define nilptr TObject::getNilPtr()
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
     Callable =4, Instance=5
@@ -125,8 +125,8 @@ public:
     }
     
     static ObjPtr getNilPtr()  {
-      static ObjPtr nilPtr = std::make_shared<LukObject>(getNil());
-      return nilPtr;
+      static ObjPtr nilP = std::make_shared<LukObject>(getNil());
+      return nilP;
     }
 
     bool getBool() const noexcept { return m_bool; }

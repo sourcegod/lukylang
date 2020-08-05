@@ -110,12 +110,15 @@ void Interpreter::logTest() {
 #ifdef DEBUG
   logMsg("\nIn logTest");
   
-/*
-  ObjPtr p_obj = std::make_shared<LukObject>();
-  // ObjPtr p_obj = p_obj->getNilPtr();
+
+  // ObjPtr p_obj = std::make_shared<LukObject>();
+  // ObjPtr p_obj = TObject::getNilPtr();
+  ObjPtr p_obj = nilptr;
+  // Note: cannot overloading operator= with nullptr
+  // p_obj = nullptr;
   logMsg("p_obj: ", p_obj);
   logMsg("p_obj->toString: ", p_obj->toString());
-*/
+
 
   logMsg("\nExit out logTest");
 #endif
