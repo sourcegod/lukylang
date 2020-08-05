@@ -51,6 +51,7 @@ public:
     LukObject(std::shared_ptr<LukCallable> callable);
     LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
+    LukObject(nullptr_t nulp);
    
     // destructor is necessary
     ~LukObject() {

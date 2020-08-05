@@ -109,6 +109,13 @@ void Interpreter::logState() {
 void Interpreter::logTest() {
 #ifdef DEBUG
   logMsg("\nIn logTest");
+  
+/*
+  ObjPtr p_obj = std::make_shared<LukObject>();
+  // ObjPtr p_obj = p_obj->getNilPtr();
+  logMsg("p_obj: ", p_obj);
+  logMsg("p_obj->toString: ", p_obj->toString());
+*/
 
   logMsg("\nExit out logTest");
 #endif
@@ -371,11 +378,12 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
         v_args.push_back(evaluate(arg));
     }
     const auto& func = callee.getCallable();
+    
     if (v_args.size() != func->arity()) {
         std::ostringstream msg;
-        msg,"Expected ",func->arity() 
-           ," arguments but got " 
-           ,v_args.size(),".";
+        msg << "Expected " << func->arity() 
+           << " arguments but got " 
+           << v_args.size() << ".";
         throw RuntimeError(expr.paren, msg.str());
     }
     logMsg("func->toString : ",func->toString());
