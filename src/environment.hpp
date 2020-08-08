@@ -57,12 +57,9 @@ public:
 
     ObjPtr& get(Token name);
     
-    // TODO: must be deleted after factorization
-    void assign(Token name, TObject val);
     void assign(Token name, ObjPtr& val);
     void assign(Token name, std::shared_ptr<LukCallable> callable);
 
-    void define(const std::string& name, TObject val);
     void define(const std::string& name, ObjPtr& val);
     ObjPtr getAt(int distance, const std::string& name);
     Environment* ancestor(int distance);

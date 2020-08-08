@@ -21,13 +21,6 @@ ObjPtr& Environment::get(Token name) {
             "Undefined variable '" + name.lexeme + "'");
 }
 
-
-// TODO: must be deleted after factorization
-void Environment::assign(Token name, TObject val) {
-  ObjPtr objP = std::make_shared<LukObject>(val);
-  assign(name,  objP);
-}
-
 void Environment::assign(Token name, ObjPtr& val) {
     if ( m_values.find(name.lexeme) != m_values.end() ) {
         m_values[name.lexeme] = val; // std::make_shared<TObject>(val;
@@ -49,12 +42,6 @@ void Environment::assign(Token name, std::shared_ptr<LukCallable> callable) {
   assign(name, objP); // LukObject(callable));
 
 }
-
-// TODO: must be deleted after factorization
-void Environment::define(const std::string& name, TObject val) {
-    m_values[name] =  std::make_shared<LukObject>(val);
-}
-
 
 void Environment::define(const std::string& name, ObjPtr& val) {
     m_values[name] =  val; // std::make_shared<TObject>(val);
