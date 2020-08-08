@@ -15,11 +15,11 @@ public:
     ClockFunc() { m_start = TClock::now(); }
     
     virtual size_t arity() override { return 0; }
-    virtual LukObject  call(Interpreter& interp, 
-           std::vector<LukObject>& args) override {
+    virtual ObjPtr  call(Interpreter& interp, 
+           std::vector<ObjPtr>& args) override {
         double dur = std::chrono::duration<double>(TClock::now() - m_start).count();
 
-        return LukObject(dur);
+        return std::make_shared<LukObject>(dur);
    }
    
    virtual std::string toString() const override { return "<Function clock()>"; }

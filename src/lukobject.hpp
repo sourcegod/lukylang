@@ -24,6 +24,7 @@ class LukInstance;
 using TObject = LukObject;
 using ObjPtr = std::shared_ptr<LukObject>;
 #define nilptr TObject::getNilPtr()
+
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
     Callable =4, Instance=5
