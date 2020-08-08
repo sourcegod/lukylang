@@ -5,10 +5,10 @@
 
 class Return : public std::exception {
 public:
-    explicit Return(TObject& _value) 
+    explicit Return(ObjPtr& _value) 
         : value(_value) {} 
     
-    TObject value;
+    ObjPtr value;
 };
 
 #endif //  RETURN_HPP
