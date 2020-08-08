@@ -201,11 +201,10 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   }
   // TODO: TObject must be replaced by nilptr
-  m_environment->define(stmt.m_name.lexeme, TObject()); // nilptr);
+  m_environment->define(stmt.m_name.lexeme, TObject());
 
   if (stmt.m_superclass != nullptr) {
     m_environment = std::make_shared<Environment>(m_environment);
-    // TODO: uncomment line bellow to store superclass
     m_environment->define("super", superclass);
 
   }
@@ -223,7 +222,6 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   }
 
   auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, supKlass, methods);
-  // auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, methods);
   if (stmt.m_superclass != nullptr) {
     // Note: moving m_enclosing from private to public in Environment object
     m_environment = m_environment->m_enclosing;
