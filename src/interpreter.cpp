@@ -313,8 +313,9 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
-      auto val = std::make_shared<TObject>(value);
-      m_environment->assignAt(iter->second, expr.name, val);
+      // TODO: the following line must be deleted
+      // auto val = std::make_shared<TObject>(value);
+      m_environment->assignAt(iter->second, expr.name, value);
     } else {
       m_globals->assign(expr.name, value);
     }
@@ -383,12 +384,13 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     if (! callee->isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
-    
+    // TODO: must be changed to vector of shared pointer of LukObject 
     std::vector<TObject> v_args;
+    // std::vector<ObjPtr> v_args;
     for (auto& arg: expr.args) {
-        v_args.push_back(evaluate(arg));
+        v_args.push_back(*evaluate(arg));
     }
-    const auto& func = callee.getCallable();
+    const auto& func = callee->getCallable();
     
     if (v_args.size() != func->arity()) {
         std::ostringstream msg;
@@ -401,7 +403,9 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     logMsg("func.use_count: ", func.use_count());
 
     logMsg("\nExit out visitcallExpr, before returns func->call:  "); 
-    return func->call(*this, v_args);
+    // TODO: uncomment the following line
+    // return func->call(*this, v_args);
+    return nilptr;
 }
 
 ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
@@ -416,7 +420,7 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
     // *shared_ptr dereference the smart pointer
     logMsg("In interpreter getexpr: *obj_ptr: ", *obj_ptr);
   logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
-    return *obj_ptr;
+    return obj_ptr;
   }
 
   throw RuntimeError(expr.m_name,
@@ -457,14 +461,13 @@ ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
   // TODO: evaluate function must returns lukobject with smart pointer
   auto value = evaluate(expr.m_value);
 
-  auto val_ptr = std::make_shared<LukObject>(value);
   logMsg("value: ", value);
   logMsg("obj: ", obj, ", type: ", obj->getType());
   logMsg("obj->getId: ", obj->getId());
   auto instPtr = obj->getInstance();
   logMsg("instptr tostring: ", instPtr->toString());
-  logMsg("set instance, name: ", expr.m_name, ", value: ", *val_ptr);
-  instPtr->set(expr.m_name, val_ptr);
+  logMsg("set instance, name: ", expr.m_name, ", value: ", *value);
+  instPtr->set(expr.m_name, value);
   logMsg("m_fields size from visitSet: ", instPtr->getFields().size());
   logMsg("Exit out visitSet: \n");
  
@@ -480,12 +483,12 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
     int distance = iter->second;
     auto objClass = m_environment->getAt(distance, "super");
     // TODO: it will better to test whether is classable
-    auto superclass = objClass.getDynCast<LukClass>();
+    auto superclass = objClass->getDynCast<LukClass>();
     
     // "this" is always one level nearer than "super"'s environment.
     auto objInst = m_environment->getAt(
       distance - 1, "this");
-    auto instPtr = objInst.getInstance();
+    auto instPtr = objInst->getInstance();
     ObjPtr method = superclass->findMethod(expr.m_method.lexeme);
     if (method == nullptr) {
       throw RuntimeError(expr.m_method,
@@ -494,7 +497,7 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
 
     std::shared_ptr<LukFunction> funcPtr = method->getDynCast<LukFunction>();
     logMsg("\nExit out visitSuperExpr before return  funtcPtr->bind");
-    return *funcPtr->bind(instPtr);
+    return funcPtr->bind(instPtr);
 
   }
 
@@ -515,11 +518,11 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
     ObjPtr right = evaluate(expr.right);
     switch(expr.op.type) {
         case TokenType::BANG:
-            return !isTruthy(right);
+            return std::make_shared<LukObject>(!isTruthy(right));
         
         case TokenType::MINUS:
             checkNumberOperand(expr.op, right);
-            return -(double)right;
+            return std::make_shared<LukObject>(-right->getNumber());
         default: break;
     }
 
@@ -554,20 +557,20 @@ bool Interpreter::isTruthy(ObjPtr& obj) {
 
 bool Interpreter::isEqual(ObjPtr& a, ObjPtr& b) {
     // nil is only equal to nil
-    if (a.isNil() && b.isNil()) return true;
-    if (a.isNil()) return false;
+    if (a->isNil() && b->isNil()) return true;
+    if (a->isNil()) return false;
 
     return a == b;
 }
 
 void Interpreter::checkNumberOperand(Token& op, ObjPtr& operand) {
-    if (operand.isNumber()) return;
+    if (operand->isNumber()) return;
     // throw std::runtime_error("From throw: Operand must be number.");
     throw RuntimeError(op, "Operand must be number.");
 }
 
 void Interpreter::checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right) {
-    if (left.isNumber() && right.isNumber()) return;
+    if (left->isNumber() && right->isNumber()) return;
     throw RuntimeError(op, "Operands must be numbers.");
     // throw std::runtime_error("Yes, Operands must be numbers.");
 
