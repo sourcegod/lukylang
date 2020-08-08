@@ -18,8 +18,8 @@ size_t LukClass::arity() {
   return 0;
 }
 
-LukObject  LukClass::call(Interpreter& interp, 
-           std::vector<LukObject>& v_args) {
+ObjPtr  LukClass::call(Interpreter& interp, 
+           std::vector<ObjPtr>& v_args) {
     // Note: "this" is a const pointer, 
     // so the current function should be not const
     // otherwire "this" is casting const type* const
@@ -37,7 +37,7 @@ LukObject  LukClass::call(Interpreter& interp,
           }
     }
 
-    return LukObject(instPtr);
+    return std::make_shared<LukObject>(instPtr);
 }
 
 std::string LukClass::toString() const {  
