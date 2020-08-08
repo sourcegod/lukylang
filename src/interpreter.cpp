@@ -200,8 +200,9 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     }
 
   }
-  // TODO: TObject must be replaced by nilptr
-  m_environment->define(stmt.m_name.lexeme, TObject());
+
+  ObjPtr objP;
+  m_environment->define(stmt.m_name.lexeme, objP);
 
   if (stmt.m_superclass != nullptr) {
     m_environment = std::make_shared<Environment>(m_environment);
@@ -274,8 +275,8 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
     } else {
         value = nilptr;
     }
-  // TODO: uncomment following line
-    // throw Return(value);
+    
+    throw Return(value);
 }
 
 
@@ -311,8 +312,6 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
-      // TODO: the following line must be deleted
-      // auto val = std::make_shared<TObject>(value);
       m_environment->assignAt(iter->second, expr.name, value);
     } else {
       m_globals->assign(expr.name, value);
@@ -382,11 +381,10 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     if (! callee->isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
-    // TODO: must be changed to vector of shared pointer of LukObject 
-    std::vector<TObject> v_args;
-    // std::vector<ObjPtr> v_args;
+
+    std::vector<ObjPtr> v_args;
     for (auto& arg: expr.args) {
-        v_args.push_back(*evaluate(arg));
+        v_args.push_back(evaluate(arg));
     }
     const auto& func = callee->getCallable();
     
@@ -401,9 +399,7 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     logMsg("func.use_count: ", func.use_count());
 
     logMsg("\nExit out visitcallExpr, before returns func->call:  "); 
-    // TODO: uncomment the following line
-    // return func->call(*this, v_args);
-    return nilptr;
+    return func->call(*this, v_args);
 }
 
 ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
@@ -456,7 +452,6 @@ ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
       "Only instances have fields.");
   }
 
-  // TODO: evaluate function must returns lukobject with smart pointer
   auto value = evaluate(expr.m_value);
 
   logMsg("value: ", value);
@@ -533,7 +528,6 @@ ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
 
 ObjPtr Interpreter::lookUpVariable(Token& name, Expr& expr) {
   logMsg("\nIn lookUpVariable name: ", name.lexeme);
-  // TODO: must be factorized
   // searching the depth in locals map
   // whether not, get the variable in globals map
   auto iter = m_locals.find(expr.id());
@@ -541,6 +535,7 @@ ObjPtr Interpreter::lookUpVariable(Token& name, Expr& expr) {
     // iter->second is the depth
     return m_environment->getAt(iter->second, name.lexeme);
   }
+
   return m_globals->get(name);
 }
 
