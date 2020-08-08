@@ -35,35 +35,35 @@ public:
     void visitWhileStmt(WhileStmt& stmt) override;
     
     // expressions
-    TObject visitAssignExpr(AssignExpr& expr) override;
-    TObject visitBinaryExpr(BinaryExpr& expr) override;
-    TObject visitCallExpr(CallExpr& expr) override;
-    TObject visitGetExpr(GetExpr& expr);
-    TObject visitGroupingExpr(GroupingExpr& expr) override;
-    TObject visitLogicalExpr(LogicalExpr& expr) override;
-    TObject visitLiteralExpr(LiteralExpr& expr) override; 
-    TObject visitSetExpr(SetExpr& expr);
-    TObject visitSuperExpr(SuperExpr& expr);
-    TObject visitThisExpr(ThisExpr& expr);
-    TObject visitUnaryExpr(UnaryExpr& expr) override;
-    TObject visitVariableExpr(VariableExpr& expr) override;
+    ObjPtr visitAssignExpr(AssignExpr& expr) override;
+    ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
+    ObjPtr visitCallExpr(CallExpr& expr) override;
+    ObjPtr visitGetExpr(GetExpr& expr);
+    ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
+    ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
+    ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 
+    ObjPtr visitSetExpr(SetExpr& expr);
+    ObjPtr visitSuperExpr(SuperExpr& expr);
+    ObjPtr visitThisExpr(ThisExpr& expr);
+    ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
+    ObjPtr visitVariableExpr(VariableExpr& expr) override;
 
-    TObject evaluate(PExpr expr);
+    ObjPtr evaluate(PExpr expr);
     void execute(PStmt& stmt);
     void resolve(Expr& expr, int depth);
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
 
 private:
     PEnvironment m_environment;
-    TObject m_result;
+    ObjPtr m_result;
     const std::string errTitle = "InterpretError: ";
     std::unordered_map<unsigned, int> m_locals;
 
-    bool isTruthy(TObject& obj);
-    bool isEqual(TObject& a, TObject& b);
-    void checkNumberOperand(Token& op, TObject& operand);
-    void checkNumberOperands(Token& op, TObject& left, TObject& right);
-    TObject lookUpVariable(Token& name, Expr& expr);
+    bool isTruthy(ObjPtr& obj);
+    bool isEqual(ObjPtr& a, ObjPtr& b);
+    void checkNumberOperand(Token& op, ObjPtr& operand);
+    void checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right);
+    ObjPtr lookUpVariable(Token& name, Expr& expr);
 
     // starts and ends for string
     inline bool startsWith(const std::string& str, const std::string& start) {
@@ -77,7 +77,7 @@ private:
     }
 
     
-    std::string stringify(TObject& obj);
+    std::string stringify(ObjPtr& obj);
 
 };
 

@@ -52,8 +52,7 @@ void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
     } catch (RuntimeError& err) {
         std::cerr << errTitle << err.what() << "\n";
     }
-    // m_result += "tata ";
-    if (!m_result.isNil())
+    if (!m_result->isNil())
         printResult();
     logState();
 
@@ -66,7 +65,7 @@ void Interpreter::printResult() {
     // CLog(log_DEBUG) << "printResult avant \n";
     std::cout << stringify(m_result) << "\n";
     // reinitialize m_result to nil
-    m_result = TObject();
+    m_result = nilptr;
     
 }
 
@@ -126,7 +125,7 @@ void Interpreter::logTest() {
 #endif
 }
 
-TObject Interpreter::evaluate(PExpr expr) { 
+ObjPtr Interpreter::evaluate(PExpr expr) { 
     logMsg("\nIn evaluate, *expr: ", typeid(*expr).name());
     return expr->accept(*this);
 }
@@ -186,26 +185,28 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
   logMsg("In visitClassStmt: name: ", stmt.m_name.lexeme);
-  TObject superclass;
+  ObjPtr superclass;
   std::shared_ptr<LukClass> supKlass = nullptr;
   if (stmt.m_superclass != nullptr) {
     // Note: changing evaluate(PExpr&) to evaluate(Pexpr) to passing VariableExpr object
     superclass = evaluate(stmt.m_superclass);
     logMsg("superclass: ", superclass);
     // TODO: It will better to test whether superclass is classable instead callable
-    if (!superclass.isCallable()) { //  instanceof LoxClass)) {
+    if (!superclass->isCallable()) { //  instanceof LoxClass)) {
       throw RuntimeError(stmt.m_superclass->name,
             "Superclass must be a class.");
     } else {
-      supKlass = superclass.getDynCast<LukClass>();
+      supKlass = superclass->getDynCast<LukClass>();
     }
 
   }
-  m_environment->define(stmt.m_name.lexeme, TObject());
+  // TODO: TObject must be replaced by nilptr
+  m_environment->define(stmt.m_name.lexeme, TObject()); // nilptr);
 
   if (stmt.m_superclass != nullptr) {
     m_environment = std::make_shared<Environment>(m_environment);
-    m_environment->define("super", superclass);
+    // TODO: uncomment line bellow to store superclass
+    // m_environment->define("super", superclass);
 
   }
 
@@ -261,27 +262,27 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    TObject value = evaluate(stmt.expression);
-    logMsg("\nIn visitprint: value: ", value, ", id: ", value.getId());
+    ObjPtr value = evaluate(stmt.expression);
+    logMsg("\nIn visitprint: value: ", value, ", id: ", value->getId());
     std::cout << stringify(value) << std::endl;
-    m_result = TObject();
+    m_result = nilptr;
 
 }
 
 void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
-    TObject value;
+    ObjPtr value;
     if (stmt.value != nullptr) { 
         value = evaluate(stmt.value);
     } else {
-        // value = nullptr;
+        value = nilptr;
     }
-
-    throw Return(value);
+  // TODO: uncomment following line
+    // throw Return(value);
 }
 
 
 void Interpreter::visitVarStmt(VarStmt& stmt) {
-    TObject value;
+    ObjPtr value;
     if (stmt.initializer != nullptr) {
         value = evaluate(stmt.initializer);
     }
@@ -307,8 +308,8 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
 }
 
-TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
-    TObject value = evaluate(expr.value);
+ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
+    ObjPtr value = evaluate(expr.value);
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
@@ -321,10 +322,10 @@ TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
     return value;
 }
 
-TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
+ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // method get allow to convert smart pointer to raw pointer
-    TObject left = evaluate(expr.left);
-    TObject right = evaluate(expr.right);
+    ObjPtr left = evaluate(expr.left);
+    ObjPtr right = evaluate(expr.right);
     switch(expr.op.type) {
         case TokenType::GREATER:
             checkNumberOperands(expr.op, left, right);
@@ -369,9 +370,9 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          default: break;
     }
     // unrichable
-    return TObject();
+    return nilptr;
 }
-TObject Interpreter::visitCallExpr(CallExpr& expr) {
+ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     logMsg("\nIn visitcallExpr: "); 
     auto callee = evaluate(expr.callee);
     logMsg("callee: ", callee);
@@ -399,14 +400,14 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
     return func->call(*this, v_args);
 }
 
-TObject Interpreter::visitGetExpr(GetExpr& expr) {
+ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   logMsg("\nIn visitGetExpr, name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
-  logMsg("obj: ", obj, ", type: ", obj.getType(), ", id: ", obj.getId());
-  if (obj.isInstance()) {
+  logMsg("obj: ", obj, ", type: ", obj->getType(), ", id: ", obj->getId());
+  if (obj->isInstance()) {
     logMsg("obj is an instance");
     // obj_ptr is the method
-    auto obj_ptr = obj.getInstance()->get(expr.m_name);
+    auto obj_ptr = obj->getInstance()->get(expr.m_name);
     // Note: shared_ptr.get() returns the stored pointer, not the managed pointer.
     // *shared_ptr dereference the smart pointer
     logMsg("In interpreter getexpr: *obj_ptr: ", *obj_ptr);
@@ -417,15 +418,15 @@ TObject Interpreter::visitGetExpr(GetExpr& expr) {
   throw RuntimeError(expr.m_name,
     "Only instances have properties.");
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
+ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.expression);
 }
 
-TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
-    TObject left = evaluate(expr.left);
+ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
+    ObjPtr left = evaluate(expr.left);
     if (expr.op.type == TokenType::OR) {
         if (isTruthy(left)) return left;
     } else {
@@ -435,16 +436,16 @@ TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
     return evaluate(expr.right);
 }
 
-TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
+ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
     logMsg("\nIn visitLiteralExpr, Interpreter");
     return expr.value;
 }
 
-TObject Interpreter::visitSetExpr(SetExpr& expr) {
+ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
     logMsg("\nIn visitSet: ");
     logMsg("name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
-  if (not obj.isInstance()) {
+  if (not obj->isInstance()) {
     throw RuntimeError(expr.m_name,
       "Only instances have fields.");
   }
@@ -454,9 +455,9 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
 
   auto val_ptr = std::make_shared<LukObject>(value);
   logMsg("value: ", value);
-  logMsg("obj: ", obj, ", type: ", obj.getType());
-  logMsg("obj.getId: ", obj.getId());
-  auto instPtr = obj.getInstance();
+  logMsg("obj: ", obj, ", type: ", obj->getType());
+  logMsg("obj->getId: ", obj->getId());
+  auto instPtr = obj->getInstance();
   logMsg("instptr tostring: ", instPtr->toString());
   logMsg("set instance, name: ", expr.m_name, ", value: ", *val_ptr);
   instPtr->set(expr.m_name, val_ptr);
@@ -466,7 +467,7 @@ TObject Interpreter::visitSetExpr(SetExpr& expr) {
   return value;
 }
 
-TObject Interpreter::visitSuperExpr(SuperExpr& expr) {
+ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
   logMsg("\nIn visitSuperExpr: ");
   logMsg("expr.m_method: ", expr.m_method, ", expr.id: ", expr.id());
   auto iter = m_locals.find(expr.id());
@@ -493,11 +494,11 @@ TObject Interpreter::visitSuperExpr(SuperExpr& expr) {
 
   }
 
-  return TObject();
+  return nilptr;
 }
 
 
-TObject Interpreter::visitThisExpr(ThisExpr& expr) {
+ObjPtr Interpreter::visitThisExpr(ThisExpr& expr) {
   logMsg("\nIn visitThis");
   logMsg("keyword: ", expr.m_keyword);
   auto obj = lookUpVariable(expr.m_keyword, expr);
@@ -506,8 +507,8 @@ TObject Interpreter::visitThisExpr(ThisExpr& expr) {
   return obj;
 }
 
-TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
-    TObject right = evaluate(expr.right);
+ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
+    ObjPtr right = evaluate(expr.right);
     switch(expr.op.type) {
         case TokenType::BANG:
             return !isTruthy(right);
@@ -518,14 +519,14 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         default: break;
     }
 
-    return TObject();
+    return nilptr;
 }
 
-TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
+ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
     return lookUpVariable(expr.name, expr);
 }
 
-TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
+ObjPtr Interpreter::lookUpVariable(Token& name, Expr& expr) {
   logMsg("\nIn lookUpVariable name: ", name.lexeme);
   // TODO: must be factorized
   // searching the depth in locals map
@@ -538,16 +539,16 @@ TObject Interpreter::lookUpVariable(Token& name, Expr& expr) {
   return m_globals->get(name);
 }
 
-bool Interpreter::isTruthy(TObject& obj) {
-    if (obj.isNil()) return false;
-    if (obj.isBool()) return obj.getBool();
-    if (obj.isNumber() && obj.getNumber() == 0) return false;
-    if (obj.isString() && obj.getString() == "") return false;
+bool Interpreter::isTruthy(ObjPtr& obj) {
+    if (obj->isNil()) return false;
+    if (obj->isBool()) return obj->getBool();
+    if (obj->isNumber() && obj->getNumber() == 0) return false;
+    if (obj->isString() && obj->getString() == "") return false;
     
     return true;
 }
 
-bool Interpreter::isEqual(TObject& a, TObject& b) {
+bool Interpreter::isEqual(ObjPtr& a, ObjPtr& b) {
     // nil is only equal to nil
     if (a.isNil() && b.isNil()) return true;
     if (a.isNil()) return false;
@@ -555,24 +556,24 @@ bool Interpreter::isEqual(TObject& a, TObject& b) {
     return a == b;
 }
 
-void Interpreter::checkNumberOperand(Token& op, TObject& operand) {
+void Interpreter::checkNumberOperand(Token& op, ObjPtr& operand) {
     if (operand.isNumber()) return;
     // throw std::runtime_error("From throw: Operand must be number.");
     throw RuntimeError(op, "Operand must be number.");
 }
 
-void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) {
+void Interpreter::checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right) {
     if (left.isNumber() && right.isNumber()) return;
     throw RuntimeError(op, "Operands must be numbers.");
     // throw std::runtime_error("Yes, Operands must be numbers.");
 
 }
 
-std::string Interpreter::stringify(TObject& obj) { 
+std::string Interpreter::stringify(ObjPtr& obj) { 
     logMsg("\nIn stringify, obj: ", obj);
-    if (obj.isNil() || obj.isBool()) return obj.value();
-    if (obj.isNumber()) {
-        std::string text = obj.value(); 
+    if (obj->isNil() || obj->isBool()) return obj->value();
+    if (obj->isNumber()) {
+        std::string text = obj->value(); 
         std::string end = ".000000";
         // extract decimal part if ending by .0
         if (endsWith(text, end)) 
@@ -582,7 +583,7 @@ std::string Interpreter::stringify(TObject& obj) {
     
    
     logMsg("Exit out stringify \n");
-    return obj.toString();
+    return obj->toString();
 }
 
 
