@@ -26,7 +26,7 @@ ObjPtr  LukFunction::call(Interpreter& interp, std::vector<ObjPtr>& v_args) {
     if (m_isInitializer) return  m_closure->getAt(0, "this");
     
     
-    return TObject();
+    return nilptr;
 }
 
 ObjPtr LukFunction::bind(std::shared_ptr<LukInstance> instPtr) {
