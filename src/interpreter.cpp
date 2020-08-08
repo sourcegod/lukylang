@@ -206,7 +206,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   if (stmt.m_superclass != nullptr) {
     m_environment = std::make_shared<Environment>(m_environment);
     // TODO: uncomment line bellow to store superclass
-    // m_environment->define("super", superclass);
+    m_environment->define("super", superclass);
 
   }
 
@@ -329,54 +329,58 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     switch(expr.op.type) {
         case TokenType::GREATER:
             checkNumberOperands(expr.op, left, right);
-            return (double)left > (double)right;
+            return std::make_shared<LukObject>(left->getNumber() > right->getNumber());
+            // return (double)left > (double)right;
         
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(expr.op, left, right);
-            return (double)left >= (double)right;
+            return std::make_shared<LukObject>(left->getNumber() >= right->getNumber());
 
          case TokenType::LESS:
             checkNumberOperands(expr.op, left, right);
-            return (double)left < (double)right;
+            return std::make_shared<LukObject>(left->getNumber() < right->getNumber());
 
          case TokenType::LESS_EQUAL:
             checkNumberOperands(expr.op, left, right);
-            return (double)left <= (double)right;
+            return std::make_shared<LukObject>(left->getNumber() <= right->getNumber());
+            
    
-        case TokenType::BANG_EQUAL: return !isEqual(left, right);
-        case TokenType::EQUAL_EQUAL: return isEqual(left, right);
+         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(!isEqual(left, right));
+         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
 
         case TokenType::MINUS:
             checkNumberOperands(expr.op, left, right);
-            return (double)left - (double)right;
+            return std::make_shared<LukObject>(left->getNumber() - right->getNumber());
+            
         
         case TokenType::PLUS:
-            if (left.isNumber() && right.isNumber())
-                return (double)left + (double)right; 
-            if (left.isString() && right.isString())
+            if (left->isNumber() && right->isNumber())
+              return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
+            if (left->isString() && right->isString())
                 // return (std::string)left + (std::string)right;
-                // Addingeach string to ostringstream
-                return left + right;
+                // Adding each string to ostringstream
+                return std::make_shared<LukObject>(left->getString() + right->getString());
             throw RuntimeError(expr.op, 
                     "Operands must be two numbers or tow strings.");
 
         case TokenType::SLASH:
             checkNumberOperands(expr.op, left, right);
-            return (double)left / (double)right;
+            return std::make_shared<LukObject>(left->getNumber() / right->getNumber());
 
         case TokenType::STAR:
             checkNumberOperands(expr.op, left, right);
-            return (double)left * (double)right;
+            return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
          default: break;
     }
     // unrichable
     return nilptr;
 }
+
 ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     logMsg("\nIn visitcallExpr: "); 
     auto callee = evaluate(expr.callee);
     logMsg("callee: ", callee);
-    if (! callee.isCallable()) {
+    if (! callee->isCallable()) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
     
