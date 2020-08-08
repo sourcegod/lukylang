@@ -55,14 +55,18 @@ public:
     size_t size() {  return m_values.size(); }
     auto& getValues() { return m_values; }
 
-    TObject& get(Token name);
+    ObjPtr& get(Token name);
+    
+    // TODO: must be deleted after factorization
     void assign(Token name, TObject val);
+    void assign(Token name, ObjPtr& val);
     void assign(Token name, std::shared_ptr<LukCallable> callable);
 
     void define(const std::string& name, TObject val);
-    TObject getAt(int distance, const std::string& name);
+    void define(const std::string& name, ObjPtr& val);
+    ObjPtr getAt(int distance, const std::string& name);
     Environment* ancestor(int distance);
-    void assignAt(int distance, Token& name, std::shared_ptr<TObject> val);
+    void assignAt(int distance, Token& name, ObjPtr& val);
 
 private:
     std::unordered_map<std::string, ObjPtr> m_values = {};

@@ -7,10 +7,10 @@
 
 // static variable must be initialized
 int Environment::next_id;
-TObject& Environment::get(Token name) {
+ObjPtr& Environment::get(Token name) {
     auto iter = m_values.find(name.lexeme);
     if (iter != m_values.end()) {
-        return *iter->second;
+        return iter->second;
     }
     
     if (m_enclosing != nullptr) {
@@ -21,9 +21,16 @@ TObject& Environment::get(Token name) {
             "Undefined variable '" + name.lexeme + "'");
 }
 
+
+// TODO: must be deleted after factorization
 void Environment::assign(Token name, TObject val) {
+  ObjPtr objP = std::make_shared<LukObject>(val);
+  assign(name,  objP);
+}
+
+void Environment::assign(Token name, ObjPtr& val) {
     if ( m_values.find(name.lexeme) != m_values.end() ) {
-        m_values[name.lexeme] = std::make_shared<TObject>(val);
+        m_values[name.lexeme] = val; // std::make_shared<TObject>(val;
         return;
     }
 
@@ -38,15 +45,22 @@ void Environment::assign(Token name, TObject val) {
 }
 
 void Environment::assign(Token name, std::shared_ptr<LukCallable> callable) {
-  assign(name, LukObject(callable));
+  ObjPtr objP = std::make_shared<LukObject>(callable);
+  assign(name, objP); // LukObject(callable));
 
 }
 
+// TODO: must be deleted after factorization
 void Environment::define(const std::string& name, TObject val) {
-    m_values[name] =  std::make_shared<TObject>(val);
+    m_values[name] =  std::make_shared<LukObject>(val);
 }
 
-TObject Environment::getAt(int distance, const std::string& name) {
+
+void Environment::define(const std::string& name, ObjPtr& val) {
+    m_values[name] =  val; // std::make_shared<TObject>(val);
+}
+
+ObjPtr Environment::getAt(int distance, const std::string& name) {
   auto& values = ancestor(distance)->m_values;
   auto iter = values.find(name);
   if (iter == values.end()) {
@@ -55,7 +69,7 @@ TObject Environment::getAt(int distance, const std::string& name) {
       << " at depth: ";
     throw RuntimeError(msg.str());
   }
-  return *iter->second.get();
+  return iter->second;
 }
 
 
@@ -69,7 +83,7 @@ Environment* Environment::ancestor(int distance) {
   return env;
 }
 
-void Environment::assignAt(int distance, Token& name, std::shared_ptr<TObject> val) {
+void Environment::assignAt(int distance, Token& name, ObjPtr& val) {
   ancestor(distance)->m_values[name.lexeme] = val;
 
 }
