@@ -86,62 +86,62 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
 }
 
 // expressions
-TObject Resolver::visitAssignExpr(AssignExpr& expr) {
+ObjPtr Resolver::visitAssignExpr(AssignExpr& expr) {
   resolve(expr.value);
   resolveLocal(&expr, expr.name);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
+ObjPtr Resolver::visitBinaryExpr(BinaryExpr& expr) {
   resolve(expr.left);
   resolve(expr.right);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitCallExpr(CallExpr& expr) {
+ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
   resolve(expr.callee);
   for (std::shared_ptr<Expr>& arg : expr.args) {
     resolve(arg);
   }
 
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitGetExpr(GetExpr& expr) {
+ObjPtr Resolver::visitGetExpr(GetExpr& expr) {
   resolve(expr.m_object);
 
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
+ObjPtr Resolver::visitGroupingExpr(GroupingExpr& expr) {
   resolve(expr.expression);
  
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitLiteralExpr(LiteralExpr& expr) {
+ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
     logMsg("\nIn visitLiteralExpr, Resolver");
 
-    return TObject();
+    return nilptr;
 }
 
-TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
+ObjPtr Resolver::visitLogicalExpr(LogicalExpr& expr) {
   resolve(expr.left);
   resolve(expr.right);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitSetExpr(SetExpr& expr) {
+ObjPtr Resolver::visitSetExpr(SetExpr& expr) {
   resolve(expr.m_value);
   resolve(expr.m_object);
 
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitSuperExpr(SuperExpr& expr) {
+ObjPtr Resolver::visitSuperExpr(SuperExpr& expr) {
     if (currentClass == ClassType::None) {
       m_lukErr.error(errTitle, expr.m_keyword,
           "Cannot use 'super' outside of a class.");
@@ -152,11 +152,11 @@ TObject Resolver::visitSuperExpr(SuperExpr& expr) {
 
   resolveLocal(&expr, expr.m_keyword);
   
-  return TObject();
+  return nilptr;
 }
 
 
-TObject Resolver::visitThisExpr(ThisExpr& expr) {
+ObjPtr Resolver::visitThisExpr(ThisExpr& expr) {
 
   if (currentClass == ClassType::None) {
       m_lukErr.error(errTitle, expr.m_keyword,
@@ -164,16 +164,16 @@ TObject Resolver::visitThisExpr(ThisExpr& expr) {
     }
 
   resolveLocal(&expr, expr.m_keyword);
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
+ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
   resolve(expr.right);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitVariableExpr(VariableExpr& expr) {
+ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
     auto iter = scope.find(expr.name.lexeme);
@@ -183,7 +183,7 @@ TObject Resolver::visitVariableExpr(VariableExpr& expr) {
   }
   resolveLocal(&expr, expr.name);
 
-  return TObject();
+  return nilptr;
 }
 
 // statements
