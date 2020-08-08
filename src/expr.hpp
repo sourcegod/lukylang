@@ -26,18 +26,18 @@ using PExpr = std::shared_ptr<Expr>;
 // create visitor object
 class ExprVisitor {
     public:
-        virtual TObject visitAssignExpr(AssignExpr&) =0;
-        virtual TObject visitBinaryExpr(BinaryExpr&) =0;
-        virtual TObject visitCallExpr(CallExpr&) =0;
-        virtual TObject visitGetExpr(GetExpr&) =0;
-        virtual TObject visitGroupingExpr(GroupingExpr&) =0;
-        virtual TObject visitLiteralExpr(LiteralExpr&) =0;
-        virtual TObject visitLogicalExpr(LogicalExpr&) =0;
-        virtual TObject visitSetExpr(SetExpr&) =0;
-        virtual TObject visitSuperExpr(SuperExpr&) =0;
-        virtual TObject visitThisExpr(ThisExpr&) =0;
-        virtual TObject visitUnaryExpr(UnaryExpr&) =0;
-        virtual TObject visitVariableExpr(VariableExpr&) =0;
+        virtual ObjPtr visitAssignExpr(AssignExpr&) =0;
+        virtual ObjPtr visitBinaryExpr(BinaryExpr&) =0;
+        virtual ObjPtr visitCallExpr(CallExpr&) =0;
+        virtual ObjPtr visitGetExpr(GetExpr&) =0;
+        virtual ObjPtr visitGroupingExpr(GroupingExpr&) =0;
+        virtual ObjPtr visitLiteralExpr(LiteralExpr&) =0;
+        virtual ObjPtr visitLogicalExpr(LogicalExpr&) =0;
+        virtual ObjPtr visitSetExpr(SetExpr&) =0;
+        virtual ObjPtr visitSuperExpr(SuperExpr&) =0;
+        virtual ObjPtr visitThisExpr(ThisExpr&) =0;
+        virtual ObjPtr visitUnaryExpr(UnaryExpr&) =0;
+        virtual ObjPtr visitVariableExpr(VariableExpr&) =0;
 };
 
 // Base class for different objects
@@ -49,7 +49,7 @@ public:
       m_id = next_id;
     }
     
-    virtual TObject accept(ExprVisitor &v) =0;
+    virtual ObjPtr accept(ExprVisitor &v) =0;
     virtual bool isCallExpr() const { return false; }
     virtual bool isGetExpr() const { return false; }
     virtual bool isSetExpr() const { return false; }
@@ -76,7 +76,7 @@ public:
         value = std::move(_value);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitAssignExpr(*this); 
     }
 
@@ -93,7 +93,7 @@ public:
         right = std::move(_right);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitBinaryExpr(*this); 
     }
 
@@ -110,7 +110,7 @@ public:
         args = std::move(_args);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitCallExpr(*this); 
     }
 
@@ -134,7 +134,7 @@ public:
     PExpr getObject() const override { return m_object; }
 
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitGetExpr(*this); 
     }
 
@@ -148,7 +148,7 @@ public:
         expression = std::move(_expr);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitGroupingExpr(*this); 
     }
 
@@ -158,21 +158,21 @@ public:
 class LiteralExpr: public Expr {
 public:
 
-    LiteralExpr(LukObject _value) 
+    LiteralExpr(ObjPtr& _value) 
         : value(std::move(_value)) {
         logMsg("\nLiteralExpr constructor");
-        logMsg("_value.id: ", _value.id);
-        logMsg("value.id: ", value.id);
+        logMsg("_value.id: ", _value->id);
+        logMsg("value.id: ", value->id);
     }
     ~LiteralExpr() {
         logMsg("~LiteralExpr destructor");
     }
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitLiteralExpr(*this); 
     }
 
-LukObject value;
+ObjPtr value;
 };
 
 class LogicalExpr : public Expr {
@@ -183,7 +183,7 @@ public:
         right = std::move(_right);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitLogicalExpr(*this); 
     }
 
@@ -205,7 +205,7 @@ public:
     // Fix: can now an instance of shared_ptr instead unique_ptr
     PExpr getObject() const override { return m_object; }
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitSetExpr(*this); 
     }
 
@@ -220,7 +220,7 @@ public:
       m_keyword(keyword),
       m_method(method) {}
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitSuperExpr(*this); 
     }
 
@@ -234,7 +234,7 @@ public:
         m_keyword = keyword;
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitThisExpr(*this); 
     }
 
@@ -248,7 +248,7 @@ public:
         right = std::move(_right);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitUnaryExpr(*this); 
     }
 
@@ -263,7 +263,7 @@ public:
         name = _name;
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitVariableExpr(*this); 
     }
     bool isVariableExpr() const override { return true; }
