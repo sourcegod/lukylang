@@ -365,6 +365,7 @@ PExpr Parser::primary() {
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING})) {
+        logMsg("\nIn primary Parser, before literalExpr");
         return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
     

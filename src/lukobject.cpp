@@ -18,7 +18,7 @@ int LukObject::next_id =0;
     
 LukObject::LukObject() 
     : id(++next_id) { 
-    // std::cerr << "C.tor, id: " << id << "\n";
+    logMsg("\nConstructor LukObject nil,  id: ", id);
     m_type = LukType::Nil;  
     m_string = "nil";
     // p_string = nullptr;
@@ -28,16 +28,19 @@ LukObject::LukObject()
 
 LukObject::LukObject(bool val) 
     : id(++next_id) {
+    logMsg("\nConstructor LukObject bool,  id: ", id);
     m_type = LukType::Bool; m_bool = val; 
 }
 
 LukObject::LukObject(int val) 
     : id(++next_id) { 
+    logMsg("\nConstructor LukObject int,  id: ", id, "val: ", val);
       m_type = LukType::Number; m_number = val; 
 }
 
 LukObject::LukObject(double val) 
     : id(++next_id) {
+    logMsg("\nConstructor LukObject double,  id: ", id, "val: ", val);
   m_type = LukType::Number; 
   m_number = val; 
 }
@@ -45,6 +48,7 @@ LukObject::LukObject(double val)
 LukObject::LukObject(const std::string& val) 
     : id(++next_id) { 
     // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
+    logMsg("\nConstructor LukObject string,  id: ", id, "val: ", val);
     m_type = LukType::String; 
     m_string = val; 
     // p_string = std::make_shared<std::string>(val);
@@ -52,6 +56,7 @@ LukObject::LukObject(const std::string& val)
 
 LukObject::LukObject(const char* val) 
     : id(++next_id) { 
+    logMsg("\nConstructor LukObject char*,  id: ", id, "val: ", val);
     m_type = LukType::String; 
     m_string = std::string(val); 
     // p_string = std::make_shared<std::string>(val);
@@ -59,6 +64,7 @@ LukObject::LukObject(const char* val)
 
 LukObject::LukObject(std::shared_ptr<LukCallable> callable)
     : id(++next_id) { 
+    logMsg("\nConstructor LukObject callable,  id: ", id, "val: ", callable->toString());
     m_type = LukType::Callable;
     p_callable = callable; // std::make_shared<LukCallable>(callable);
     m_string = callable->toString();
@@ -69,16 +75,17 @@ LukObject::LukObject(std::shared_ptr<LukCallable> callable)
 
 LukObject::LukObject(std::shared_ptr<LukInstance> instance)
         : id(++next_id) { 
-        m_type = LukType::Instance;
-        p_instance = instance;
-        logMsg("\nIn LukObject instance toString: ", instance->toString());
-        m_string = p_instance->toString();
+    logMsg("\nConstructor LukObject instance,  id: ", id, "val: ", instance->toString());
+    m_type = LukType::Instance;
+    p_instance = instance;
+    logMsg("\nIn LukObject instance toString: ", instance->toString());
+    m_string = p_instance->toString();
         // p_string = std::make_shared<std::string>(p_instance->toString());
     }
 
 LukObject::LukObject(Token tok) 
         : id(++next_id) {
-    // std::cerr << "C.tor with token, id: " << id << "\n";
+    logMsg("\nConstructor LukObject token,  id: ", id, "val: ", tok.lexeme);
     switch(tok.type) {
         case TokenType::NIL:
             m_type = LukType::Nil; break;
@@ -104,6 +111,7 @@ LukObject::LukObject(Token tok)
     }
 
 }
+
 LukObject::LukObject(nullptr_t nup) {
   logMsg("\In LukObject constructor nullptr: ");
         m_type = LukType::Nil;
@@ -300,7 +308,7 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     if (this == &obj) return *this;
     id = ++next_id;
     logMsg("\nIn LukObject, operator=");
-    logMsg("Copy Assignement, id: ", id);
+    logMsg("Copy Assignement, id: ", id, "val: ", obj);
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;

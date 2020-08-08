@@ -159,10 +159,13 @@ class LiteralExpr: public Expr {
 public:
 
     LiteralExpr(LukObject _value) 
-        : value(std::move(_value)) 
-        {
-        // std::cerr << "LiteralExpr, id: " << _value.id << "\n";
-        // std::cerr << "value, id: " << value.id << "\n";
+        : value(std::move(_value)) {
+        logMsg("\nLiteralExpr constructor");
+        logMsg("_value.id: ", _value.id);
+        logMsg("value.id: ", value.id);
+    }
+    ~LiteralExpr() {
+        logMsg("~LiteralExpr destructor");
     }
 
     TObject accept(ExprVisitor &v) override {

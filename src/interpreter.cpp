@@ -110,7 +110,7 @@ void Interpreter::logTest() {
 #ifdef DEBUG
   logMsg("\nIn logTest");
   
-
+  /*
   // ObjPtr p_obj = std::make_shared<LukObject>();
   // ObjPtr p_obj = TObject::getNilPtr();
   ObjPtr p_obj = nilptr;
@@ -118,6 +118,8 @@ void Interpreter::logTest() {
   // p_obj = nullptr;
   logMsg("p_obj: ", p_obj);
   logMsg("p_obj->toString: ", p_obj->toString());
+  */
+
 
 
   logMsg("\nExit out logTest");
@@ -125,6 +127,7 @@ void Interpreter::logTest() {
 }
 
 TObject Interpreter::evaluate(PExpr expr) { 
+    logMsg("\nIn evaluate, *expr: ", typeid(*expr).name());
     return expr->accept(*this);
 }
 
@@ -433,6 +436,7 @@ TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
 }
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
+    logMsg("\nIn visitLiteralExpr, Interpreter");
     return expr.value;
 }
 

@@ -2,6 +2,8 @@
 #define LUKOBJECT_HPP
 
 #include "lukinstance.hpp"
+#include "logger.hpp"
+
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
@@ -55,7 +57,7 @@ public:
    
     // destructor is necessary
     ~LukObject() {
-        // std::cerr << "D.tor id: " << id << std::endl;
+        logMsg("\n~LukObject destructor,  id: ", id, "val: ", this->toString());
     }
 
        

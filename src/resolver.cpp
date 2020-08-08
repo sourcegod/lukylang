@@ -122,8 +122,9 @@ TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
 }
 
 TObject Resolver::visitLiteralExpr(LiteralExpr& expr) {
+    logMsg("\nIn visitLiteralExpr, Resolver");
 
-  return TObject();
+    return TObject();
 }
 
 TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
