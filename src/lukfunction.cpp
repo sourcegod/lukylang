@@ -31,7 +31,8 @@ ObjPtr  LukFunction::call(Interpreter& interp, std::vector<ObjPtr>& v_args) {
 
 ObjPtr LukFunction::bind(std::shared_ptr<LukInstance> instPtr) {
   auto env = std::make_shared<Environment>(m_closure);
-  env->define("this", LukObject(instPtr));
+  ObjPtr objP = std::make_shared<LukObject>(instPtr);
+  env->define("this", objP);
   auto funcPtr = std::make_shared<LukFunction>(m_declaration, env, m_isInitializer);
   auto obj_ptr = std::make_shared<LukObject>(funcPtr);
   return obj_ptr;
