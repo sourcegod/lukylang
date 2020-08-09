@@ -266,7 +266,7 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
     ObjPtr value = evaluate(stmt.expression);
-    logMsg("\nIn visitprint: value: ", value, ", id: ", value->getId());
+    logMsg("\nIn visitprint: value: ", *value, ", id: ", value->getId());
     std::cout << stringify(value) << std::endl;
     m_result = nilptr;
 
@@ -574,7 +574,7 @@ void Interpreter::checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right) {
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 
-    logMsg("\nIn stringify, obj: ", obj);
+    logMsg("\nIn stringify, obj: ", *obj);
     if (obj->isNil() || obj->isBool()) return obj->value();
     if (obj->isNumber()) {
         std::string text = obj->value(); 
