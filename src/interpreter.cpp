@@ -263,7 +263,9 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
     ObjPtr value = evaluate(stmt.expression);
-    logMsg("\nIn visitprint: value: ", *value, ", id: ", value->getId());
+    // Note: printing obj->toString instead *obj pointer
+    // to avoid multiple object's destructors 
+    logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());
     std::cout << stringify(value) << std::endl;
     m_result = nilptr;
 
@@ -571,10 +573,10 @@ void Interpreter::checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right) {
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 
-    logMsg("\nIn stringify, obj: ", *obj);
-    if (obj->isNil() || obj->isBool()) return obj->value();
+    logMsg("\nIn stringify, obj id: ", obj->getId(), ", val: ", obj->toString());
+    // if (obj->isNil() || obj->isBool()) return obj->toString();
     if (obj->isNumber()) {
-        std::string text = obj->value(); 
+        std::string text = obj->toString(); 
         std::string end = ".000000";
         // extract decimal part if ending by .0
         if (endsWith(text, end)) 
@@ -583,7 +585,7 @@ std::string Interpreter::stringify(ObjPtr& obj) {
     } 
     
    
-    logMsg("Exit out stringify \n");
+    logMsg("\nExit out stringify \n");
     return obj->toString();
 }
 
