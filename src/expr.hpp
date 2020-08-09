@@ -159,7 +159,7 @@ class LiteralExpr: public Expr {
 public:
 
     LiteralExpr(ObjPtr& _value) 
-        : value(std::move(_value)) {
+        : value(_value) {
         logMsg("\nLiteralExpr constructor");
         logMsg("_value.id: ", _value->id);
         logMsg("value.id: ", value->id);
