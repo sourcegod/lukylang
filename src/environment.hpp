@@ -29,16 +29,20 @@ public:
         setName();
         // DEBUG_MSG("Ceci est un debug message.");
         // std::cerr << "Env: ctor, " << m_name << "\n"; 
-        logMsg("Env: ctor, ", m_name);
+        logMsg("\nIn Environment constructor, name: ", m_name);
     }
     
     explicit Environment(PEnvironment encl)
         : m_id(++next_id), m_enclosing(encl) {
             setName();
             // std::cerr << "Env: copy ctor: " << m_name << "\n"; 
-            logMsg("Env: copy ctor", m_name);
+            logMsg("\nIn Environment copy constructor, name: ", m_name);
             // DEBUG_PRINT("Env: copy ctor: %s", m_name.c_str());
-     }
+    }
+    
+    ~Environment() {
+      logMsg("\n~Environment destructor, name: ", m_name, ", size: ", size());
+    }
 
      // get the address of object
     const std::string addressOf() { 
