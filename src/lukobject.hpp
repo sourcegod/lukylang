@@ -23,7 +23,8 @@ class LukObject;
 class LukInstance;
 using TObject = LukObject;
 using ObjPtr = std::shared_ptr<LukObject>;
-#define nilptr TObject::getNilPtr()
+// macro to make global variable the static nilptr
+#define nilptr LukObject::s_nilPtr
 
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
@@ -35,6 +36,9 @@ protected:
     static int next_id;
 
 public:
+    // Note: static variable must defining in the .cpp file
+    // to avoid multiple header inclusion and compile error
+    static ObjPtr s_nilPtr;
     int id;
     LukType m_type;
     bool m_bool = false;
@@ -58,7 +62,7 @@ public:
    
     // destructor is necessary
     ~LukObject() {
-        logMsg("\n~LukObject destructor,  id: ", id, "val: ", this->toString());
+        logMsg("\n~LukObject destructor,  id: ", id, ", val: ", toString());
     }
 
        

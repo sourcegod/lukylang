@@ -202,8 +202,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   }
 
-  ObjPtr objP;
-  m_environment->define(stmt.m_name.lexeme, objP);
+  m_environment->define(stmt.m_name.lexeme, nilptr);
 
   if (stmt.m_superclass != nullptr) {
     m_environment = std::make_shared<Environment>(m_environment);
@@ -229,7 +228,6 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     m_environment = m_environment->m_enclosing;
   }
   logMsg("Assign klass: ", stmt.m_name, " to m_environment");
-  // FIXME: maybe conflicting
   m_environment->assign(stmt.m_name, klass);
 logMsg("Exit out visitClassStmt\n");
 }
@@ -241,7 +239,6 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
     auto stmtPtr = std::make_shared<FunctionStmt>(stmt);
     auto func = std::make_shared<LukFunction>(stmtPtr, m_environment, false);
-    // FIXME: maybe conflicting
     ObjPtr objP = std::make_shared<LukObject>(func);
     m_environment->define(stmt.name.lexeme, objP);
     logMsg("FunctionStmt use_count: ", stmtPtr.use_count());
