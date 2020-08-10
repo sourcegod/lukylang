@@ -24,7 +24,7 @@ class LukInstance;
 using TObject = LukObject;
 using ObjPtr = std::shared_ptr<LukObject>;
 // macro to make global variable the static nilptr
-#define nilptr LukObject::s_nilPtr
+#define nilptr LukObject::getStatNilPtr()
 
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
@@ -34,11 +34,11 @@ enum class LukType {
 class LukObject {
 protected:
     static int next_id;
-
-public:
     // Note: static variable must defining in the .cpp file
     // to avoid multiple header inclusion and compile error
-    static ObjPtr s_nilPtr;
+    static ObjPtr stat_nilPtr;
+
+public:
     int id;
     LukType m_type;
     bool m_bool = false;
@@ -135,6 +135,9 @@ public:
       static ObjPtr nilP = std::make_shared<LukObject>(getNil());
       return nilP;
     }
+  // Note: static stat_nilPtr is protected for access control
+  // so, we need a static function to get it out of the class
+    static ObjPtr& getStatNilPtr() { return stat_nilPtr; }
 
     bool getBool() const noexcept { return m_bool; }
     double getNumber() const noexcept { return m_number; }

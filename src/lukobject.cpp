@@ -14,7 +14,8 @@
 #include <stdexcept> // exception
 
 int LukObject::next_id =0;
-ObjPtr LukObject::s_nilPtr = LukObject::getNilPtr();
+ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
+
 // constructors
     
 LukObject::LukObject() 
