@@ -230,15 +230,14 @@ public:
 
 class ThisExpr : public Expr {
 public:
-    ThisExpr(Token& keyword) {
-        m_keyword = keyword;
-    }
+    ThisExpr(TokPtr& keyword) 
+      : m_keyword(keyword) {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitThisExpr(*this); 
     }
 
-    Token m_keyword;
+    TokPtr m_keyword;
 };
 
 class UnaryExpr : public Expr {
@@ -269,7 +268,6 @@ public:
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
     Token getName() const override { return *name; }
-
 
     TokPtr name;
 };
