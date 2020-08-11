@@ -77,14 +77,13 @@ public:
 
 class BreakStmt : public Stmt {
 public:
-    BreakStmt(Token _keyword) {
-        keyword = _keyword;
-    }
+    BreakStmt(TokPtr& keyword) 
+      : m_keyword(keyword) {}
 
     void accept(StmtVisitor& v) override {
         v.visitBreakStmt(*this);
     }
-    Token keyword;
+    TokPtr m_keyword;
 
 };
 
