@@ -302,8 +302,8 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
             val  = evaluate(stmt.condition);
             // Note: catching must be by reference, not by value
         } catch(Jump& jmp) {
-            if (jmp.keyword.lexeme == "break") break;
-            if (jmp.keyword.lexeme == "continue") continue;
+            if (jmp.m_keyword->lexeme == "break") break;
+            if (jmp.m_keyword->lexeme == "continue") continue;
         }
 
     }
