@@ -42,9 +42,8 @@ ObjPtr LukInstance::get(TokPtr& name) {
     return nilptr;
 }
 
-void LukInstance::set(Token name, ObjPtr valPtr) {
-  m_fields[name.lexeme] = valPtr;
-  
+void LukInstance::set(TokPtr& name, ObjPtr valPtr) {
+  m_fields[name->lexeme] = valPtr;
 }
 
 std::ostream& operator<<(std::ostream& oss, const LukInstance& li) {

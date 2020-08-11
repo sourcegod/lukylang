@@ -44,7 +44,7 @@ public:
 
     virtual std::string toString() const;
     ObjPtr get(TokPtr& name);
-    void set(Token name, ObjPtr valPtr);
+    void set(TokPtr& name, ObjPtr valPtr);
 
 private:
    // LukClass* m_klass;
