@@ -178,7 +178,7 @@ ObjPtr value;
 
 class LogicalExpr : public Expr {
 public:
-    LogicalExpr(PExpr _left, Token _op, PExpr _right) {
+    LogicalExpr(PExpr& _left, TokPtr& _op, PExpr& _right) {
         left = std::move(_left);
         op = _op;
         right = std::move(_right);
@@ -189,13 +189,13 @@ public:
     }
 
     PExpr left;
-    Token op;
+    TokPtr op;
     PExpr right;
 };
 
 class SetExpr : public Expr {
 public:
-    SetExpr(PExpr object, TokPtr& name, PExpr value) :
+    SetExpr(PExpr object, TokPtr name, PExpr value) :
       m_object(std::move(object)),
       m_name(name),
       m_value(std::move(value)) {}

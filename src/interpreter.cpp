@@ -432,7 +432,7 @@ ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 
 ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
     ObjPtr left = evaluate(expr.left);
-    if (expr.op.type == TokenType::OR) {
+    if (expr.op->type == TokenType::OR) {
         if (isTruthy(left)) return left;
     } else {
         if (!isTruthy(left)) return left;
