@@ -213,13 +213,13 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
   for (auto meth: stmt.m_methods) {
     auto func = std::make_shared<LukFunction>(meth, m_environment,
-        meth->name.lexeme == "init");
+        meth->name->lexeme == "init");
     logMsg("func name: ", func->toString());
     auto obj_ptr = std::make_shared<LukObject>(func);
     logMsg("obj_ptr type: ", obj_ptr->getType());
     logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
-    logMsg("Adding meth to methods map: ", meth->name.lexeme);
-    methods[meth->name.lexeme] = obj_ptr;
+    logMsg("Adding meth to methods map: ", meth->name->lexeme);
+    methods[meth->name->lexeme] = obj_ptr;
   }
 
   auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
