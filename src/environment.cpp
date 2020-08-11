@@ -7,8 +7,8 @@
 
 // static variable must be initialized
 int Environment::next_id;
-ObjPtr& Environment::get(Token name) {
-    auto iter = m_values.find(name.lexeme);
+ObjPtr& Environment::get(TokPtr& name) {
+    auto iter = m_values.find(name->lexeme);
     if (iter != m_values.end()) {
         return iter->second;
     }
@@ -18,12 +18,12 @@ ObjPtr& Environment::get(Token name) {
     }
 
     throw RuntimeError(name, 
-            "Undefined variable '" + name.lexeme + "'");
+            "Undefined variable '" + name->lexeme + "'");
 }
 
-void Environment::assign(Token name, ObjPtr& val) {
-    if ( m_values.find(name.lexeme) != m_values.end() ) {
-        m_values[name.lexeme] = val; // std::make_shared<TObject>(val;
+void Environment::assign(TokPtr& name, ObjPtr& val) {
+    if ( m_values.find(name->lexeme) != m_values.end() ) {
+        m_values[name->lexeme] = val; // std::make_shared<TObject>(val;
         return;
     }
 
@@ -33,18 +33,18 @@ void Environment::assign(Token name, ObjPtr& val) {
     }
 
     throw RuntimeError(name, 
-            "Undefined variable '" + name.lexeme + "'");
+            "Undefined variable '" + name->lexeme + "'");
 
 }
 
-void Environment::assign(Token name, std::shared_ptr<LukCallable> callable) {
+void Environment::assign(TokPtr& name, std::shared_ptr<LukCallable> callable) {
   ObjPtr objP = std::make_shared<LukObject>(callable);
   assign(name, objP); // LukObject(callable));
 
 }
 
 void Environment::define(const std::string& name, ObjPtr& val) {
-    m_values[name] =  val; // std::make_shared<TObject>(val);
+    m_values[name] =  val;
 }
 
 ObjPtr Environment::getAt(int distance, const std::string& name) {
@@ -70,7 +70,7 @@ Environment* Environment::ancestor(int distance) {
   return env;
 }
 
-void Environment::assignAt(int distance, Token& name, ObjPtr& val) {
-  ancestor(distance)->m_values[name.lexeme] = val;
+void Environment::assignAt(int distance, TokPtr& name, ObjPtr& val) {
+  ancestor(distance)->m_values[name->lexeme] = val;
 
 }

@@ -59,15 +59,15 @@ public:
     size_t size() {  return m_values.size(); }
     auto& getValues() { return m_values; }
 
-    ObjPtr& get(Token name);
+    ObjPtr& get(TokPtr& name);
     
-    void assign(Token name, ObjPtr& val);
-    void assign(Token name, std::shared_ptr<LukCallable> callable);
+    void assign(TokPtr& name, ObjPtr& val);
+    void assign(TokPtr& name, std::shared_ptr<LukCallable> callable);
 
     void define(const std::string& name, ObjPtr& val);
     ObjPtr getAt(int distance, const std::string& name);
     Environment* ancestor(int distance);
-    void assignAt(int distance, Token& name, ObjPtr& val);
+    void assignAt(int distance, TokPtr& name, ObjPtr& val);
 
 private:
     std::unordered_map<std::string, ObjPtr> m_values = {};
