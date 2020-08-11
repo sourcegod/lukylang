@@ -68,7 +68,7 @@ private:
     bool match(const std::vector<TokenType>& types);
     TokPtr previous();
     TokPtr advance();
-    Token& peek();
+    TokPtr& peek();
     bool isAtEnd();
     bool check(TokenType type);
     Token consume(TokenType type, std::string message);

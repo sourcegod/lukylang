@@ -438,7 +438,7 @@ TokPtr Parser::advance() {
     return previous();
 }
 
-Token& Parser::peek() {
+TokPtr& Parser::peek() {
     return m_tokens[current];
 }
 
