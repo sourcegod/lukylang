@@ -2,6 +2,7 @@
 #define TOKEN_HPP
 
 #include <string>
+#include <memory> // for smart pointers
 
 enum class TokenType {
     // Single-character tokens.
@@ -35,6 +36,7 @@ enum class TokenType {
 };
 
 class Token {
+  using TokPtr = std::shared_ptr<Token>;
   public:
     Token() {}
     Token(TokenType _type, const std::string& _lexeme,

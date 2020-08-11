@@ -64,7 +64,7 @@ public:
     LukObject(const LukObject& obj);
     
     // move constructor
-    // LukObject(const LukObject&& obj);
+    LukObject(const LukObject&& obj);
      
     // destructor is necessary
     ~LukObject() {

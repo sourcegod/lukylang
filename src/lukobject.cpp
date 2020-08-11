@@ -136,6 +136,18 @@ LukObject::LukObject(const LukObject& obj) {
 
 }
 
+// move constructor
+LukObject::LukObject(const LukObject&& obj) {
+    // avoid copy of same object
+    if (this != &obj) {
+      swap(obj);
+      // cannot use obj.getId function, cause obj is constant
+      logMsg("\nIn LukObject, move constructor, id: ", id, ", val: ", obj);
+      
+    }
+
+}
+
 
 // returns the current value to string
 std::string LukObject::value() {
