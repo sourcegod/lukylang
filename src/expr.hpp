@@ -104,7 +104,7 @@ public:
 
 class CallExpr : public Expr {
 public:
-    CallExpr(PExpr _callee, Token _paren, std::vector<PExpr> _args) {
+    CallExpr(PExpr _callee, TokPtr& _paren, std::vector<PExpr> _args) {
         callee = std::move(_callee);
         paren = _paren;
         args = std::move(_args);
@@ -116,10 +116,10 @@ public:
 
     bool isCallExpr() const override { return true; }
     std::string typeName() const override { return "CallExpr"; }
-    virtual Token getName() const { return paren; }
+    virtual Token getName() const { return *paren; }
 
     PExpr callee;
-    Token paren;
+    TokPtr paren;
     std::vector<PExpr> args;
 };
 
