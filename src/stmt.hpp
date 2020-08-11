@@ -123,7 +123,7 @@ public:
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(TokPtr& _name, std::vector<TokPtr>&& _params, std::vector<PStmt>&& _body) {
+    FunctionStmt(TokPtr& _name, std::vector<TokPtr>& _params, std::vector<PStmt>& _body) {
         name = _name;
         params = std::move(_params);
         body  = std::move(_body);

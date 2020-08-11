@@ -57,7 +57,8 @@ public:
     // Note: the two folowing virtual func must be implemented
     // in callexpr, variableexpr, getexpr, setexpr objects.
     virtual std::string typeName() const { return "Expr"; }
-    virtual Token getName() const { return Token(); }
+    // TODO: will better to returns static TokPtr
+    virtual TokPtr getName() const { return std::make_shared<Token>(); }
     virtual PExpr getObject() const { return nullptr; }
 
     virtual unsigned id() const { return m_id; }
@@ -116,7 +117,7 @@ public:
 
     bool isCallExpr() const override { return true; }
     std::string typeName() const override { return "CallExpr"; }
-    virtual Token getName() const { return *paren; }
+    virtual TokPtr getName() const { return paren; }
 
     PExpr callee;
     TokPtr paren;
@@ -130,7 +131,7 @@ public:
       m_name(name) {}
     bool isGetExpr() const override { return true; }
     std::string typeName() const override { return "GetExpr"; }
-    Token getName() const override { return *m_name; }
+    TokPtr getName() const override { return m_name; }
     PExpr getObject() const override { return m_object; }
 
 
@@ -201,7 +202,7 @@ public:
 
     bool isSetExpr() const override { return true; }
     std::string typeName() const override { return "SetExpr"; }
-    Token getName() const override { return *m_name; }
+    TokPtr getName() const override { return m_name; }
     // Fix: can now an instance of shared_ptr instead unique_ptr
     PExpr getObject() const override { return m_object; }
 
@@ -267,7 +268,7 @@ public:
     }
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
-    Token getName() const override { return *name; }
+    TokPtr getName() const override { return name; }
 
     TokPtr name;
 };

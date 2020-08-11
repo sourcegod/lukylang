@@ -239,7 +239,7 @@ PExpr Parser::assignment() {
         PExpr value = assignment();
         if ( left->isVariableExpr() ) {
             // TokPtr name = static_cast<VariableExpr*>( left.get() )->name;
-            Token name = left->getName();
+            TokPtr name = left->getName();
             return  std::make_shared<AssignExpr>(name, value);
         } else if (left->isGetExpr()) {
           return std::make_shared<SetExpr>(left->getObject(),
