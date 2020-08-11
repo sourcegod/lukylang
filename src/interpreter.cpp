@@ -485,10 +485,10 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
     auto objInst = m_environment->getAt(
       distance - 1, "this");
     auto instPtr = objInst->getInstance();
-    ObjPtr method = superclass->findMethod(expr.m_method.lexeme);
+    ObjPtr method = superclass->findMethod(expr.m_method->lexeme);
     if (method == nullptr) {
       throw RuntimeError(expr.m_method,
-          "Undefined property '" + expr.m_method.lexeme + "'.");
+          "Undefined property '" + expr.m_method->lexeme + "'.");
     }
 
     std::shared_ptr<LukFunction> funcPtr = method->getDynCast<LukFunction>();

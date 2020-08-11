@@ -216,7 +216,7 @@ public:
 
 class SuperExpr : public Expr {
 public:
-    SuperExpr(Token keyword, Token method) :
+    SuperExpr(TokPtr& keyword, TokPtr& method) :
       m_keyword(keyword),
       m_method(method) {}
 
@@ -224,8 +224,8 @@ public:
         return v.visitSuperExpr(*this); 
     }
 
-    Token m_keyword;
-    Token m_method;
+    TokPtr m_keyword;
+    TokPtr m_method;
 };
 
 class ThisExpr : public Expr {
