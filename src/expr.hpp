@@ -194,14 +194,14 @@ public:
 
 class SetExpr : public Expr {
 public:
-    SetExpr(PExpr object, Token name, PExpr value) :
+    SetExpr(PExpr object, TokPtr& name, PExpr value) :
       m_object(std::move(object)),
       m_name(name),
       m_value(std::move(value)) {}
 
     bool isSetExpr() const override { return true; }
     std::string typeName() const override { return "SetExpr"; }
-    Token getName() const override { return m_name; }
+    Token getName() const override { return *m_name; }
     // Fix: can now an instance of shared_ptr instead unique_ptr
     PExpr getObject() const override { return m_object; }
 
@@ -210,7 +210,7 @@ public:
     }
 
     PExpr m_object;
-    Token m_name;
+    TokPtr m_name;
     PExpr m_value;
 };
 
