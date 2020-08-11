@@ -21,6 +21,7 @@ class Scanner {
     size_t col;
     std::string source;
     std::vector<Token> tokens;
+    std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ScanError: ";
 

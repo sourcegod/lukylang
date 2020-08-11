@@ -4,6 +4,10 @@
 #include <string>
 #include <memory> // for smart pointers
 
+// forward declaration
+class Token;
+
+using TokPtr = std::shared_ptr<Token>;
 enum class TokenType {
     // Single-character tokens.
     LEFT_PAREN, RIGHT_PAREN,
@@ -36,7 +40,6 @@ enum class TokenType {
 };
 
 class Token {
-  using TokPtr = std::shared_ptr<Token>;
   public:
     Token() {}
     Token(TokenType _type, const std::string& _lexeme,
