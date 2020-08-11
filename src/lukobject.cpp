@@ -341,29 +341,16 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     return *this;
 }
 
-/*
+
 // move assignment operator
 LukObject& LukObject::operator=(const LukObject&& obj) { 
     // avoid copy of same object
     if (this == &obj) return *this;
     swap(obj);
-    // id = ++next_id;
     logMsg("Move Assignment operator, id: ", id, ", val: ", obj);
-
-    m_type = obj.m_type;
-    m_bool = obj.m_bool; 
-    m_number = obj.m_number;
-    m_string = obj.m_string;
-    // p_string = std::move(obj.p_string);
-    p_callable = obj.p_callable;
-    p_instance = obj.p_instance;
-    // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
-    // std::cerr << "Voici p_string: " << p_string << std::endl;
-
 
     return *this;
 }
-*/
 
 // compound assignment operators
 // += operator
