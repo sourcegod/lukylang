@@ -189,7 +189,7 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
         lexeme = source.substr(start, lexLen);
     }
     
-    tokens.push_back(Token(type, lexeme, literal, line, col));
+    m_m_tokens.push_back(Token(type, lexeme, literal, line, col));
 }
 
 void Scanner::addToken(const TokenType _tokenType) { 
@@ -218,12 +218,12 @@ char Scanner::peek() const {
     return source[current];
 }
 
-const std::vector<Token>& Scanner::scanTokens() {
+const std::vector<TokPtr>&& Scanner::scanTokens() {
     while (!isAtEnd()) {
         // we are at the beginning of the next lexeme
         start = current;
         scanToken();
     }
-    tokens.push_back(Token(TokenType::END_OF_FILE, "EOF", "", line, col));
-    return tokens;
+    m_m_tokens.push_back(Token(TokenType::END_OF_FILE, "EOF", "", line, col));
+    return m_tokens;
 }

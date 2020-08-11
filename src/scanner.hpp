@@ -12,7 +12,7 @@
 class Scanner {
   public:
     Scanner(const std::string& _source, LukError& _lukErr);
-    const std::vector<Token>& scanTokens();
+    const std::vector<TokPtr>&& scanTokens();
 
   private:
     size_t start;
@@ -20,7 +20,7 @@ class Scanner {
     size_t line;
     size_t col;
     std::string source;
-    std::vector<Token> tokens;
+    // std::vector<Token> tokens;
     std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ScanError: ";
