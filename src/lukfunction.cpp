@@ -11,7 +11,7 @@ ObjPtr  LukFunction::call(Interpreter& interp, std::vector<ObjPtr>& v_args) {
     for (unsigned i=0; i < m_declaration->params.size(); ++i) {
         // Note: C++ can store polymorphic or derived object in a container
         // only with pointer or smart pointers.
-        env->define(m_declaration->params.at(i).lexeme, v_args.at(i));
+        env->define(m_declaration->params.at(i)->lexeme, v_args.at(i));
     }
     
     try {
