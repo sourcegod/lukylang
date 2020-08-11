@@ -28,7 +28,7 @@ class Parser {
 public:
     Parser(const std::vector<TokPtr>&& tokens, LukError& lukErr);
     std::vector<PStmt> parse();
-    ParseError error(Token& token, const std::string& message);
+    ParseError error(TokPtr& tokP, const std::string& message);
 
 private:
     size_t current;
