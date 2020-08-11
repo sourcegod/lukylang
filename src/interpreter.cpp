@@ -174,12 +174,12 @@ void Interpreter::visitBlockStmt(BlockStmt& stmt) {
 
 void Interpreter::visitBreakStmt(BreakStmt& stmt) {
     std::string msg;
-    if (stmt.keyword.lexeme == "break") {
+    if (stmt.m_keyword->lexeme == "break") {
         msg = "Error: 'break' must with while loop";
-        throw Jump(stmt.keyword, msg);
-    } else if (stmt.keyword.lexeme == "continue") {
+        throw Jump(stmt.m_keyword, msg);
+    } else if (stmt.m_keyword->lexeme == "continue") {
         msg = "Error: 'continue' must with while loop";
-        throw Jump(stmt.keyword, msg);
+        throw Jump(stmt.m_keyword, msg);
     }
          
 }
