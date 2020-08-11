@@ -15,13 +15,13 @@ std::string LukInstance::toString() const {
   return  "<Instance " + m_klass->m_name  + ">"; 
 }
 
-ObjPtr LukInstance::get(Token& name) {
-    auto iter = m_fields.find(name.lexeme);
+ObjPtr LukInstance::get(TokPtr& name) {
+    auto iter = m_fields.find(name->lexeme);
     if (iter != m_fields.end()) {
       return iter->second;
     }
     if (m_klass != nullptr) {
-        ObjPtr method = m_klass->findMethod(name.lexeme); 
+        ObjPtr method = m_klass->findMethod(name->lexeme); 
         // Note: to retrieve lukfunction,
         // you must extract lukfunction from lukobject
         if (method != nullptr && method->isCallable()) {
