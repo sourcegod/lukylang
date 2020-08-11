@@ -259,7 +259,7 @@ public:
 class VariableExpr : public Expr {
 public:
     VariableExpr();
-    VariableExpr(Token _name) {
+    VariableExpr(TokPtr _name) {
         name = _name;
     }
     
@@ -268,10 +268,10 @@ public:
     }
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
-    Token getName() const override { return name; }
+    Token getName() const override { return *name; }
 
 
-    Token name;
+    TokPtr name;
 };
 
 
