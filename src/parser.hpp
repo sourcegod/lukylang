@@ -71,7 +71,7 @@ private:
     TokPtr& peek();
     bool isAtEnd();
     bool check(TokenType type);
-    Token consume(TokenType type, std::string message);
+    TokPtr consume(TokenType type, std::string message);
     void synchronize();
 
 };

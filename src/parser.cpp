@@ -401,7 +401,7 @@ PExpr Parser::primary() {
     return nullptr;
 }
 
-Token Parser::consume(TokenType type, std::string message) {
+TokPtr Parser::consume(TokenType type, std::string message) {
     if (check(type))
         return advance();
     throw error(peek(), message);
