@@ -87,7 +87,7 @@ public:
 
 class BinaryExpr : public Expr {
 public:
-    BinaryExpr(PExpr _left, Token _op, PExpr _right) {
+    BinaryExpr(PExpr _left, TokPtr& _op, PExpr _right) {
         left = std::move(_left);
         op = _op;
         right = std::move(_right);
@@ -98,7 +98,7 @@ public:
     }
 
     PExpr left;
-    Token op;
+    TokPtr op;
     PExpr right;
 };
 

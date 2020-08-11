@@ -324,10 +324,10 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 }
 
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
-    // method get allow to convert smart pointer to raw pointer
+    // Note: method get allow to convert smart pointer to raw pointer
     ObjPtr left = evaluate(expr.left);
     ObjPtr right = evaluate(expr.right);
-    switch(expr.op.type) {
+    switch(expr.op->type) {
         case TokenType::GREATER:
             checkNumberOperands(expr.op, left, right);
             return std::make_shared<LukObject>(left->getNumber() > right->getNumber());
