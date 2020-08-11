@@ -62,7 +62,7 @@ std::vector<PStmt> Parser::block() {
 
 
 PStmt Parser::breakStatement() {
-    Token keyword = previous();
+    TokPtr keyword = previous();
     consume(TokenType::SEMICOLON, "Expect ';' after break statement");
     return std::make_shared<BreakStmt>(keyword);
 }
@@ -131,7 +131,7 @@ PStmt Parser::printStatement() {
 }
 
 PStmt Parser::returnStatement() {
-    Token keyword = previous();
+    TokPtr keyword = previous();
     PExpr value = nullptr;
     if (!check(TokenType::SEMICOLON)) {
         value = expression();
@@ -152,7 +152,7 @@ PStmt Parser::whileStatement() {
 }
 
 PStmt Parser::varDeclaration() {
-    Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+    TokPtr name = consume(TokenType::IDENTIFIER, "Expect variable name.");
     PExpr initializer = nullptr;
     if (match({TokenType::EQUAL})) {
         initializer = expression();
@@ -163,8 +163,7 @@ PStmt Parser::varDeclaration() {
 }
 
 PStmt Parser::classDeclaration() {
-    // TODO: convert all unique_ptr to shared_ptr 
-    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    TokPtr name = consume(TokenType::IDENTIFIER, "Expect class name.");
     std::shared_ptr<VariableExpr> superclass = nullptr;
     if (match({TokenType::LESS})) {
       consume(TokenType::IDENTIFIER, "Expect superclass name.");
@@ -205,7 +204,7 @@ PStmt Parser::expressionStatement() {
 }
 
 PFunc Parser::function(const std::string& kind) {
-    Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
+    TokPtr name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<Token> params;
     if (!check(TokenType::RIGHT_PAREN)) {
@@ -408,8 +407,8 @@ TokPtr Parser::consume(TokenType type, std::string message) {
     
 }
 
-ParseError Parser::error(Token& token, const std::string& message) {
-    if (token.type == TokenType::END_OF_FILE) {
+ParseError Parser::error(TokPtr& tokP, const std::string& message) {
+    if (tokP->type == TokenType::END_OF_FILE) {
         lukErr.error(errTitle, token.line, token.col, " at end, " + message);
     } else {
         lukErr.error(errTitle, token.line, token.col, 
