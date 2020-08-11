@@ -3,6 +3,7 @@
 
 #include "lukinstance.hpp"
 #include "logger.hpp"
+#include "token.hpp"
 
 #include <sstream> // ostreamstring
 #include <string>
@@ -58,6 +59,7 @@ public:
     LukObject(std::shared_ptr<LukCallable> callable);
     LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
+    LukObject(TokPtr tokP);
     LukObject(nullptr_t nulp);
     
     // copy constructor
