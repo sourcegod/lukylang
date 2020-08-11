@@ -63,7 +63,7 @@ private:
     bool isEqual(ObjPtr& a, ObjPtr& b);
     void checkNumberOperand(TokPtr& op, ObjPtr& operand);
     void checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right);
-    ObjPtr lookUpVariable(Token& name, Expr& expr);
+    ObjPtr lookUpVariable(TokPtr& name, Expr& expr);
 
     // starts and ends for string
     inline bool startsWith(const std::string& str, const std::string& start) {
