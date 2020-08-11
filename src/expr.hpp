@@ -125,12 +125,12 @@ public:
 
 class GetExpr : public Expr {
 public:
-    GetExpr(PExpr object, Token name) :
+    GetExpr(PExpr object, TokPtr& name) :
       m_object(std::move(object)),
       m_name(name) {}
     bool isGetExpr() const override { return true; }
     std::string typeName() const override { return "GetExpr"; }
-    Token getName() const override { return m_name; }
+    Token getName() const override { return *m_name; }
     PExpr getObject() const override { return m_object; }
 
 
@@ -139,7 +139,7 @@ public:
     }
 
     PExpr m_object;
-    Token m_name;
+    TokPtr m_name;
 };
 
 class GroupingExpr : public Expr {
