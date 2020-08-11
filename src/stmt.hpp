@@ -168,7 +168,7 @@ public:
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(Token _name, std::shared_ptr<Expr> _expr) {
+    ReturnStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
         name = _name;
         value = std::move(_expr);
     }
@@ -176,7 +176,7 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitReturnStmt(*this);
     }
-    Token name;
+    TokPtr name;
     std::shared_ptr<Expr> value;
 
 };
