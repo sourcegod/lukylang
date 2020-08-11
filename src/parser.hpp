@@ -26,13 +26,13 @@ public:
 
 class Parser {
 public:
-    Parser(const std::vector<Token>&& tokens, LukError& lukErr);
+    Parser(const std::vector<TokPtr>&& tokens, LukError& lukErr);
     std::vector<PStmt> parse();
     ParseError error(Token& token, const std::string& message);
 
 private:
     size_t current;
-    std::vector<Token> m_tokens;
+    std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
 

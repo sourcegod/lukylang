@@ -8,7 +8,7 @@ ParseError::ParseError(const std::string& msg, Token& token)
     : std::runtime_error(msg)
     , m_token(token) {}
 
-Parser::Parser(const std::vector<Token>&& tokens, LukError& _lukErr)
+Parser::Parser(const std::vector<TokPtr>&& tokens, LukError& _lukErr)
     : current(0)
     , m_tokens(std::move(tokens))
     , lukErr(_lukErr) {}
