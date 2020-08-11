@@ -432,7 +432,7 @@ TokPtr Parser::previous() {
     return m_tokens[current - 1];
 }
 
-Token Parser::advance() {
+TokPtr Parser::advance() {
     if (!isAtEnd())
         ++current;
     return previous();
