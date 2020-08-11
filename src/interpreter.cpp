@@ -240,7 +240,7 @@ void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
     auto stmtPtr = std::make_shared<FunctionStmt>(stmt);
     auto func = std::make_shared<LukFunction>(stmtPtr, m_environment, false);
     ObjPtr objP = std::make_shared<LukObject>(func);
-    m_environment->define(stmt.name.lexeme, objP);
+    m_environment->define(stmt.name->lexeme, objP);
     logMsg("FunctionStmt use_count: ", stmtPtr.use_count());
     
 }
