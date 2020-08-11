@@ -15,22 +15,21 @@ void Resolver::endScope() {
   m_scopes.pop_back();
 }
 
-void Resolver::declare(Token name) {
-  // TODO: pass token by pointer
+void Resolver::declare(TokPtr& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back();
-  auto iter = scope.find(name.lexeme);
+  auto iter = scope.find(name->lexeme);
   if (iter != scope.end()) {
     m_lukErr.error(errTitle, name, "This Variable is allready declared in this scope.");
   }
-  scope[name.lexeme] = false;
+  scope[name->lexeme] = false;
 
 }
 
-void Resolver::define(Token& name) {
+void Resolver::define(TokPtr& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
-  scope.at(name.lexeme) = true;
+  scope.at(name->lexeme) = true;
 }
 
 // resolve vector
@@ -55,7 +54,7 @@ void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
-  for (Token& param: func.params) {
+  for (TokPtr& param: func.params) {
     declare(param);
     define(param);
   }
@@ -70,12 +69,11 @@ void Resolver::resolve(PExpr expr) {
   expr->accept(*this);
 }
 
-void Resolver::resolveLocal(Expr* expr, Token name) {
+void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
   // TODO: why we cannot receive as argument an Expr& instead Expr* ???
-  // TODO: pass token by pointer
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
-    auto iter = scope.find(name.lexeme);
+    auto iter = scope.find(name->lexeme);
     if (iter != scope.end()) {
       int val = m_scopes.size() -1 - i;
       m_interp.resolve(*expr, val);
@@ -176,7 +174,7 @@ ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
 ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
-    auto iter = scope.find(expr.name.lexeme);
+    auto iter = scope.find(expr.name->lexeme);
     if (iter != scope.end() && iter->second == false) {
       m_lukErr.error(errTitle, expr.name, "Cannot read local variable in its own initializer.");
     }
@@ -211,7 +209,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   define(stmt.m_name);
 
   if (stmt.m_superclass != nullptr &&
-      stmt.m_name.lexeme == stmt.m_superclass->name.lexeme) {
+      stmt.m_name->lexeme == stmt.m_superclass->name->lexeme) {
       m_lukErr.error(errTitle, stmt.m_superclass->name,
         "A class cannot inherit from itself.");
   }
@@ -236,7 +234,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
 
   for (auto method: stmt.m_methods) {
     auto declaration = FunctionType::Method;
-    if (method->name.lexeme == "init") {
+    if (method->name->lexeme == "init") {
       declaration = FunctionType::Initializer;
     }
 

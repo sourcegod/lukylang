@@ -72,7 +72,7 @@ private:
 
   // resolve expression
   void resolve(PExpr expr);
-  void resolveLocal(Expr* expr, Token name);
+  void resolveLocal(Expr* expr, TokPtr& name);
   
   // resolve statements
   void resolve(PStmt& stmt);
@@ -81,8 +81,8 @@ private:
 
   void beginScope();
   void endScope();
-  void declare(Token name);
-  void define(Token& name);
+  void declare(TokPtr& name);
+  void define(TokPtr& name);
 
 };
 
