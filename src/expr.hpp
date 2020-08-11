@@ -71,7 +71,7 @@ private:
 
 class AssignExpr : public Expr {
 public:
-    AssignExpr(Token _name, PExpr _value) {
+    AssignExpr(TokPtr& _name, PExpr _value) {
         name = _name;
         value = std::move(_value);
     }
@@ -80,7 +80,7 @@ public:
         return v.visitAssignExpr(*this); 
     }
 
-    Token name;
+    TokPtr name;
     PExpr value;
 };
 
