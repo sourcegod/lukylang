@@ -243,7 +243,7 @@ public:
 
 class UnaryExpr : public Expr {
 public:
-    UnaryExpr(Token _op, PExpr _right) {
+    UnaryExpr(TokPtr& _op, PExpr _right) {
         op = _op;
         right = std::move(_right);
     }
@@ -252,7 +252,7 @@ public:
         return v.visitUnaryExpr(*this); 
     }
 
-    Token op;
+    TokPtr op;
     PExpr right;
 };
 

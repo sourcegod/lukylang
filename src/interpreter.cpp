@@ -512,7 +512,7 @@ ObjPtr Interpreter::visitThisExpr(ThisExpr& expr) {
 
 ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
     ObjPtr right = evaluate(expr.right);
-    switch(expr.op.type) {
+    switch(expr.op->type) {
         case TokenType::BANG:
             return std::make_shared<LukObject>(!isTruthy(right));
         
