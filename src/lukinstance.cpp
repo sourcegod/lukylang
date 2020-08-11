@@ -37,7 +37,7 @@ ObjPtr LukInstance::get(TokPtr& name) {
     }
 
     throw RuntimeError(name, 
-        "Undefined property '" + name.lexeme + "'.");
+        "Undefined property '" + name->lexeme + "'.");
     // unrichable
     return nilptr;
 }
