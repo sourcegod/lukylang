@@ -123,7 +123,7 @@ LukObject::LukObject(nullptr_t nup) {
         p_instance = nullptr;
 }
 
-/*
+
 // copy constructor
 LukObject::LukObject(const LukObject& obj) {
     // avoid copy of same object
@@ -132,19 +132,10 @@ LukObject::LukObject(const LukObject& obj) {
       // cannot use obj.getId function, cause obj is constant
       logMsg("\nIn LukObject, copy constructor, id: ", id, ", val: ", obj);
       
-      m_type = obj.m_type;
-      m_bool = obj.m_bool; 
-      m_number = obj.m_number;
-      m_string = obj.m_string;
-      // p_string = obj.p_string;
-      p_callable = obj.p_callable;
-      // Note: dont forget to associate p_instance in operator =
-      p_instance = obj.p_instance;
-
     }
 
 }
-*/
+
 
 // returns the current value to string
 std::string LukObject::value() {
