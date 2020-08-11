@@ -61,8 +61,8 @@ private:
 
     bool isTruthy(ObjPtr& obj);
     bool isEqual(ObjPtr& a, ObjPtr& b);
-    void checkNumberOperand(Token& op, ObjPtr& operand);
-    void checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right);
+    void checkNumberOperand(TokPtr& op, ObjPtr& operand);
+    void checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right);
     ObjPtr lookUpVariable(Token& name, Expr& expr);
 
     // starts and ends for string

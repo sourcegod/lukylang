@@ -559,17 +559,14 @@ bool Interpreter::isEqual(ObjPtr& a, ObjPtr& b) {
     return a == b;
 }
 
-void Interpreter::checkNumberOperand(Token& op, ObjPtr& operand) {
+void Interpreter::checkNumberOperand(TokPtr& op, ObjPtr& operand) {
     if (operand->isNumber()) return;
-    // throw std::runtime_error("From throw: Operand must be number.");
     throw RuntimeError(op, "Operand must be number.");
 }
 
-void Interpreter::checkNumberOperands(Token& op, ObjPtr& left, ObjPtr& right) {
+void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
     if (left->isNumber() && right->isNumber()) return;
     throw RuntimeError(op, "Operands must be numbers.");
-    // throw std::runtime_error("Yes, Operands must be numbers.");
-
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 
