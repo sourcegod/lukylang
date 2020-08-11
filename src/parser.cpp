@@ -206,7 +206,7 @@ PStmt Parser::expressionStatement() {
 PFunc Parser::function(const std::string& kind) {
     TokPtr name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
-    std::vector<Token> params;
+    std::vector<TokPtr> params;
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (params.size() >= 8) {
@@ -442,21 +442,21 @@ TokPtr& Parser::peek() {
 }
 
 bool Parser::isAtEnd() {
-    return peek().type == TokenType::END_OF_FILE;
+    return peek()->type == TokenType::END_OF_FILE;
 }
 
 bool Parser::check(TokenType type) {
     if (isAtEnd())
         return false;
-    return peek().type == type;
+    return peek()->type == type;
 }
 
 void Parser::synchronize() {
     advance();
     while (!isAtEnd()) {
-        if (previous().type == TokenType::SEMICOLON) return;
+        if (previous()->type == TokenType::SEMICOLON) return;
 
-        switch(peek().type) {
+        switch(peek()->type) {
             case TokenType::CLASS:
             case TokenType::FUN:
             case TokenType::VAR:
