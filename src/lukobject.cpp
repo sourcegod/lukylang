@@ -26,6 +26,7 @@ LukObject::LukObject()
     // p_string = nullptr;
     p_callable = nullptr;
     p_instance = nullptr;
+    logMsg("\nExit out constructor nil");
 }
 
 LukObject::LukObject(bool val) 
@@ -49,7 +50,6 @@ LukObject::LukObject(double val)
 
 LukObject::LukObject(const std::string& val) 
     : id(++next_id) { 
-    // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
     logMsg("\nLukObject constructor string,  id: ", id, "val: ", val);
     m_type = LukType::String; 
     m_string = val; 
@@ -123,6 +123,28 @@ LukObject::LukObject(nullptr_t nup) {
         p_instance = nullptr;
 }
 
+/*
+// copy constructor
+LukObject::LukObject(const LukObject& obj) {
+    // avoid copy of same object
+    if (this != &obj) {
+      swap(obj);
+      // cannot use obj.getId function, cause obj is constant
+      logMsg("\nIn LukObject, copy constructor, id: ", id, ", val: ", obj);
+      
+      m_type = obj.m_type;
+      m_bool = obj.m_bool; 
+      m_number = obj.m_number;
+      m_string = obj.m_string;
+      // p_string = obj.p_string;
+      p_callable = obj.p_callable;
+      // Note: dont forget to associate p_instance in operator =
+      p_instance = obj.p_instance;
+
+    }
+
+}
+*/
 
 // returns the current value to string
 std::string LukObject::value() {
@@ -255,7 +277,7 @@ void LukObject::cast(LukType tp) {
 
 // assignment operators
 std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
-  logMsg("\In LukObject nullptr: ");
+  logMsg("\In LukObject nullptr assignment operator: ");
         m_type = LukType::Nil;
         m_string = "nil";
         // p_string = nullptr;
@@ -305,12 +327,9 @@ LukObject& LukObject::operator=(const std::string&& val) {
     return *this;
 }
 
-LukObject& LukObject::operator=(const LukObject& obj) { 
-    // avoid copy of same object
-    if (this == &obj) return *this;
+// Note: swap function to avoid duplicate code between copy constructor and copy assignment operator
+void LukObject::swap(const LukObject& obj) {
     id = ++next_id;
-    logMsg("\nIn LukObject, operator=");
-    logMsg("Copy Assignement, id: ", id, "val: ", obj);
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
@@ -319,29 +338,41 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     p_callable = obj.p_callable;
     // Note: dont forget to associate p_instance in operator =
     p_instance = obj.p_instance;
+}
+
+// copy assignment operator
+LukObject& LukObject::operator=(const LukObject& obj) { 
+    // avoid copy of same object
+    if (this == &obj) return *this;
+    swap(obj);
+    logMsg("\nIn LukObject, Copy Assignment operator, id: ", id, ", val: ", obj);
 
     return *this;
 }
 
 /*
+// move assignment operator
 LukObject& LukObject::operator=(const LukObject&& obj) { 
     // avoid copy of same object
     if (this == &obj) return *this;
-    id = ++next_id;
-        logMsg("Move Assignement, id: ", id);
+    swap(obj);
+    // id = ++next_id;
+    logMsg("Move Assignment operator, id: ", id, ", val: ", obj);
+
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
-    m_string = std::move(obj.m_string);
+    m_string = obj.m_string;
     // p_string = std::move(obj.p_string);
     p_callable = obj.p_callable;
+    p_instance = obj.p_instance;
     // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
     // std::cerr << "Voici p_string: " << p_string << std::endl;
+
 
     return *this;
 }
 */
-
 
 // compound assignment operators
 // += operator

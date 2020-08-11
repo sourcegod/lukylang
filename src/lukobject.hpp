@@ -59,13 +59,19 @@ public:
     LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
     LukObject(nullptr_t nulp);
-   
+    
+    // copy constructor
+    LukObject(const LukObject& obj);
+    
+    // move constructor
+    // LukObject(const LukObject&& obj);
+     
     // destructor is necessary
     ~LukObject() {
         logMsg("\n~LukObject destructor,  id: ", id, ", val: ", toString());
     }
+    
 
-       
     // get the type id
     LukType getType() { return m_type; }
 
@@ -127,12 +133,14 @@ public:
 
     // getters
     static LukObject getNil() {
+      logMsg("In static getNil");
         static LukObject obj;
         return obj;
     }
     
     static ObjPtr getNilPtr()  {
-      static ObjPtr nilP = std::make_shared<LukObject>(getNil());
+      logMsg("In static getNilPtr");
+      static ObjPtr nilP = std::make_shared<LukObject>();
       return nilP;
     }
   // Note: static stat_nilPtr is protected for access control
@@ -165,8 +173,13 @@ public:
     // implement overloaded char* to avoid implicit casting to bool
     LukObject& operator=(const char* &&val);
     LukObject& operator=(const std::string&& val);
+    
+    // Note: swap function to avoid duplicate code between copy constructor and copy assignment operator
+    void swap(const LukObject& obj);   
+    // copy assignment operator
     LukObject& operator=(const LukObject& obj); 
-    // LukObject& operator=(const LukObject&& obj); 
+    // move assignment operator
+    LukObject& operator=(const LukObject&& obj); 
  
     // compound assignment operators
     LukObject& operator+=(const LukObject& obj);
