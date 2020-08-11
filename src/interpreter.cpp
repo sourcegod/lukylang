@@ -288,7 +288,7 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
     if (stmt.initializer != nullptr) {
         value = evaluate(stmt.initializer);
     }
-    m_environment->define(stmt.name.lexeme, value);
+    m_environment->define(stmt.name->lexeme, value);
 
     // log environment state for debugging
     logState();

@@ -184,7 +184,7 @@ public:
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(Token _name, std::shared_ptr<Expr> _expr) {
+    VarStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
         name = _name;
         initializer = std::move(_expr);
     }
@@ -192,7 +192,7 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitVarStmt(*this);
     }
-    Token name;
+    TokPtr name;
     std::shared_ptr<Expr> initializer;
 
 };
