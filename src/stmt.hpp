@@ -59,7 +59,7 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(Token name, std::shared_ptr<VariableExpr> superclass, std::vector<PFunc> methods) {
+    ClassStmt(TokPtr name, std::shared_ptr<VariableExpr> superclass, std::vector<PFunc> methods) {
       m_name = name;  
       m_superclass = std::move(superclass);
       m_methods = std::move(methods);
@@ -68,7 +68,7 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitClassStmt(*this);
     }
-    Token m_name;
+    TokPtr m_name;
     std::shared_ptr<VariableExpr> m_superclass;
     std::vector<PFunc> m_methods;
 

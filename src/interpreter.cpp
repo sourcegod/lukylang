@@ -185,7 +185,7 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 }
 
 void Interpreter::visitClassStmt(ClassStmt& stmt) {
-  logMsg("In visitClassStmt: name: ", stmt.m_name.lexeme);
+  logMsg("In visitClassStmt: name: ", stmt.m_name->lexeme);
   ObjPtr superclass;
   std::shared_ptr<LukClass> supKlass = nullptr;
   if (stmt.m_superclass != nullptr) {
@@ -202,7 +202,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   }
 
-  m_environment->define(stmt.m_name.lexeme, nilptr);
+  m_environment->define(stmt.m_name->lexeme, nilptr);
 
   if (stmt.m_superclass != nullptr) {
     m_environment = std::make_shared<Environment>(m_environment);
@@ -222,7 +222,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     methods[meth->name.lexeme] = obj_ptr;
   }
 
-  auto klass = std::make_shared<LukClass>(stmt.m_name.lexeme, supKlass, methods);
+  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
   if (stmt.m_superclass != nullptr) {
     // Note: moving m_enclosing from private to public in Environment object
     m_environment = m_environment->m_enclosing;
