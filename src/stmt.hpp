@@ -123,7 +123,7 @@ public:
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(Token _name, std::vector<Token> _params, std::vector<PStmt> _body) {
+    FunctionStmt(TokPtr& _name, std::vector<TokPtr>&& _params, std::vector<PStmt>&& _body) {
         name = _name;
         params = std::move(_params);
         body  = std::move(_body);
@@ -139,14 +139,13 @@ public:
     // or make a "union" between base and derived object...
     // or create a smart pointer to this object.
 
-    ~FunctionStmt() { 
-    }
+    ~FunctionStmt() {}
     
     void accept(StmtVisitor& v) override {
         v.visitFunctionStmt(*this);
     }
-    Token name;
-    std::vector<Token> params;
+    TokPtr name;
+    std::vector<TokPtr> params;
     std::vector<PStmt> body;
 
 };
