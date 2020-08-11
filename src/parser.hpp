@@ -66,7 +66,7 @@ private:
     PExpr primary();
 
     bool match(const std::vector<TokenType>& types);
-    Token previous();
+    TokPtr previous();
     Token advance();
     Token& peek();
     bool isAtEnd();

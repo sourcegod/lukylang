@@ -428,7 +428,7 @@ bool Parser::match(const std::vector<TokenType>& types) {
     return false;
 }
 
-Token Parser::previous() {
+TokPtr Parser::previous() {
     return m_tokens[current - 1];
 }
 
