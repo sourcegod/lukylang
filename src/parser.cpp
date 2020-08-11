@@ -4,9 +4,9 @@
 #include <typeinfo>
 #include <memory>
 
-ParseError::ParseError(const std::string& msg, Token& token)
+ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     : std::runtime_error(msg)
-    , m_token(token) {}
+    , m_token(tokP) {}
 
 Parser::Parser(const std::vector<TokPtr>&& tokens, LukError& _lukErr)
     : current(0)

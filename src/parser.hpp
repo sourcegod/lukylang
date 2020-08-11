@@ -20,8 +20,8 @@ using PObject = std::shared_ptr<LukObject>;
 
 class ParseError : public std::runtime_error {
 public:
-    ParseError(const std::string& msg, Token& token);
-    Token m_token;
+    ParseError(const std::string& msg, TokPtr& tokP);
+    TokPtr m_token;
 };
 
 class Parser {
