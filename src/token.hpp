@@ -40,17 +40,23 @@ enum class TokenType {
 };
 
 class Token {
-  public:
-    Token() {}
-    Token(TokenType _type, const std::string& _lexeme,
-          const std::string& _literal, const int _line, const int _col);
+protected:
+    static int next_id;
+public:
+    int id;
     TokenType type;
     std::string lexeme;
     std::string literal;
     int line;
     int col;
+    // constructors
+    Token(); 
+    Token(TokenType _type, const std::string& _lexeme,
+          const std::string& _literal, const int _line, const int _col);
+    
     std::string toString() const;
     std::string stringType() const;
+    
     friend inline std::ostream& operator<<(std::ostream& ost, Token& tok);
 };
 
