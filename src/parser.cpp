@@ -365,8 +365,7 @@ PExpr Parser::primary() {
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING})) {
         logMsg("\nIn primary Parser, before literalExpr");
-        auto tokP = previous();
-        ObjPtr objP = std::make_shared<LukObject>( tokP );
+        ObjPtr objP = std::make_shared<LukObject>( previous() );
         return std::make_shared<LiteralExpr>( objP );
         // return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
@@ -401,7 +400,7 @@ PExpr Parser::primary() {
     return nullptr;
 }
 
-TokPtr Parser::consume(TokenType type, std::string message) {
+TokPtr& Parser::consume(TokenType type, std::string message) {
     if (check(type))
         return advance();
     throw error(peek(), message);
@@ -428,11 +427,11 @@ bool Parser::match(const std::vector<TokenType>& types) {
     return false;
 }
 
-TokPtr Parser::previous() {
+TokPtr& Parser::previous() {
     return m_tokens[current - 1];
 }
 
-TokPtr Parser::advance() {
+TokPtr& Parser::advance() {
     if (!isAtEnd())
         ++current;
     return previous();

@@ -66,12 +66,12 @@ private:
     PExpr primary();
 
     bool match(const std::vector<TokenType>& types);
-    TokPtr previous();
-    TokPtr advance();
+    TokPtr& previous();
+    TokPtr& advance();
     TokPtr& peek();
     bool isAtEnd();
     bool check(TokenType type);
-    TokPtr consume(TokenType type, std::string message);
+    TokPtr& consume(TokenType type, std::string message);
     void synchronize();
 
 };
