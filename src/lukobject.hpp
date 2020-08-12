@@ -59,7 +59,7 @@ public:
     LukObject(std::shared_ptr<LukCallable> callable);
     LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
-    LukObject(TokPtr tokP);
+    LukObject(TokPtr& tokP);
     LukObject(nullptr_t nulp);
     
     // copy constructor

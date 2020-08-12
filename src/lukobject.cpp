@@ -114,11 +114,12 @@ LukObject::LukObject(Token tok)
 
 }
 
-LukObject::LukObject(TokPtr tokP) { 
+LukObject::LukObject(TokPtr& tokP) 
+        : id(++next_id) {
     logMsg("\nLukObject constructor token pointer,  id: ", id, "val: ", tokP->lexeme);
-    LukObject(tokP.get());
+    // LukObject(*tokP.get());
     
-    /*
+    
     switch(tokP->type) {
         case TokenType::NIL:
             m_type = LukType::Nil; break;
@@ -132,19 +133,18 @@ LukObject::LukObject(TokPtr tokP) {
             break;
         case TokenType::NUMBER: 
             m_type = LukType::Number;
-            m_number = std::stod(tok.literal); 
+            m_number = std::stod(tokP->literal); 
             break;
         case TokenType::STRING: 
             m_type = LukType::String;
-            m_string = tok.literal;
-            // p_string = std::make_shared<std::string>(tok.literal);
+            m_string = tokP->literal;
+            // p_string = std::make_shared<std::string>(tokP->literal);
             break;
         default:
             std::runtime_error("Invalid Luky object.");
     }
-  */
-
-        }
+  
+}
 
 
 LukObject::LukObject(nullptr_t nup) {
