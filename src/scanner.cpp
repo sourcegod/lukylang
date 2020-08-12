@@ -189,8 +189,8 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
         lexeme = source.substr(start, lexLen);
     }
     
-    TokPtr tokP = std::make_shared<Token>(type, lexeme, literal, line, col);
-    m_tokens.push_back(tokP);
+    // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, line, col) );
 }
 
 void Scanner::addToken(const TokenType _tokenType) { 
@@ -225,7 +225,10 @@ const std::vector<TokPtr>&& Scanner::scanTokens() {
         start = current;
         scanToken();
     }
-    TokPtr tokP = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", line, col);
-    m_tokens.push_back(tokP);
+    TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", line, col);
+    // Note: it will be safer to move the pointer to the vector
+    m_tokens.push_back( std::move(endOfFile) );
+    
+    // Note: move function must be used when returning vector of pointer.
     return std::move(m_tokens);
 }
