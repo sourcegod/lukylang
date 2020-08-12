@@ -2,6 +2,7 @@
 
 int Token::next_id =0;
 Token::Token() : id(++next_id) {
+    logMsg("\nToken constructor, id: ", id, ", lexeme: None");
 }
 
 Token::Token(const TokenType _type, const std::string& _lexeme,
@@ -10,6 +11,7 @@ Token::Token(const TokenType _type, const std::string& _lexeme,
         lexeme(_lexeme), literal(_literal), 
         line(_line), col(_col) {
 
+    logMsg("\nToken constructor, id: ", id, ", lexeme: ", lexeme);
 }
 
 std::string Token::toString() const {

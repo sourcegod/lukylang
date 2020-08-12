@@ -1,5 +1,6 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
+#include "logger.hpp"
 
 #include <string>
 #include <memory> // for smart pointers
@@ -49,10 +50,16 @@ public:
     std::string literal;
     int line;
     int col;
+    
     // constructors
     Token(); 
     Token(TokenType _type, const std::string& _lexeme,
           const std::string& _literal, const int _line, const int _col);
+    
+    // destructors
+    ~Token() {
+        logMsg("\n~Token destructor, id: ", id, ", lexeme: ", lexeme);
+    }
     
     std::string toString() const;
     std::string stringType() const;
