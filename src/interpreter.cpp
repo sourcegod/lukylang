@@ -74,12 +74,11 @@ void Interpreter::printResult() {
 void Interpreter::logState() {
 #ifdef DEBUG
   logMsg("\nEnvironment state");
- // Note: workaound to make an alias for a variable in c++ 
- // int a; 
- // int* const b = &a;
- // b is an alias or pointer to a
- // but not work for a map
-  // auto* values = &m_globals->m_values;
+  // Note: workaround to make an alias for a variable in c++ 
+  // int a; 
+  // int* const b = &a;
+  // b is an alias or pointer to a
+  // but not work for a map
   logMsg("Globals state");
   auto& values = m_globals->getValues();
   // Note: Pattern: looping over map
@@ -415,7 +414,9 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
     auto obj_ptr = obj->getInstance()->get(expr.m_name);
     // Note: shared_ptr.get() returns the stored pointer, not the managed pointer.
     // *shared_ptr dereference the smart pointer
-    logMsg("In interpreter getexpr: *obj_ptr: ", *obj_ptr);
+    // so, after *shared_ptr, you cannot use it again.
+    // so, dont use *shared_ptr
+    logMsg("In visitGetExpr, obj_ptr: ", obj_ptr);
   logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
     return obj_ptr;
   }
@@ -462,7 +463,7 @@ ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
   logMsg("obj->getId: ", obj->getId());
   auto instPtr = obj->getInstance();
   logMsg("instptr tostring: ", instPtr->toString());
-  logMsg("set instance, name: ", expr.m_name, ", value: ", *value);
+  logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
   instPtr->set(expr.m_name, value);
   logMsg("m_fields size from visitSet: ", instPtr->getFields().size());
   logMsg("Exit out visitSet: \n");
