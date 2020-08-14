@@ -219,6 +219,7 @@ public:
     // Output operators
     // friend declaration cause ostream accept only one argument 
     friend inline std::ostream& operator<<(std::ostream& ost, LukObject& obj);
+    friend inline std::ostream& operator<<(std::ostream& ost, ObjPtr& obj);
     friend inline std::ostream& operator<<(std::ostream& ost, LukType tp);
  
 private:
@@ -254,7 +255,8 @@ bool operator>(LukType a, LukType b);
 
 // output operators
 // friend function declaration, because ostream accept only one argument
-inline std::ostream& operator<<(std::ostream& ost, LukObject& obj) { return ost << obj.value(); } 
+inline std::ostream& operator<<(std::ostream& ost, LukObject& obj) { return ost << obj.toString(); } 
+inline std::ostream& operator<<(std::ostream& ost, ObjPtr& obj) { return ost << obj->toString(); } 
 
 // output << operator for LukType enum
 inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
