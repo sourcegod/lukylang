@@ -65,12 +65,12 @@ public:
     std::string stringType() const;
     
     friend inline std::ostream& operator<<(std::ostream& ost, Token& tok);
+    friend inline std::ostream& operator<<(std::ostream& ost, TokPtr& tokP);
 };
 
 // friend function declaration, because ostream accept only one argument
 inline std::ostream& operator<<(std::ostream& ost, Token& tok) { return ost << tok.lexeme; } 
+inline std::ostream& operator<<(std::ostream& ost, TokPtr& tokP) { return ost << tokP->lexeme; } 
 
-
-// }
 
 #endif // TOKEN_HPP
