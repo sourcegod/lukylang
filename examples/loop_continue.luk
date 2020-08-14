@@ -1,0 +1,8 @@
+var i=0;
+while (i<6) {
+  print i;
+  if (i >= 2 ) continue;
+  i = i +1;
+}
+
+print "I continue after the while loop.";
