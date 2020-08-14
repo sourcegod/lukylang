@@ -1,0 +1,10 @@
+class Foo {
+  init() {
+    this.a =33;
+    this.b =55;
+  }
+}
+
+var foo = Foo(); 
+print foo.a; // prints 33
+print foo.b; // prints 55
