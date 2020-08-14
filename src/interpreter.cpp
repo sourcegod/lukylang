@@ -226,7 +226,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     // Note: moving m_enclosing from private to public in Environment object
     m_environment = m_environment->m_enclosing;
   }
-  logMsg("Assign klass: ", stmt.m_name, " to m_environment");
+  logMsg("Assign klass: ", stmt.m_name, ", to m_environment");
   m_environment->assign(stmt.m_name, klass);
 logMsg("Exit out visitClassStmt\n");
 }
@@ -416,7 +416,7 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
     // *shared_ptr dereference the smart pointer
     // so, after *shared_ptr, you cannot use it again.
     // so, dont use *shared_ptr
-    logMsg("In visitGetExpr, obj_ptr: ", obj_ptr);
+    logMsg("In visitGetExpr, obj_ptr: ", obj_ptr->toString());
   logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
     return obj_ptr;
   }
