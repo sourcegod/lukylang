@@ -320,10 +320,15 @@ and returning ObjPtr type instead LukObject type.
   8. Misc
 8.1 Examples directory
 # v0.27:
--- Adding example files to the directory examples.
+-- Adding example files to the examples directory.
 
 8.2 Tests directory
 # v0.27:
--- Adding tests files to the directory tests.
+-- Adding tests files to the tests directory.
+
+
+8.3 Notes directory
+# v0.27:
+-- Adding grammar  file to the notes directory.
 
 
