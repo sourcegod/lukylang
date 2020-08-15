@@ -6,7 +6,7 @@ Scanner::Scanner(const std::string& _source, LukError& _lukErr)
       line(1), col(1),
       source(_source), lukErr(_lukErr) {
     
-    logMsg("\nIn Scanner consstructor");
+    logMsg("\nIn Scanner constructor");
     // initialize reserved keywords map
     keywords["and"]    = TokenType::AND;
     keywords["break"]    = TokenType::BREAK;

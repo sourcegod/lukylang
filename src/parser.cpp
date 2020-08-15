@@ -9,9 +9,11 @@ ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     , m_token(tokP) {}
 
 Parser::Parser(const std::vector<TokPtr>&& tokens, LukError& _lukErr)
-    : current(0)
-    , m_tokens(std::move(tokens))
-    , lukErr(_lukErr) {}
+      : current(0),
+      m_tokens(std::move(tokens)),
+      lukErr(_lukErr) {
+    logMsg("\nIn Parser constructor");
+}
 
 std::vector<PStmt> Parser::parse() {
     std::vector<PStmt> statements;

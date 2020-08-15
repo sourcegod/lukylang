@@ -27,6 +27,11 @@ public:
 class Parser {
 public:
     Parser(const std::vector<TokPtr>&& tokens, LukError& lukErr);
+    
+    ~Parser() {
+      logMsg("\n~Parser destructor");
+
+    }
     std::vector<PStmt> parse();
     ParseError error(TokPtr& tokP, const std::string& message);
 
