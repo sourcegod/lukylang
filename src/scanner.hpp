@@ -12,6 +12,11 @@
 class Scanner {
   public:
     Scanner(const std::string& _source, LukError& _lukErr);
+    
+    ~Scanner() {
+      logMsg("\n~Scanner destructor");
+    }    
+    
     const std::vector<TokPtr>&& scanTokens();
 
   private:

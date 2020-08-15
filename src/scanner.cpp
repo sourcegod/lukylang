@@ -2,9 +2,11 @@
 #include "lukerror.hpp"
 
 Scanner::Scanner(const std::string& _source, LukError& _lukErr)
-    : start(0), current(0),
-    line(1), col(1),
-    source(_source), lukErr(_lukErr) {
+      : start(0), current(0),
+      line(1), col(1),
+      source(_source), lukErr(_lukErr) {
+    
+    logMsg("\nIn Scanner consstructor");
     // initialize reserved keywords map
     keywords["and"]    = TokenType::AND;
     keywords["break"]    = TokenType::BREAK;
