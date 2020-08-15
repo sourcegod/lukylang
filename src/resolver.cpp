@@ -2,9 +2,10 @@
 #include "interpreter.hpp"
 
 Resolver::Resolver(Interpreter& interp, LukError& lukErr)
-  : m_interp(interp)
-  ,m_lukErr(lukErr)
-  {}
+      : m_interp(interp),
+      m_lukErr(lukErr) {
+    logMsg("\nIn Resolver constructor");
+}
 
 void Resolver::beginScope() {
   std::unordered_map<std::string, bool> scope;

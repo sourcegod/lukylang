@@ -24,6 +24,11 @@ class CTracer;
 class Resolver : public ExprVisitor,  public StmtVisitor {
 public:
   explicit Resolver(Interpreter& interp, LukError& lukErr);
+
+  ~Resolver() {
+    logMsg("\n~Resolver destructor");
+  }
+  
   void resolve(std::vector<std::shared_ptr<Stmt>>& statements);
     
     // expressions
