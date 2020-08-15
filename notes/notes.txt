@@ -123,6 +123,9 @@ type.
 
 -- Adding ostream operator<< function for TokPtr type.
 
+-- Adding uniq id to the Token class.
+
+
 7.3 LukError object
 # v0.27:
 -- Passing TokPtr type to error function.
