@@ -35,6 +35,7 @@ public:
     ObjPtr visitAssignExpr(AssignExpr& expr) override;
     ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
     ObjPtr visitCallExpr(CallExpr& expr) override;
+    ObjPtr visitFunctionExpr(FunctionExpr& expr);
     ObjPtr visitGetExpr(GetExpr& expr) override;
     ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
     ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 

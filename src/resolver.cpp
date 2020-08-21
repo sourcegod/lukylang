@@ -108,6 +108,11 @@ ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
   return nilptr;
 }
 
+ObjPtr Resolver::visitFunctionExpr(FunctionExpr& expr) {
+  return nilptr;
+}
+
+
 ObjPtr Resolver::visitGetExpr(GetExpr& expr) {
   resolve(expr.m_object);
 
