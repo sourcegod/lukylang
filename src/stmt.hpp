@@ -101,25 +101,6 @@ public:
     std::shared_ptr<Expr> expression;
 };
 
-class IfStmt : public Stmt {
-public:
-    IfStmt(PExpr _condition, PStmt _thenBranch, 
-            PStmt _elseBranch) {
-        condition = std::move(_condition);
-        thenBranch  = std::move(_thenBranch);
-        elseBranch = std::move(_elseBranch);
-    }
-
-    void accept(StmtVisitor& v) override {
-        v.visitIfStmt(*this);
-    }
-
-    std::shared_ptr<Expr> condition;
-    std::shared_ptr<Stmt> thenBranch;
-    std::shared_ptr<Stmt> elseBranch;
-
-};
-
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
@@ -150,6 +131,25 @@ public:
 
 };
 
+
+class IfStmt : public Stmt {
+public:
+    IfStmt(PExpr _condition, PStmt _thenBranch, 
+            PStmt _elseBranch) {
+        condition = std::move(_condition);
+        thenBranch  = std::move(_thenBranch);
+        elseBranch = std::move(_elseBranch);
+    }
+
+    void accept(StmtVisitor& v) override {
+        v.visitIfStmt(*this);
+    }
+
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> thenBranch;
+    std::shared_ptr<Stmt> elseBranch;
+
+};
 
 class PrintStmt : public Stmt {
 public:

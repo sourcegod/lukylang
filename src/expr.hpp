@@ -12,23 +12,27 @@ class LukObject;
 class AssignExpr;
 class BinaryExpr;
 class CallExpr;
+class FunctionExpr;
 class GetExpr;
 class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
+class Stmt;
 class SuperExpr;
 class ThisExpr;
 class UnaryExpr;
 class VariableExpr;
 
 using PExpr = std::shared_ptr<Expr>;
+using PStmt = std::shared_ptr<Stmt>;
 // create visitor object
 class ExprVisitor {
     public:
         virtual ObjPtr visitAssignExpr(AssignExpr&) =0;
         virtual ObjPtr visitBinaryExpr(BinaryExpr&) =0;
         virtual ObjPtr visitCallExpr(CallExpr&) =0;
+        virtual ObjPtr visitFunctionExpr(FunctionExpr&) =0;
         virtual ObjPtr visitGetExpr(GetExpr&) =0;
         virtual ObjPtr visitGroupingExpr(GroupingExpr&) =0;
         virtual ObjPtr visitLiteralExpr(LiteralExpr&) =0;
@@ -142,6 +146,23 @@ public:
     PExpr m_object;
     TokPtr m_name;
 };
+
+class FunctionExpr : public Expr {
+public:
+    FunctionExpr(std::vector<TokPtr>& params, std::vector<PStmt>& body) {
+        m_params = std::move(params);
+        m_body  = std::move(body);
+    }
+
+    ObjPtr accept(ExprVisitor& v) { // override {
+        v.visitFunctionExpr(*this);
+    }
+    
+    std::vector<TokPtr> m_params;
+    std::vector<PStmt> m_body;
+
+};
+
 
 class GroupingExpr : public Expr {
 public:
