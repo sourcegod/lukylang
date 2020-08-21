@@ -38,6 +38,7 @@ public:
     ObjPtr visitAssignExpr(AssignExpr& expr) override;
     ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
     ObjPtr visitCallExpr(CallExpr& expr) override;
+    ObjPtr visitFunctionExpr(FunctionExpr& expr);
     ObjPtr visitGetExpr(GetExpr& expr);
     ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
     ObjPtr visitLogicalExpr(LogicalExpr& expr) override;

@@ -404,6 +404,11 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     return func->call(*this, v_args);
 }
 
+ObjPtr Interpreter::visitFunctionExpr(FunctionExpr& expr) {
+  return nilptr;
+}
+
+
 ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   logMsg("\nIn visitGetExpr, name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
