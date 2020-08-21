@@ -26,18 +26,18 @@ using PExpr = std::shared_ptr<Expr>;
 // create visitor object
 class ExprVisitor {
     public:
-        virtual TObject visitAssignExpr(AssignExpr&) =0;
-        virtual TObject visitBinaryExpr(BinaryExpr&) =0;
-        virtual TObject visitCallExpr(CallExpr&) =0;
-        virtual TObject visitGetExpr(GetExpr&) =0;
-        virtual TObject visitGroupingExpr(GroupingExpr&) =0;
-        virtual TObject visitLiteralExpr(LiteralExpr&) =0;
-        virtual TObject visitLogicalExpr(LogicalExpr&) =0;
-        virtual TObject visitSetExpr(SetExpr&) =0;
-        virtual TObject visitSuperExpr(SuperExpr&) =0;
-        virtual TObject visitThisExpr(ThisExpr&) =0;
-        virtual TObject visitUnaryExpr(UnaryExpr&) =0;
-        virtual TObject visitVariableExpr(VariableExpr&) =0;
+        virtual ObjPtr visitAssignExpr(AssignExpr&) =0;
+        virtual ObjPtr visitBinaryExpr(BinaryExpr&) =0;
+        virtual ObjPtr visitCallExpr(CallExpr&) =0;
+        virtual ObjPtr visitGetExpr(GetExpr&) =0;
+        virtual ObjPtr visitGroupingExpr(GroupingExpr&) =0;
+        virtual ObjPtr visitLiteralExpr(LiteralExpr&) =0;
+        virtual ObjPtr visitLogicalExpr(LogicalExpr&) =0;
+        virtual ObjPtr visitSetExpr(SetExpr&) =0;
+        virtual ObjPtr visitSuperExpr(SuperExpr&) =0;
+        virtual ObjPtr visitThisExpr(ThisExpr&) =0;
+        virtual ObjPtr visitUnaryExpr(UnaryExpr&) =0;
+        virtual ObjPtr visitVariableExpr(VariableExpr&) =0;
 };
 
 // Base class for different objects
@@ -49,7 +49,7 @@ public:
       m_id = next_id;
     }
     
-    virtual TObject accept(ExprVisitor &v) =0;
+    virtual ObjPtr accept(ExprVisitor &v) =0;
     virtual bool isCallExpr() const { return false; }
     virtual bool isGetExpr() const { return false; }
     virtual bool isSetExpr() const { return false; }
@@ -57,7 +57,8 @@ public:
     // Note: the two folowing virtual func must be implemented
     // in callexpr, variableexpr, getexpr, setexpr objects.
     virtual std::string typeName() const { return "Expr"; }
-    virtual Token getName() const { return Token(); }
+    // TODO: will better to returns static TokPtr
+    virtual TokPtr getName() const { return std::make_shared<Token>(); }
     virtual PExpr getObject() const { return nullptr; }
 
     virtual unsigned id() const { return m_id; }
@@ -71,75 +72,75 @@ private:
 
 class AssignExpr : public Expr {
 public:
-    AssignExpr(Token _name, PExpr _value) {
+    AssignExpr(TokPtr& _name, PExpr _value) {
         name = _name;
         value = std::move(_value);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitAssignExpr(*this); 
     }
 
-    Token name;
+    TokPtr name;
     PExpr value;
 };
 
 
 class BinaryExpr : public Expr {
 public:
-    BinaryExpr(PExpr _left, Token _op, PExpr _right) {
+    BinaryExpr(PExpr _left, TokPtr& _op, PExpr _right) {
         left = std::move(_left);
         op = _op;
         right = std::move(_right);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitBinaryExpr(*this); 
     }
 
     PExpr left;
-    Token op;
+    TokPtr op;
     PExpr right;
 };
 
 class CallExpr : public Expr {
 public:
-    CallExpr(PExpr _callee, Token _paren, std::vector<PExpr> _args) {
+    CallExpr(PExpr _callee, TokPtr& _paren, std::vector<PExpr> _args) {
         callee = std::move(_callee);
         paren = _paren;
         args = std::move(_args);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitCallExpr(*this); 
     }
 
     bool isCallExpr() const override { return true; }
     std::string typeName() const override { return "CallExpr"; }
-    virtual Token getName() const { return paren; }
+    virtual TokPtr getName() const { return paren; }
 
     PExpr callee;
-    Token paren;
+    TokPtr paren;
     std::vector<PExpr> args;
 };
 
 class GetExpr : public Expr {
 public:
-    GetExpr(PExpr object, Token name) :
+    GetExpr(PExpr object, TokPtr& name) :
       m_object(std::move(object)),
       m_name(name) {}
     bool isGetExpr() const override { return true; }
     std::string typeName() const override { return "GetExpr"; }
-    Token getName() const override { return m_name; }
+    TokPtr getName() const override { return m_name; }
     PExpr getObject() const override { return m_object; }
 
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitGetExpr(*this); 
     }
 
     PExpr m_object;
-    Token m_name;
+    TokPtr m_name;
 };
 
 class GroupingExpr : public Expr {
@@ -148,7 +149,7 @@ public:
         expression = std::move(_expr);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitGroupingExpr(*this); 
     }
 
@@ -158,117 +159,118 @@ public:
 class LiteralExpr: public Expr {
 public:
 
-    LiteralExpr(LukObject _value) 
-        : value(std::move(_value)) 
-        {
-        // std::cerr << "LiteralExpr, id: " << _value.id << "\n";
-        // std::cerr << "value, id: " << value.id << "\n";
+    LiteralExpr(ObjPtr& _value) 
+        : value(_value) {
+        logMsg("\nLiteralExpr constructor");
+        logMsg("_value.id: ", _value->id);
+        logMsg("value.id: ", value->id);
+    }
+    ~LiteralExpr() {
+        logMsg("~LiteralExpr destructor");
     }
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitLiteralExpr(*this); 
     }
 
-LukObject value;
+ObjPtr value;
 };
 
 class LogicalExpr : public Expr {
 public:
-    LogicalExpr(PExpr _left, Token _op, PExpr _right) {
+    LogicalExpr(PExpr& _left, TokPtr& _op, PExpr& _right) {
         left = std::move(_left);
         op = _op;
         right = std::move(_right);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitLogicalExpr(*this); 
     }
 
     PExpr left;
-    Token op;
+    TokPtr op;
     PExpr right;
 };
 
 class SetExpr : public Expr {
 public:
-    SetExpr(PExpr object, Token name, PExpr value) :
+    SetExpr(PExpr object, TokPtr name, PExpr value) :
       m_object(std::move(object)),
       m_name(name),
       m_value(std::move(value)) {}
 
     bool isSetExpr() const override { return true; }
     std::string typeName() const override { return "SetExpr"; }
-    Token getName() const override { return m_name; }
+    TokPtr getName() const override { return m_name; }
     // Fix: can now an instance of shared_ptr instead unique_ptr
     PExpr getObject() const override { return m_object; }
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitSetExpr(*this); 
     }
 
     PExpr m_object;
-    Token m_name;
+    TokPtr m_name;
     PExpr m_value;
 };
 
 class SuperExpr : public Expr {
 public:
-    SuperExpr(Token keyword, Token method) :
+    SuperExpr(TokPtr& keyword, TokPtr& method) :
       m_keyword(keyword),
       m_method(method) {}
 
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitSuperExpr(*this); 
     }
 
-    Token m_keyword;
-    Token m_method;
+    TokPtr m_keyword;
+    TokPtr m_method;
 };
 
 class ThisExpr : public Expr {
 public:
-    ThisExpr(Token& keyword) {
-        m_keyword = keyword;
-    }
+    ThisExpr(TokPtr& keyword) 
+      : m_keyword(keyword) {}
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitThisExpr(*this); 
     }
 
-    Token m_keyword;
+    TokPtr m_keyword;
 };
 
 class UnaryExpr : public Expr {
 public:
-    UnaryExpr(Token _op, PExpr _right) {
+    UnaryExpr(TokPtr& _op, PExpr _right) {
         op = _op;
         right = std::move(_right);
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitUnaryExpr(*this); 
     }
 
-    Token op;
+    TokPtr op;
     PExpr right;
 };
 
 class VariableExpr : public Expr {
 public:
     VariableExpr();
-    VariableExpr(Token _name) {
+    VariableExpr(TokPtr _name) {
         name = _name;
     }
     
-    TObject accept(ExprVisitor &v) override {
+    ObjPtr accept(ExprVisitor &v) override {
         return v.visitVariableExpr(*this); 
     }
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
-    Token getName() const override { return name; }
+    TokPtr getName() const override { return name; }
 
-
-    Token name;
+    TokPtr name;
 };
 
 

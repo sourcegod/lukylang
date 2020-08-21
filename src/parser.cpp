@@ -1,17 +1,19 @@
-#include "parser.hpp"
+# include "parser.hpp"
 #include "lukerror.hpp"
 #include <vector>
 #include <typeinfo>
 #include <memory>
 
-ParseError::ParseError(const std::string& msg, Token& token)
+ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     : std::runtime_error(msg)
-    , m_token(token) {}
+    , m_token(tokP) {}
 
-Parser::Parser(const std::vector<Token>&& tokens, LukError& _lukErr)
-    : current(0)
-    , m_tokens(std::move(tokens))
-    , lukErr(_lukErr) {}
+Parser::Parser(const std::vector<TokPtr>&& tokens, LukError& _lukErr)
+      : current(0),
+      m_tokens(std::move(tokens)),
+      lukErr(_lukErr) {
+    logMsg("\nIn Parser constructor");
+}
 
 std::vector<PStmt> Parser::parse() {
     std::vector<PStmt> statements;
@@ -62,7 +64,7 @@ std::vector<PStmt> Parser::block() {
 
 
 PStmt Parser::breakStatement() {
-    Token keyword = previous();
+    TokPtr keyword = previous();
     consume(TokenType::SEMICOLON, "Expect ';' after break statement");
     return std::make_shared<BreakStmt>(keyword);
 }
@@ -131,7 +133,7 @@ PStmt Parser::printStatement() {
 }
 
 PStmt Parser::returnStatement() {
-    Token keyword = previous();
+    TokPtr keyword = previous();
     PExpr value = nullptr;
     if (!check(TokenType::SEMICOLON)) {
         value = expression();
@@ -152,7 +154,7 @@ PStmt Parser::whileStatement() {
 }
 
 PStmt Parser::varDeclaration() {
-    Token name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+    TokPtr name = consume(TokenType::IDENTIFIER, "Expect variable name.");
     PExpr initializer = nullptr;
     if (match({TokenType::EQUAL})) {
         initializer = expression();
@@ -163,8 +165,7 @@ PStmt Parser::varDeclaration() {
 }
 
 PStmt Parser::classDeclaration() {
-    // TODO: convert all unique_ptr to shared_ptr 
-    Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+    TokPtr name = consume(TokenType::IDENTIFIER, "Expect class name.");
     std::shared_ptr<VariableExpr> superclass = nullptr;
     if (match({TokenType::LESS})) {
       consume(TokenType::IDENTIFIER, "Expect superclass name.");
@@ -205,9 +206,9 @@ PStmt Parser::expressionStatement() {
 }
 
 PFunc Parser::function(const std::string& kind) {
-    Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
+    TokPtr name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
-    std::vector<Token> params;
+    std::vector<TokPtr> params;
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (params.size() >= 8) {
@@ -236,11 +237,11 @@ PExpr Parser::expression() {
 PExpr Parser::assignment() {
     PExpr left = logicOr();
     if (match({TokenType::EQUAL})) {
-        Token equals = previous();
+        TokPtr equals = previous();
         PExpr value = assignment();
         if ( left->isVariableExpr() ) {
-            // Token name = static_cast<VariableExpr*>( left.get() )->name;
-            Token name = left->getName();
+            // TokPtr name = static_cast<VariableExpr*>( left.get() )->name;
+            TokPtr name = left->getName();
             return  std::make_shared<AssignExpr>(name, value);
         } else if (left->isGetExpr()) {
           return std::make_shared<SetExpr>(left->getObject(),
@@ -256,7 +257,7 @@ PExpr Parser::assignment() {
 PExpr Parser::logicOr() {
     PExpr left = logicAnd();
     while (match({TokenType::OR})) {
-        Token op = previous();
+        TokPtr op = previous();
         PExpr right = logicAnd();
         left =  std::make_shared<LogicalExpr>(left, op, right);
     }
@@ -267,7 +268,7 @@ PExpr Parser::logicOr() {
 PExpr Parser::logicAnd() {
     PExpr left = equality();
     while (match({TokenType::AND})) {
-        Token op = previous();
+        TokPtr op = previous();
         PExpr right = equality();
         left =  std::make_shared<LogicalExpr>(left, op, right);
     }
@@ -278,7 +279,7 @@ PExpr Parser::logicAnd() {
 PExpr Parser::equality() {
     PExpr expr = comparison();
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
-        Token op = previous();
+        TokPtr op = previous();
         PExpr right    = comparison();
         expr = std::make_shared<BinaryExpr>(expr, op, right);
     }
@@ -290,7 +291,7 @@ PExpr Parser::comparison() {
     while (
         match({TokenType::GREATER, TokenType::LESS, 
             TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
-        Token op = previous();
+        TokPtr op = previous();
         PExpr right = addition();
         expr = std::make_shared<BinaryExpr>(expr, op, right);
     }
@@ -300,7 +301,7 @@ PExpr Parser::comparison() {
 PExpr Parser::addition() {
     PExpr expr = multiplication();
     while (match({TokenType::MINUS, TokenType::PLUS})) {
-        Token Operator = previous();
+        TokPtr Operator = previous();
         PExpr right = multiplication();
         expr = std::make_shared<BinaryExpr>(expr, Operator, right);
     }
@@ -310,7 +311,7 @@ PExpr Parser::addition() {
 PExpr Parser::multiplication() {
     PExpr expr = unary();
     while (match({TokenType::SLASH, TokenType::STAR})) {
-        Token Operator = previous();
+        TokPtr Operator = previous();
         PExpr right = unary();
         expr = std::make_shared<BinaryExpr>(expr, Operator, right);
     }
@@ -319,7 +320,7 @@ PExpr Parser::multiplication() {
 
 PExpr Parser::unary() {
     if (match({TokenType::BANG, TokenType::MINUS})) {
-        Token Operator = previous();
+        TokPtr Operator = previous();
         PExpr right    = unary();
         return std::make_shared<UnaryExpr>(Operator, right);
     }
@@ -333,7 +334,7 @@ PExpr Parser::call() {
         if (match({TokenType::LEFT_PAREN})) {
             expr = finishCall(expr);
         } else if (match({TokenType::DOT})) {
-          Token name = consume(TokenType::IDENTIFIER,
+          TokPtr name = consume(TokenType::IDENTIFIER,
             "Expect property name after '.'.");
           expr = std::make_shared<GetExpr>(expr, name);
         } else {
@@ -355,7 +356,7 @@ PExpr Parser::finishCall(PExpr callee) {
         } while (match({TokenType::COMMA}));
     }
 
-    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
+    TokPtr paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
 
     return std::make_shared<CallExpr>(callee, paren, args);
 }
@@ -365,16 +366,17 @@ PExpr Parser::primary() {
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING})) {
-        const auto obj = LukObject( previous() );
-        // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
-        return std::make_shared<LiteralExpr>( obj );
+        logMsg("\nIn primary Parser, before literalExpr");
+        ObjPtr objP = std::make_shared<LukObject>( previous() );
+        return std::make_shared<LiteralExpr>( objP );
+        // return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
     
     if (match({TokenType::SUPER})) {
-      Token keyword = previous();
+      TokPtr keyword = previous();
       consume(TokenType::DOT, "Expect '.' after 'super'.");
 
-      Token method = consume(TokenType::IDENTIFIER,
+      TokPtr method = consume(TokenType::IDENTIFIER,
           "Expect superclass method name.");
 
       return std::make_shared<SuperExpr>(keyword, method);
@@ -400,21 +402,21 @@ PExpr Parser::primary() {
     return nullptr;
 }
 
-Token Parser::consume(TokenType type, std::string message) {
+TokPtr& Parser::consume(TokenType type, std::string message) {
     if (check(type))
         return advance();
     throw error(peek(), message);
     
 }
 
-ParseError Parser::error(Token& token, const std::string& message) {
-    if (token.type == TokenType::END_OF_FILE) {
-        lukErr.error(errTitle, token.line, token.col, " at end, " + message);
+ParseError Parser::error(TokPtr& tokP, const std::string& message) {
+    if (tokP->type == TokenType::END_OF_FILE) {
+        lukErr.error(errTitle, tokP->line, tokP->col, " at end, " + message);
     } else {
-        lukErr.error(errTitle, token.line, token.col, 
-                "at '" + token.lexeme + "' " + message);
+        lukErr.error(errTitle, tokP->line, tokP->col, 
+                "at '" + tokP->lexeme + "' " + message);
     }
-    return *new ParseError(message, token);
+    return *new ParseError(message, tokP);
 }
 
 bool Parser::match(const std::vector<TokenType>& types) {
@@ -427,36 +429,36 @@ bool Parser::match(const std::vector<TokenType>& types) {
     return false;
 }
 
-Token Parser::previous() {
+TokPtr& Parser::previous() {
     return m_tokens[current - 1];
 }
 
-Token Parser::advance() {
+TokPtr& Parser::advance() {
     if (!isAtEnd())
         ++current;
     return previous();
 }
 
-Token& Parser::peek() {
+TokPtr& Parser::peek() {
     return m_tokens[current];
 }
 
 bool Parser::isAtEnd() {
-    return peek().type == TokenType::END_OF_FILE;
+    return peek()->type == TokenType::END_OF_FILE;
 }
 
 bool Parser::check(TokenType type) {
     if (isAtEnd())
         return false;
-    return peek().type == type;
+    return peek()->type == type;
 }
 
 void Parser::synchronize() {
     advance();
     while (!isAtEnd()) {
-        if (previous().type == TokenType::SEMICOLON) return;
+        if (previous()->type == TokenType::SEMICOLON) return;
 
-        switch(peek().type) {
+        switch(peek()->type) {
             case TokenType::CLASS:
             case TokenType::FUN:
             case TokenType::VAR:

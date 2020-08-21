@@ -15,13 +15,13 @@ std::string LukInstance::toString() const {
   return  "<Instance " + m_klass->m_name  + ">"; 
 }
 
-ObjPtr LukInstance::get(Token& name) {
-    auto elem = m_fields.find(name.lexeme);
-    if (elem != m_fields.end()) {
-      return elem->second;
+ObjPtr LukInstance::get(TokPtr& name) {
+    auto iter = m_fields.find(name->lexeme);
+    if (iter != m_fields.end()) {
+      return iter->second;
     }
     if (m_klass != nullptr) {
-        ObjPtr method = m_klass->findMethod(name.lexeme); 
+        ObjPtr method = m_klass->findMethod(name->lexeme); 
         // Note: to retrieve lukfunction,
         // you must extract lukfunction from lukobject
         if (method != nullptr && method->isCallable()) {
@@ -37,14 +37,13 @@ ObjPtr LukInstance::get(Token& name) {
     }
 
     throw RuntimeError(name, 
-        "Undefined property '" + name.lexeme + "'.");
+        "Undefined property '" + name->lexeme + "'.");
     // unrichable
-    return TObject::getNilPtr();
+    return nilptr;
 }
 
-void LukInstance::set(Token name, ObjPtr valPtr) {
-  m_fields[name.lexeme] = valPtr;
-  
+void LukInstance::set(TokPtr& name, ObjPtr valPtr) {
+  m_fields[name->lexeme] = valPtr;
 }
 
 std::ostream& operator<<(std::ostream& oss, const LukInstance& li) {

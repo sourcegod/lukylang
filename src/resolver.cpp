@@ -2,9 +2,10 @@
 #include "interpreter.hpp"
 
 Resolver::Resolver(Interpreter& interp, LukError& lukErr)
-  : m_interp(interp)
-  ,m_lukErr(lukErr)
-  {}
+      : m_interp(interp),
+      m_lukErr(lukErr) {
+    logMsg("\nIn Resolver constructor");
+}
 
 void Resolver::beginScope() {
   std::unordered_map<std::string, bool> scope;
@@ -15,22 +16,21 @@ void Resolver::endScope() {
   m_scopes.pop_back();
 }
 
-void Resolver::declare(Token name) {
-  // TODO: pass token by pointer
+void Resolver::declare(TokPtr& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back();
-  auto elem = scope.find(name.lexeme);
-  if (elem != scope.end()) {
+  auto iter = scope.find(name->lexeme);
+  if (iter != scope.end()) {
     m_lukErr.error(errTitle, name, "This Variable is allready declared in this scope.");
   }
-  scope[name.lexeme] = false;
+  scope[name->lexeme] = false;
 
 }
 
-void Resolver::define(Token& name) {
+void Resolver::define(TokPtr& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
-  scope.at(name.lexeme) = true;
+  scope.at(name->lexeme) = true;
 }
 
 // resolve vector
@@ -55,7 +55,7 @@ void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
-  for (Token& param: func.params) {
+  for (TokPtr& param: func.params) {
     declare(param);
     define(param);
   }
@@ -70,13 +70,12 @@ void Resolver::resolve(PExpr expr) {
   expr->accept(*this);
 }
 
-void Resolver::resolveLocal(Expr* expr, Token name) {
+void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
   // TODO: why we cannot receive as argument an Expr& instead Expr* ???
-  // TODO: pass token by pointer
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
-    auto elem = scope.find(name.lexeme);
-    if (elem != scope.end()) {
+    auto iter = scope.find(name->lexeme);
+    if (iter != scope.end()) {
       int val = m_scopes.size() -1 - i;
       m_interp.resolve(*expr, val);
     }
@@ -86,61 +85,62 @@ void Resolver::resolveLocal(Expr* expr, Token name) {
 }
 
 // expressions
-TObject Resolver::visitAssignExpr(AssignExpr& expr) {
+ObjPtr Resolver::visitAssignExpr(AssignExpr& expr) {
   resolve(expr.value);
   resolveLocal(&expr, expr.name);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitBinaryExpr(BinaryExpr& expr) {
+ObjPtr Resolver::visitBinaryExpr(BinaryExpr& expr) {
   resolve(expr.left);
   resolve(expr.right);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitCallExpr(CallExpr& expr) {
+ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
   resolve(expr.callee);
   for (std::shared_ptr<Expr>& arg : expr.args) {
     resolve(arg);
   }
 
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitGetExpr(GetExpr& expr) {
+ObjPtr Resolver::visitGetExpr(GetExpr& expr) {
   resolve(expr.m_object);
 
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitGroupingExpr(GroupingExpr& expr) {
+ObjPtr Resolver::visitGroupingExpr(GroupingExpr& expr) {
   resolve(expr.expression);
  
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitLiteralExpr(LiteralExpr& expr) {
+ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
+    logMsg("\nIn visitLiteralExpr, Resolver");
 
-  return TObject();
+    return nilptr;
 }
 
-TObject Resolver::visitLogicalExpr(LogicalExpr& expr) {
+ObjPtr Resolver::visitLogicalExpr(LogicalExpr& expr) {
   resolve(expr.left);
   resolve(expr.right);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitSetExpr(SetExpr& expr) {
+ObjPtr Resolver::visitSetExpr(SetExpr& expr) {
   resolve(expr.m_value);
   resolve(expr.m_object);
 
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitSuperExpr(SuperExpr& expr) {
+ObjPtr Resolver::visitSuperExpr(SuperExpr& expr) {
     if (currentClass == ClassType::None) {
       m_lukErr.error(errTitle, expr.m_keyword,
           "Cannot use 'super' outside of a class.");
@@ -151,11 +151,11 @@ TObject Resolver::visitSuperExpr(SuperExpr& expr) {
 
   resolveLocal(&expr, expr.m_keyword);
   
-  return TObject();
+  return nilptr;
 }
 
 
-TObject Resolver::visitThisExpr(ThisExpr& expr) {
+ObjPtr Resolver::visitThisExpr(ThisExpr& expr) {
 
   if (currentClass == ClassType::None) {
       m_lukErr.error(errTitle, expr.m_keyword,
@@ -163,26 +163,26 @@ TObject Resolver::visitThisExpr(ThisExpr& expr) {
     }
 
   resolveLocal(&expr, expr.m_keyword);
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitUnaryExpr(UnaryExpr& expr) {
+ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
   resolve(expr.right);
   
-  return TObject();
+  return nilptr;
 }
 
-TObject Resolver::visitVariableExpr(VariableExpr& expr) {
+ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
-    auto elem = scope.find(expr.name.lexeme);
-    if (elem != scope.end() && elem->second == false) {
+    auto iter = scope.find(expr.name->lexeme);
+    if (iter != scope.end() && iter->second == false) {
       m_lukErr.error(errTitle, expr.name, "Cannot read local variable in its own initializer.");
     }
   }
   resolveLocal(&expr, expr.name);
 
-  return TObject();
+  return nilptr;
 }
 
 // statements
@@ -210,7 +210,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   define(stmt.m_name);
 
   if (stmt.m_superclass != nullptr &&
-      stmt.m_name.lexeme == stmt.m_superclass->name.lexeme) {
+      stmt.m_name->lexeme == stmt.m_superclass->name->lexeme) {
       m_lukErr.error(errTitle, stmt.m_superclass->name,
         "A class cannot inherit from itself.");
   }
@@ -235,7 +235,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
 
   for (auto method: stmt.m_methods) {
     auto declaration = FunctionType::Method;
-    if (method->name.lexeme == "init") {
+    if (method->name->lexeme == "init") {
       declaration = FunctionType::Initializer;
     }
 

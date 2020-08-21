@@ -7,10 +7,10 @@
 
 // static variable must be initialized
 int Environment::next_id;
-TObject& Environment::get(Token name) {
-    auto elem = m_values.find(name.lexeme);
-    if (elem != m_values.end()) {
-        return *elem->second;
+ObjPtr& Environment::get(TokPtr& name) {
+    auto iter = m_values.find(name->lexeme);
+    if (iter != m_values.end()) {
+        return iter->second;
     }
     
     if (m_enclosing != nullptr) {
@@ -18,12 +18,12 @@ TObject& Environment::get(Token name) {
     }
 
     throw RuntimeError(name, 
-            "Undefined variable '" + name.lexeme + "'");
+            "Undefined variable '" + name->lexeme + "'");
 }
 
-void Environment::assign(Token name, TObject val) {
-    if ( m_values.find(name.lexeme) != m_values.end() ) {
-        m_values[name.lexeme] = std::make_shared<TObject>(val);
+void Environment::assign(TokPtr& name, ObjPtr& val) {
+    if ( m_values.find(name->lexeme) != m_values.end() ) {
+        m_values[name->lexeme] = val; // std::make_shared<TObject>(val;
         return;
     }
 
@@ -33,29 +33,30 @@ void Environment::assign(Token name, TObject val) {
     }
 
     throw RuntimeError(name, 
-            "Undefined variable '" + name.lexeme + "'");
+            "Undefined variable '" + name->lexeme + "'");
 
 }
 
-void Environment::assign(Token name, std::shared_ptr<LukCallable> callable) {
-  assign(name, LukObject(callable));
+void Environment::assign(TokPtr& name, std::shared_ptr<LukCallable> callable) {
+  ObjPtr objP = std::make_shared<LukObject>(callable);
+  assign(name, objP); // LukObject(callable));
 
 }
 
-void Environment::define(const std::string& name, TObject val) {
-    m_values[name] =  std::make_shared<TObject>(val);
+void Environment::define(const std::string& name, ObjPtr& val) {
+    m_values[name] =  val;
 }
 
-TObject Environment::getAt(int distance, const std::string& name) {
+ObjPtr Environment::getAt(int distance, const std::string& name) {
   auto& values = ancestor(distance)->m_values;
-  auto elem = values.find(name);
-  if (elem == values.end()) {
+  auto iter = values.find(name);
+  if (iter == values.end()) {
     std::ostringstream msg;
     msg << "Undefined variable '" << name << "' at distance: " << distance
       << " at depth: ";
     throw RuntimeError(msg.str());
   }
-  return *elem->second.get();
+  return iter->second;
 }
 
 
@@ -69,7 +70,7 @@ Environment* Environment::ancestor(int distance) {
   return env;
 }
 
-void Environment::assignAt(int distance, Token& name, std::shared_ptr<TObject> val) {
-  ancestor(distance)->m_values[name.lexeme] = val;
+void Environment::assignAt(int distance, TokPtr& name, ObjPtr& val) {
+  ancestor(distance)->m_values[name->lexeme] = val;
 
 }

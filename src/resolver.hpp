@@ -24,21 +24,26 @@ class CTracer;
 class Resolver : public ExprVisitor,  public StmtVisitor {
 public:
   explicit Resolver(Interpreter& interp, LukError& lukErr);
+
+  ~Resolver() {
+    logMsg("\n~Resolver destructor");
+  }
+  
   void resolve(std::vector<std::shared_ptr<Stmt>>& statements);
     
     // expressions
-    TObject visitAssignExpr(AssignExpr& expr) override;
-    TObject visitBinaryExpr(BinaryExpr& expr) override;
-    TObject visitCallExpr(CallExpr& expr) override;
-    TObject visitGetExpr(GetExpr& expr) override;
-    TObject visitGroupingExpr(GroupingExpr& expr) override;
-    TObject visitLiteralExpr(LiteralExpr& expr) override; 
-    TObject visitLogicalExpr(LogicalExpr& expr) override;
-    TObject visitSetExpr(SetExpr& expr) override;
-    TObject visitSuperExpr(SuperExpr& expr) override;
-    TObject visitThisExpr(ThisExpr& expr) override;
-    TObject visitUnaryExpr(UnaryExpr& expr);
-    TObject visitVariableExpr(VariableExpr& expr) override;
+    ObjPtr visitAssignExpr(AssignExpr& expr) override;
+    ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
+    ObjPtr visitCallExpr(CallExpr& expr) override;
+    ObjPtr visitGetExpr(GetExpr& expr) override;
+    ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
+    ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 
+    ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
+    ObjPtr visitSetExpr(SetExpr& expr) override;
+    ObjPtr visitSuperExpr(SuperExpr& expr) override;
+    ObjPtr visitThisExpr(ThisExpr& expr) override;
+    ObjPtr visitUnaryExpr(UnaryExpr& expr);
+    ObjPtr visitVariableExpr(VariableExpr& expr) override;
     
     // statements
     void visitBlockStmt(BlockStmt& stmt) override;
@@ -72,7 +77,7 @@ private:
 
   // resolve expression
   void resolve(PExpr expr);
-  void resolveLocal(Expr* expr, Token name);
+  void resolveLocal(Expr* expr, TokPtr& name);
   
   // resolve statements
   void resolve(PStmt& stmt);
@@ -81,8 +86,8 @@ private:
 
   void beginScope();
   void endScope();
-  void declare(Token name);
-  void define(Token& name);
+  void declare(TokPtr& name);
+  void define(TokPtr& name);
 
 };
 

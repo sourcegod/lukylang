@@ -1,8 +1,14 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
+#include "logger.hpp"
 
 #include <string>
+#include <memory> // for smart pointers
 
+// forward declaration
+class Token;
+
+using TokPtr = std::shared_ptr<Token>;
 enum class TokenType {
     // Single-character tokens.
     LEFT_PAREN, RIGHT_PAREN,
@@ -35,24 +41,36 @@ enum class TokenType {
 };
 
 class Token {
-  public:
-    Token() {}
-    Token(TokenType _type, const std::string& _lexeme,
-          const std::string& _literal, const int _line, const int _col);
+protected:
+    static int next_id;
+public:
+    int id;
     TokenType type;
     std::string lexeme;
     std::string literal;
     int line;
     int col;
+    
+    // constructors
+    Token(); 
+    Token(TokenType _type, const std::string& _lexeme,
+          const std::string& _literal, const int _line, const int _col);
+    
+    // destructors
+    ~Token() {
+        logMsg("\n~Token destructor, id: ", id, ", lexeme: ", lexeme);
+    }
+    
     std::string toString() const;
     std::string stringType() const;
+    
     friend inline std::ostream& operator<<(std::ostream& ost, Token& tok);
+    friend inline std::ostream& operator<<(std::ostream& ost, TokPtr& tokP);
 };
 
 // friend function declaration, because ostream accept only one argument
 inline std::ostream& operator<<(std::ostream& ost, Token& tok) { return ost << tok.lexeme; } 
+inline std::ostream& operator<<(std::ostream& ost, TokPtr& tokP) { return ost << tokP->lexeme; } 
 
-
-// }
 
 #endif // TOKEN_HPP

@@ -1,12 +1,18 @@
 #include "token.hpp"
 
-// using namespace luky;
+int Token::next_id =0;
+Token::Token() : id(++next_id) {
+    logMsg("\nToken constructor, id: ", id, ", lexeme: None");
+}
 
 Token::Token(const TokenType _type, const std::string& _lexeme,
-             const std::string& _literal, const int _line, const int _col)
-    : type(_type), lexeme(_lexeme),
-    literal(_literal), line(_line), 
-    col(_col) {}
+        const std::string& _literal, const int _line, const int _col)
+        : id(++next_id), type(_type), 
+        lexeme(_lexeme), literal(_literal), 
+        line(_line), col(_col) {
+
+    logMsg("\nToken constructor, id: ", id, ", lexeme: ", lexeme);
+}
 
 std::string Token::toString() const {
     // for string and number literals, use actual value

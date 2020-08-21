@@ -59,7 +59,7 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(Token name, std::shared_ptr<VariableExpr> superclass, std::vector<PFunc> methods) {
+    ClassStmt(TokPtr name, std::shared_ptr<VariableExpr> superclass, std::vector<PFunc> methods) {
       m_name = name;  
       m_superclass = std::move(superclass);
       m_methods = std::move(methods);
@@ -68,7 +68,7 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitClassStmt(*this);
     }
-    Token m_name;
+    TokPtr m_name;
     std::shared_ptr<VariableExpr> m_superclass;
     std::vector<PFunc> m_methods;
 
@@ -77,14 +77,13 @@ public:
 
 class BreakStmt : public Stmt {
 public:
-    BreakStmt(Token _keyword) {
-        keyword = _keyword;
-    }
+    BreakStmt(TokPtr& keyword) 
+      : m_keyword(keyword) {}
 
     void accept(StmtVisitor& v) override {
         v.visitBreakStmt(*this);
     }
-    Token keyword;
+    TokPtr m_keyword;
 
 };
 
@@ -124,7 +123,7 @@ public:
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(Token _name, std::vector<Token> _params, std::vector<PStmt> _body) {
+    FunctionStmt(TokPtr& _name, std::vector<TokPtr>& _params, std::vector<PStmt>& _body) {
         name = _name;
         params = std::move(_params);
         body  = std::move(_body);
@@ -140,14 +139,13 @@ public:
     // or make a "union" between base and derived object...
     // or create a smart pointer to this object.
 
-    ~FunctionStmt() { 
-    }
+    ~FunctionStmt() {}
     
     void accept(StmtVisitor& v) override {
         v.visitFunctionStmt(*this);
     }
-    Token name;
-    std::vector<Token> params;
+    TokPtr name;
+    std::vector<TokPtr> params;
     std::vector<PStmt> body;
 
 };
@@ -169,7 +167,7 @@ public:
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(Token _name, std::shared_ptr<Expr> _expr) {
+    ReturnStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
         name = _name;
         value = std::move(_expr);
     }
@@ -177,7 +175,7 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitReturnStmt(*this);
     }
-    Token name;
+    TokPtr name;
     std::shared_ptr<Expr> value;
 
 };
@@ -185,7 +183,7 @@ public:
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(Token _name, std::shared_ptr<Expr> _expr) {
+    VarStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
         name = _name;
         initializer = std::move(_expr);
     }
@@ -193,7 +191,7 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitVarStmt(*this);
     }
-    Token name;
+    TokPtr name;
     std::shared_ptr<Expr> initializer;
 
 };

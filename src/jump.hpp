@@ -8,10 +8,10 @@
 class Jump : public std::runtime_error {
     
 public:
-    Jump(Token& key, const std::string& msg) 
-        : std::runtime_error(key.lexeme + ", " + msg), 
-        keyword(key) {} 
-    Token keyword;
+    Jump(TokPtr& keyword, const std::string& msg) 
+        : std::runtime_error(keyword->lexeme + ", " + msg), 
+        m_keyword(keyword) {} 
+    TokPtr m_keyword;
 };
 
 #endif //  JUMP_HPP

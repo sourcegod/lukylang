@@ -1,0 +1,23 @@
+// addition
+print "12 + 4: ";
+print 12+4;
+print "";
+
+// substraction
+print "33 - 13: ";
+print 33 - 13;
+print "";
+
+// multiplication
+print "123 * 124: ";
+print 123 * 124;
+print "";
+// division
+print "1234 / 15: ";
+print 1234 / 15;
+print "";
+
+// expression
+print "( (30+7)*10 / (4*5) + 55): ";
+print ((30+7)*10 / (4*5) + 55);
+

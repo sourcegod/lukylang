@@ -38,13 +38,13 @@ static void printer(const vector<Token>& v_tokens) {
 static void run(const std::string& source, LukError& lukErr) {
     // scanner
     Scanner scanner(source, lukErr);
-    const std::vector<Token>& tokens = scanner.scanTokens();
+    const std::vector<TokPtr>&& v_tokens = scanner.scanTokens();
     if (lukErr.hadError) return;
     // printer
     // printer(tokens);
     // /*
     // parser
-    Parser parser(std::move(tokens), lukErr);
+    Parser parser(std::move(v_tokens), lukErr);
     auto stmts = parser.parse();
     // if found error during parsing, report
     if (lukErr.hadError)  return;

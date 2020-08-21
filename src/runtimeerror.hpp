@@ -11,8 +11,8 @@ public:
     RuntimeError(const std::string& msg) 
         : std::runtime_error(msg) {}
 
-    RuntimeError(Token& tok, const std::string& msg) 
-        : std::runtime_error(tok.lexeme + ", " + msg) {}
+    RuntimeError(TokPtr& tok, const std::string& msg) 
+        : std::runtime_error(tok->lexeme + ", " + msg) {}
 
 };
 

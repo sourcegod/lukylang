@@ -4,6 +4,7 @@
 #include "lukobject.hpp"
 #include "lukclass.hpp"
 #include "logger.hpp"
+#include "token.hpp"
 
 #include <iostream>
 #include <string>
@@ -42,8 +43,8 @@ public:
       std::unordered_map<std::string, ObjPtr>& getFields() { return m_fields; }
 
     virtual std::string toString() const;
-    ObjPtr get(Token& name);
-    void set(Token name, ObjPtr valPtr);
+    ObjPtr get(TokPtr& name);
+    void set(TokPtr& name, ObjPtr valPtr);
 
 private:
    // LukClass* m_klass;

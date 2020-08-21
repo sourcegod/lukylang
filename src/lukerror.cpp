@@ -17,12 +17,12 @@ void LukError::error(const std::string& title, int line, int col,
 }
 
 
-void LukError::error(const std::string& title, Token& token, 
+void LukError::error(const std::string& title, TokPtr& tok, 
         const std::string& message) {
-	if (token.type == TokenType::END_OF_FILE) {
-      report(title, token.line, token.col, " at end", message);
+	if (tok->type == TokenType::END_OF_FILE) {
+      report(title, tok->line, tok->col, " at end", message);
     } else {
-      report(title, token.line, token.col, " at '" + token.lexeme + "'", 
+      report(title, tok->line, tok->col, " at '" + tok->lexeme + "'", 
               message);
     }
 

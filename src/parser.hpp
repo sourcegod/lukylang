@@ -20,19 +20,24 @@ using PObject = std::shared_ptr<LukObject>;
 
 class ParseError : public std::runtime_error {
 public:
-    ParseError(const std::string& msg, Token& token);
-    Token m_token;
+    ParseError(const std::string& msg, TokPtr& tokP);
+    TokPtr m_token;
 };
 
 class Parser {
 public:
-    Parser(const std::vector<Token>&& tokens, LukError& lukErr);
+    Parser(const std::vector<TokPtr>&& tokens, LukError& lukErr);
+    
+    ~Parser() {
+      logMsg("\n~Parser destructor");
+
+    }
     std::vector<PStmt> parse();
-    ParseError error(Token& token, const std::string& message);
+    ParseError error(TokPtr& tokP, const std::string& message);
 
 private:
     size_t current;
-    std::vector<Token> m_tokens;
+    std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
 
@@ -66,12 +71,12 @@ private:
     PExpr primary();
 
     bool match(const std::vector<TokenType>& types);
-    Token previous();
-    Token advance();
-    Token& peek();
+    TokPtr& previous();
+    TokPtr& advance();
+    TokPtr& peek();
     bool isAtEnd();
     bool check(TokenType type);
-    Token consume(TokenType type, std::string message);
+    TokPtr& consume(TokenType type, std::string message);
     void synchronize();
 
 };

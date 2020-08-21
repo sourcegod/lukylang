@@ -14,68 +14,80 @@
 #include <stdexcept> // exception
 
 int LukObject::next_id =0;
+ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
+
 // constructors
     
 LukObject::LukObject() 
     : id(++next_id) { 
-    // std::cerr << "C.tor, id: " << id << "\n";
+    logMsg("\nLukObject constructor, id: ", id, ", val: Nil");
     m_type = LukType::Nil;  
-    p_string = nullptr;
+    m_string = "nil";
+    // p_string = nullptr;
     p_callable = nullptr;
     p_instance = nullptr;
+    logMsg("\nExit out constructor nil");
 }
 
 LukObject::LukObject(bool val) 
     : id(++next_id) {
+    logMsg("\nLukObject constructor bool,  id: ", id);
     m_type = LukType::Bool; m_bool = val; 
 }
 
 LukObject::LukObject(int val) 
     : id(++next_id) { 
+    logMsg("\nLukObject constructor int,  id: ", id, "val: ", val);
       m_type = LukType::Number; m_number = val; 
 }
 
 LukObject::LukObject(double val) 
     : id(++next_id) {
+    logMsg("\nLukObject constructor double,  id: ", id, "val: ", val);
   m_type = LukType::Number; 
   m_number = val; 
 }
 
 LukObject::LukObject(const std::string& val) 
     : id(++next_id) { 
-    // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
+    logMsg("\nLukObject constructor string,  id: ", id, "val: ", val);
     m_type = LukType::String; 
-    // m_string = val; 
-    p_string = std::make_shared<std::string>(val);
+    m_string = val; 
+    // p_string = std::make_shared<std::string>(val);
 }
 
 LukObject::LukObject(const char* val) 
     : id(++next_id) { 
+    logMsg("\nLukObject constructor char*,  id: ", id, "val: ", val);
     m_type = LukType::String; 
-    // m_string = std::string(val); 
-    p_string = std::make_shared<std::string>(val);
+    m_string = std::string(val); 
+    // p_string = std::make_shared<std::string>(val);
 }
 
 LukObject::LukObject(std::shared_ptr<LukCallable> callable)
     : id(++next_id) { 
+    logMsg("\nLukObject constructor callable,  id: ", id, "val: ", callable->toString());
     m_type = LukType::Callable;
     p_callable = callable; // std::make_shared<LukCallable>(callable);
-    p_string = std::make_shared<std::string>(callable->toString());
+    m_string = callable->toString();
+    // p_string = std::make_shared<std::string>(callable->toString());
 }
 
 // std::shared_ptr<LukFunction> LukObject::getFunc() { return std::make_shared<LukFunction>(p_callable); }
 
 LukObject::LukObject(std::shared_ptr<LukInstance> instance)
         : id(++next_id) { 
-        m_type = LukType::Instance;
-        p_instance = instance;
-        logMsg("\nIn LukObject instance toString: ", instance->toString());
-        p_string = std::make_shared<std::string>(p_instance->toString());
-    }
+    logMsg("\nLukObject constructor instance,  id: ", id, "val: ", instance->toString());
+    m_type = LukType::Instance;
+    p_instance = instance;
+    logMsg("\nIn LukObject instance toString: ", instance->toString());
+    m_string = p_instance->toString();
+        // p_string = std::make_shared<std::string>(p_instance->toString());
+}
 
 LukObject::LukObject(Token tok) 
         : id(++next_id) {
-    // std::cerr << "C.tor with token, id: " << id << "\n";
+    logMsg("\nLukObject constructor token,  id: ", id, "val: ", tok.lexeme);
     switch(tok.type) {
         case TokenType::NIL:
             m_type = LukType::Nil; break;
@@ -93,14 +105,82 @@ LukObject::LukObject(Token tok)
             break;
         case TokenType::STRING: 
             m_type = LukType::String;
-            // m_string = tok.literal;
-            p_string = std::make_shared<std::string>(tok.literal);
+            m_string = tok.literal;
+            // p_string = std::make_shared<std::string>(tok.literal);
             break;
         default:
             std::runtime_error("Invalid Luky object.");
     }
 
 }
+
+LukObject::LukObject(TokPtr& tokP) 
+        : id(++next_id) {
+    logMsg("\nLukObject constructor token pointer,  id: ", id, "val: ", tokP->lexeme);
+    // LukObject(*tokP.get());
+    
+    
+    switch(tokP->type) {
+        case TokenType::NIL:
+            m_type = LukType::Nil; break;
+        case TokenType::TRUE: 
+            m_type = LukType::Bool;
+            m_bool = true; 
+            break;
+        case TokenType::FALSE: 
+            m_type = LukType::Bool;
+            m_bool = false; 
+            break;
+        case TokenType::NUMBER: 
+            m_type = LukType::Number;
+            m_number = std::stod(tokP->literal); 
+            break;
+        case TokenType::STRING: 
+            m_type = LukType::String;
+            m_string = tokP->literal;
+            // p_string = std::make_shared<std::string>(tokP->literal);
+            break;
+        default:
+            std::runtime_error("Invalid Luky object.");
+    }
+  
+}
+
+
+LukObject::LukObject(nullptr_t nup) {
+  logMsg("\In LukObject constructor nullptr: ");
+        m_type = LukType::Nil;
+        m_string = "nil";
+        // p_string = nullptr;
+        p_callable = nullptr;
+        p_instance = nullptr;
+}
+
+
+// copy constructor
+LukObject::LukObject(const LukObject& obj) {
+    // avoid copy of same object
+    if (this != &obj) {
+      swap(obj);
+      // cannot use obj.getId function, cause obj is constant
+      logMsg("\nIn LukObject, copy constructor, id: ", id, ", val: ", obj);
+      
+    }
+
+}
+
+// move constructor
+LukObject::LukObject(const LukObject&& obj) {
+    // avoid copy of same object
+    if (this != &obj) {
+      swap(obj);
+      // cannot use obj.getId function, cause obj is constant
+      logMsg("\nIn LukObject, move constructor, id: ", id, ", val: ", obj);
+      
+    }
+
+}
+
 
 // returns the current value to string
 std::string LukObject::value() {
@@ -112,11 +192,12 @@ std::string LukObject::value() {
             case LukType::Number: 
                 return std::to_string(m_number);
             case LukType::String: 
-                // return m_string;
-                return *p_string;
+                return m_string;
+                // return *p_string;
             case LukType::Callable: 
             case LukType::Instance:  
-              return *p_string;
+              return m_string;
+              // return *p_string;
         }
 
         return "";
@@ -139,7 +220,8 @@ double LukObject::toNumber() {
     
 std::string LukObject::toString() {
   // Warning: not change the m_type to string      
-  if (m_type == LukType::String) return *p_string;
+  if (m_type == LukType::String) return m_string;
+    // return *p_string;
   // m_type = LukType::String;
   return _toString();
 }
@@ -149,7 +231,8 @@ bool LukObject::_toBool() const {
         case LukType::Nil: return false;
         case LukType::Bool: return m_bool != 0;
         case LukType::Number: return m_number != 0;
-        case LukType::String: return p_string != nullptr;
+        case LukType::String: return m_string != "";
+        // return p_string != nullptr;
         // callables and classes are true by default
         case LukType::Callable:
         case LukType::Instance: 
@@ -200,10 +283,12 @@ std::string LukObject::_toString() const {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Number: return std::to_string(m_number);
-        case LukType::String: return *p_string;
+        case LukType::String: m_string;
+          // return *p_string;
         case LukType::Callable: 
         case LukType::Instance: 
-          return *p_string;
+          return m_string;
+          // return *p_string;
     }
     throw std::runtime_error("Cannot convert object to string.");
 
@@ -227,15 +312,15 @@ void LukObject::cast(LukType tp) {
 }
 
 // assignment operators
-/*
-LukObject& LukObject::operator=(nullptr_t nullptr) {
+std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
+  logMsg("\In LukObject nullptr assignment operator: ");
         m_type = LukType::Nil;
-        p_string = nullptr;
+        m_string = "nil";
+        // p_string = nullptr;
         p_callable = nullptr;
         p_instance = nullptr;
-        return *this;
+        return std::make_shared<LukObject>(*this);
 }
-*/
 
 LukObject& LukObject::operator=(const bool&& val) 
 {
@@ -278,43 +363,39 @@ LukObject& LukObject::operator=(const std::string&& val) {
     return *this;
 }
 
-LukObject& LukObject::operator=(const LukObject& obj) { 
-    // avoid copy of same object
-    if (this == &obj) return *this;
+// Note: swap function to avoid duplicate code between copy constructor and copy assignment operator
+void LukObject::swap(const LukObject& obj) {
     id = ++next_id;
-    logMsg("\nIn LukObject, operator=");
-    logMsg("Copy Assignement, id: ", id);
     m_type = obj.m_type;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
-    // m_string = obj.m_string;
-    p_string = obj.p_string;
+    m_string = obj.m_string;
+    // p_string = obj.p_string;
     p_callable = obj.p_callable;
     // Note: dont forget to associate p_instance in operator =
     p_instance = obj.p_instance;
+}
+
+// copy assignment operator
+LukObject& LukObject::operator=(const LukObject& obj) { 
+    // avoid copy of same object
+    if (this == &obj) return *this;
+    swap(obj);
+    logMsg("\nIn LukObject, Copy Assignment operator, id: ", id, ", val: ", obj);
 
     return *this;
 }
 
-/*
+
+// move assignment operator
 LukObject& LukObject::operator=(const LukObject&& obj) { 
     // avoid copy of same object
     if (this == &obj) return *this;
-    id = ++next_id;
-        logMsg("Move Assignement, id: ", id);
-    m_type = obj.m_type;
-    m_bool = obj.m_bool; 
-    m_number = obj.m_number;
-    // m_string = std::move(obj.m_string);
-    p_string = std::move(obj.p_string);
-    p_callable = obj.p_callable;
-    // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
-    // std::cerr << "Voici p_string: " << p_string << std::endl;
+    swap(obj);
+    logMsg("Move Assignment operator, id: ", id, ", val: ", obj);
 
     return *this;
 }
-*/
-
 
 // compound assignment operators
 // += operator
@@ -329,10 +410,11 @@ LukObject& LukObject::operator+=(const LukObject& obj) {
             case LukType::Number:
                 m_number += obj.m_number; break;
             case LukType::String:
-                // m_string += obj.m_string; break;
+                m_string += obj.m_string; break;
                 // p_string  += obj.p_string;
-                oss << *p_string << *obj.p_string;
-                p_string = std::make_shared<std::string>(oss.str());
+                oss << m_string << obj.m_string;
+                // oss << *p_string << *obj.p_string;
+                // p_string = std::make_shared<std::string>(oss.str());
                 break;
             default:
                 throw std::runtime_error("Cannot add objects.");

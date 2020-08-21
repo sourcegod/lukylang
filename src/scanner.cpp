@@ -2,9 +2,11 @@
 #include "lukerror.hpp"
 
 Scanner::Scanner(const std::string& _source, LukError& _lukErr)
-    : start(0), current(0),
-    line(1), col(1),
-    source(_source), lukErr(_lukErr) {
+      : start(0), current(0),
+      line(1), col(1),
+      source(_source), lukErr(_lukErr) {
+    
+    logMsg("\nIn Scanner constructor");
     // initialize reserved keywords map
     keywords["and"]    = TokenType::AND;
     keywords["break"]    = TokenType::BREAK;
@@ -189,7 +191,8 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
         lexeme = source.substr(start, lexLen);
     }
     
-    tokens.push_back(Token(type, lexeme, literal, line, col));
+    // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, line, col) );
 }
 
 void Scanner::addToken(const TokenType _tokenType) { 
@@ -218,12 +221,16 @@ char Scanner::peek() const {
     return source[current];
 }
 
-const std::vector<Token>& Scanner::scanTokens() {
+const std::vector<TokPtr>&& Scanner::scanTokens() {
     while (!isAtEnd()) {
         // we are at the beginning of the next lexeme
         start = current;
         scanToken();
     }
-    tokens.push_back(Token(TokenType::END_OF_FILE, "EOF", "", line, col));
-    return tokens;
+    TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", line, col);
+    // Note: it will be safer to move the pointer to the vector
+    m_tokens.push_back( std::move(endOfFile) );
+    
+    // Note: move function must be used when returning vector of pointer.
+    return std::move(m_tokens);
 }

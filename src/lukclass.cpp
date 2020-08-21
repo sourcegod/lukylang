@@ -18,8 +18,8 @@ size_t LukClass::arity() {
   return 0;
 }
 
-LukObject  LukClass::call(Interpreter& interp, 
-           std::vector<LukObject>& v_args) {
+ObjPtr  LukClass::call(Interpreter& interp, 
+           std::vector<ObjPtr>& v_args) {
     // Note: "this" is a const pointer, 
     // so the current function should be not const
     // otherwire "this" is casting const type* const
@@ -37,7 +37,7 @@ LukObject  LukClass::call(Interpreter& interp,
           }
     }
 
-    return LukObject(instPtr);
+    return std::make_shared<LukObject>(instPtr);
 }
 
 std::string LukClass::toString() const {  
@@ -45,9 +45,9 @@ std::string LukClass::toString() const {
 }
 
 ObjPtr LukClass::findMethod(const std::string& name) {
-  auto elem = m_methods.find(name);
-  if (elem != m_methods.end()) {
-    return elem->second;
+  auto iter = m_methods.find(name);
+  if (iter != m_methods.end()) {
+    return iter->second;
   }
 
   if (p_superclass != nullptr) {

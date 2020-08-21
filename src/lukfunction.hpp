@@ -39,8 +39,8 @@ public:
     virtual std::string typeName() const override { return "LukFunction"; }
     
     virtual size_t arity() override { return m_declaration->params.size(); }
-    virtual LukObject  call(Interpreter& interp, std::vector<LukObject>& v_args) override;
-    virtual std::string toString() const override { return "<Function " + m_declaration->name.lexeme + ">"; }
+    virtual ObjPtr  call(Interpreter& interp, std::vector<ObjPtr>& v_args) override;
+    virtual std::string toString() const override { return "<Function " + m_declaration->name->lexeme + ">"; }
     ObjPtr bind(std::shared_ptr<LukInstance> instPtr);
 
 private:

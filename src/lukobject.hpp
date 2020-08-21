@@ -2,6 +2,9 @@
 #define LUKOBJECT_HPP
 
 #include "lukinstance.hpp"
+#include "logger.hpp"
+#include "token.hpp"
+
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
@@ -21,6 +24,8 @@ class LukObject;
 class LukInstance;
 using TObject = LukObject;
 using ObjPtr = std::shared_ptr<LukObject>;
+// macro to make global variable the static nilptr
+#define nilptr LukObject::getStatNilPtr()
 
 enum class LukType { 
     Nil=0, Bool=1, Number=2, String=3,
@@ -30,6 +35,9 @@ enum class LukType {
 class LukObject {
 protected:
     static int next_id;
+    // Note: static variable must defining in the .cpp file
+    // to avoid multiple header inclusion and compile error
+    static ObjPtr stat_nilPtr;
 
 public:
     int id;
@@ -51,13 +59,21 @@ public:
     LukObject(std::shared_ptr<LukCallable> callable);
     LukObject(std::shared_ptr<LukInstance> instance);
     LukObject(Token tok);
-   
+    LukObject(TokPtr& tokP);
+    LukObject(nullptr_t nulp);
+    
+    // copy constructor
+    LukObject(const LukObject& obj);
+    
+    // move constructor
+    LukObject(const LukObject&& obj);
+     
     // destructor is necessary
     ~LukObject() {
-        // std::cerr << "D.tor id: " << id << std::endl;
+        logMsg("\n~LukObject destructor,  id: ", id, ", val: ", toString());
     }
+    
 
-       
     // get the type id
     LukType getType() { return m_type; }
 
@@ -119,14 +135,19 @@ public:
 
     // getters
     static LukObject getNil() {
+      logMsg("In static getNil");
         static LukObject obj;
         return obj;
     }
     
     static ObjPtr getNilPtr()  {
-      static ObjPtr nilPtr = std::make_shared<LukObject>(getNil());
-      return nilPtr;
+      logMsg("In static getNilPtr");
+      static ObjPtr nilP = std::make_shared<LukObject>();
+      return nilP;
     }
+  // Note: static stat_nilPtr is protected for access control
+  // so, we need a static function to get it out of the class
+    static ObjPtr& getStatNilPtr() { return stat_nilPtr; }
 
     bool getBool() const noexcept { return m_bool; }
     double getNumber() const noexcept { return m_number; }
@@ -147,15 +168,20 @@ public:
 
     // assignment operators 
     // TODO: convert nullptr to shared_ptr lukobject
-    // LukObject& operator=(nullptr_t);
+    std::shared_ptr<LukObject> operator=(nullptr_t);
     LukObject& operator=(const bool&& val);
     LukObject& operator=(const int&& val);
     LukObject& operator=(const double&& val);
     // implement overloaded char* to avoid implicit casting to bool
     LukObject& operator=(const char* &&val);
     LukObject& operator=(const std::string&& val);
+    
+    // Note: swap function to avoid duplicate code between copy constructor and copy assignment operator
+    void swap(const LukObject& obj);   
+    // copy assignment operator
     LukObject& operator=(const LukObject& obj); 
-    // LukObject& operator=(const LukObject&& obj); 
+    // move assignment operator
+    LukObject& operator=(const LukObject&& obj); 
  
     // compound assignment operators
     LukObject& operator+=(const LukObject& obj);
@@ -193,6 +219,7 @@ public:
     // Output operators
     // friend declaration cause ostream accept only one argument 
     friend inline std::ostream& operator<<(std::ostream& ost, LukObject& obj);
+    friend inline std::ostream& operator<<(std::ostream& ost, ObjPtr& obj);
     friend inline std::ostream& operator<<(std::ostream& ost, LukType tp);
  
 private:
@@ -228,7 +255,8 @@ bool operator>(LukType a, LukType b);
 
 // output operators
 // friend function declaration, because ostream accept only one argument
-inline std::ostream& operator<<(std::ostream& ost, LukObject& obj) { return ost << obj.value(); } 
+inline std::ostream& operator<<(std::ostream& ost, LukObject& obj) { return ost << obj.toString(); } 
+inline std::ostream& operator<<(std::ostream& ost, ObjPtr& obj) { return ost << obj->toString(); } 
 
 // output << operator for LukType enum
 inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
