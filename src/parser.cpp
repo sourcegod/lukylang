@@ -207,6 +207,10 @@ PStmt Parser::expressionStatement() {
 
 PFunc Parser::function(const std::string& kind) {
     TokPtr name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
+    return std::make_shared<FunctionStmt>(name, functionBody(kind));
+}
+
+PExpr Parser::functionBody(const std::string& kind) {
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<TokPtr> params;
     if (!check(TokenType::RIGHT_PAREN)) {
@@ -224,11 +228,12 @@ PFunc Parser::function(const std::string& kind) {
     consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
 
     std::vector<PStmt> body = block();
+
+    return std::make_shared<FunctionExpr>(params, body);
     
-    return std::make_shared<FunctionStmt>(name, params, body);
+
 
 }
-
 
 PExpr Parser::expression() {
     return assignment();
@@ -389,6 +394,11 @@ PExpr Parser::primary() {
 
     if (match({TokenType::IDENTIFIER})) {
         return std::make_shared<VariableExpr>(previous());
+    }
+    
+    // lambda function
+    if (match({TokenType::FUN})) {
+        return functionBody("function");
     }
 
     if (match({TokenType::LEFT_PAREN})) {

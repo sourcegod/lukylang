@@ -56,6 +56,7 @@ private:
     PStmt whileStatement();
     
     PExpr expression();
+    PExpr functionBody(const std::string& kind);
     PExpr assignment();
     PExpr logicOr();
     PExpr logicAnd();
