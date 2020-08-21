@@ -3,6 +3,17 @@
 # Date: samedi, 24/08/2019
 
 
+# Version 0.27: optimization 1
+Date: vendredi, 21/08/2020
+-- Updating file: README.md for reflecting changes until superclass features.
+-- Changes most LukObject return-type to LukObject pointer for better
+performance.
+-- Changes most Token objects to Token pointers for better performance.
+-- Adding examples files to the examples directory.
+-- Adding tests files to the tests directory.
+-- Adding: notes to the file: notes.txt
+-- Adding file grammar.txt for rules until superclass to the notes directory.
+
 # Version 0.26: superclass
 Date: dimanche, 02/08/2020
 -- Adding: inheritance, superclas implementation, and superclass environment
