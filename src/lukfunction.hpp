@@ -20,7 +20,7 @@ public:
     // Note: WARNING: cannot copy assignment derived object like FunctionStmt ..
     // so passing it by raw pointer.
     LukFunction() {}    
-    LukFunction(TokPtr& name, std::shared_ptr<FunctionExpr>& declaration, 
+    LukFunction(const std::string& name, std::shared_ptr<FunctionExpr>& declaration, 
         std::shared_ptr<Environment> closure,
         bool isInitializer) : 
       m_name(name),
@@ -41,11 +41,11 @@ public:
     
     virtual size_t arity() override { return m_declaration->m_params.size(); }
     virtual ObjPtr  call(Interpreter& interp, std::vector<ObjPtr>& v_args) override;
-    virtual std::string toString() const override { return "<Function " + m_name->lexeme + ">"; }
+    virtual std::string toString() const override { return "<Function " + m_name + ">"; }
     ObjPtr bind(std::shared_ptr<LukInstance> instPtr);
 
 private:
-    TokPtr m_name;
+    const std::string m_name;
     std::shared_ptr<FunctionExpr> m_declaration;
     std::shared_ptr<Environment> m_closure;
     bool m_isInitializer;
