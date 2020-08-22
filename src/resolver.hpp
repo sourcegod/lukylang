@@ -82,7 +82,7 @@ private:
   
   // resolve statements
   void resolve(PStmt& stmt);
-  void resolveFunction(FunctionExpr& func, FunctionType ft);
+  void resolveFunction(std::shared_ptr<FunctionExpr> func, FunctionType ft);
   
 
   void beginScope();

@@ -51,7 +51,7 @@ void Resolver::resolve(PStmt& stmt) {
   stmt->accept(*this);
 }
 
-void Resolver::resolveFunction(FunctionExpr& func, FunctionType ft) {
+void Resolver::resolveFunction(std::shared_ptr<FunctionExpr> func, FunctionType ft) {
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
@@ -60,7 +60,7 @@ void Resolver::resolveFunction(FunctionExpr& func, FunctionType ft) {
     define(param);
   }
 
-  resolve(func.m_body);
+  resolve(func->m_body);
   endScope();
   m_curFunction = enclosingFt;
 }
@@ -238,13 +238,12 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   auto& scope = m_scopes.back(); 
   scope["this"] = true;
 
-  for (auto method: stmt.m_methods) {
+  for (auto funcStmt: stmt.m_methods) {
     auto declaration = FunctionType::Method;
-    if (method->name->lexeme == "init") {
+    if (funcStmt->m_name->lexeme == "init") {
       declaration = FunctionType::Initializer;
     }
-
-    resolveFunction(*method, declaration); // [local] 
+    resolveFunction(funcStmt->m_function, declaration); // [local] 
   }
 
   endScope();
@@ -260,8 +259,8 @@ void Resolver::visitIfStmt(IfStmt& stmt) {
 }
 
 void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
-  declare(stmt.name);
-  define(stmt.name);
+  declare(stmt.m_name);
+  define(stmt.m_name);
   resolveFunction(stmt.m_function, FunctionType::Function);
 
 }
