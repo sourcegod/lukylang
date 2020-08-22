@@ -51,16 +51,16 @@ void Resolver::resolve(PStmt& stmt) {
   stmt->accept(*this);
 }
 
-void Resolver::resolveFunction(std::shared_ptr<FunctionExpr> func, FunctionType ft) {
+void Resolver::resolveFunction(FunctionExpr& func, FunctionType ft) {
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
-  for (TokPtr& param: func->m_params) {
+  for (TokPtr& param: func.m_params) {
     declare(param);
     define(param);
   }
 
-  resolve(func->m_body);
+  resolve(func.m_body);
   endScope();
   m_curFunction = enclosingFt;
 }
@@ -109,6 +109,7 @@ ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
 }
 
 ObjPtr Resolver::visitFunctionExpr(FunctionExpr& expr) {
+  resolveFunction(expr, FunctionType::Function);
   return nilptr;
 }
 
@@ -243,7 +244,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
     if (funcStmt->m_name->lexeme == "init") {
       declaration = FunctionType::Initializer;
     }
-    resolveFunction(funcStmt->m_function, declaration); // [local] 
+    resolveFunction(*funcStmt->m_function, declaration); // [local] 
   }
 
   endScope();
@@ -261,7 +262,7 @@ void Resolver::visitIfStmt(IfStmt& stmt) {
 void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
   declare(stmt.m_name);
   define(stmt.m_name);
-  resolveFunction(stmt.m_function, FunctionType::Function);
+  resolveFunction(*stmt.m_function, FunctionType::Function);
 
 }
 
