@@ -210,7 +210,7 @@ PFunc Parser::function(const std::string& kind) {
     return std::make_shared<FunctionStmt>(name, functionBody(kind));
 }
 
-PExpr Parser::functionBody(const std::string& kind) {
+std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<TokPtr> params;
     if (!check(TokenType::RIGHT_PAREN)) {
@@ -230,8 +230,6 @@ PExpr Parser::functionBody(const std::string& kind) {
     std::vector<PStmt> body = block();
 
     return std::make_shared<FunctionExpr>(params, body);
-    
-
 
 }
 

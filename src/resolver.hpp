@@ -82,7 +82,7 @@ private:
   
   // resolve statements
   void resolve(PStmt& stmt);
-  void resolveFunction(FunctionStmt& func, FunctionType ft);
+  void resolveFunction(FunctionExpr& func, FunctionType ft);
   
 
   void beginScope();

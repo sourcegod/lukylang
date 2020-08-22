@@ -211,14 +211,14 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
   for (auto meth: stmt.m_methods) {
-    auto func = std::make_shared<LukFunction>(meth, m_environment,
-        meth->name->lexeme == "init");
+    auto func = std::make_shared<LukFunction>(meth->m_name, meth->m_function, m_environment,
+        meth->m_name->lexeme == "init");
     logMsg("func name: ", func->toString());
     auto obj_ptr = std::make_shared<LukObject>(func);
     logMsg("obj_ptr type: ", obj_ptr->getType());
     logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
-    logMsg("Adding meth to methods map: ", meth->name->lexeme);
-    methods[meth->name->lexeme] = obj_ptr;
+    logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
+    methods[meth->m_name->lexeme] = obj_ptr;
   }
 
   auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
@@ -237,9 +237,11 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 
 void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
     auto stmtPtr = std::make_shared<FunctionStmt>(stmt);
-    auto func = std::make_shared<LukFunction>(stmtPtr, m_environment, false);
+    // auto func = std::make_shared<LukFunction>(stmtPtr, m_environment, false);
+    auto func = std::make_shared<LukFunction>(stmt.m_name, stmt.m_function, 
+        m_environment, false);
     ObjPtr objP = std::make_shared<LukObject>(func);
-    m_environment->define(stmt.name->lexeme, objP);
+    m_environment->define(stmt.m_name->lexeme, objP);
     logMsg("FunctionStmt use_count: ", stmtPtr.use_count());
     
 }

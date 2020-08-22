@@ -104,10 +104,9 @@ public:
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(TokPtr& _name, std::vector<TokPtr>& _params, std::vector<PStmt>& _body) {
-        name = _name;
-        params = std::move(_params);
-        body  = std::move(_body);
+    FunctionStmt(TokPtr& name, std::shared_ptr<FunctionExpr> function) {
+        m_name = name;
+        m_function = function;
     }
 
     
@@ -125,10 +124,9 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitFunctionStmt(*this);
     }
-    TokPtr name;
-    std::vector<TokPtr> params;
-    std::vector<PStmt> body;
-
+    
+    TokPtr m_name;
+    std::shared_ptr<FunctionExpr> m_function;
 };
 
 

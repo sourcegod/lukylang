@@ -51,16 +51,16 @@ void Resolver::resolve(PStmt& stmt) {
   stmt->accept(*this);
 }
 
-void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
+void Resolver::resolveFunction(FunctionExpr& func, FunctionType ft) {
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
-  for (TokPtr& param: func.params) {
+  for (TokPtr& param: func->m_params) {
     declare(param);
     define(param);
   }
 
-  resolve(func.body);
+  resolve(func.m_body);
   endScope();
   m_curFunction = enclosingFt;
 }
@@ -262,7 +262,7 @@ void Resolver::visitIfStmt(IfStmt& stmt) {
 void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
   declare(stmt.name);
   define(stmt.name);
-  resolveFunction(stmt, FunctionType::Function);
+  resolveFunction(stmt.m_function, FunctionType::Function);
 
 }
 
