@@ -407,6 +407,7 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
 }
 
 ObjPtr Interpreter::visitFunctionExpr(FunctionExpr& expr) {
+  // Note: lambda function not need to be in the environment stack
   auto exprP = std::make_shared<FunctionExpr>(expr);
   const auto funcPtr = std::make_shared<LukFunction>("", exprP, m_environment, false);
 

@@ -41,7 +41,10 @@ public:
     
     virtual size_t arity() override { return m_declaration->m_params.size(); }
     virtual ObjPtr  call(Interpreter& interp, std::vector<ObjPtr>& v_args) override;
-    virtual std::string toString() const override { return "<Function " + m_name + ">"; }
+    virtual std::string toString() const override { 
+      if (m_name == "") return "<Function Lambda>";
+      return "<Function " + m_name + ">"; 
+    }
     ObjPtr bind(std::shared_ptr<LukInstance> instPtr);
 
 private:
