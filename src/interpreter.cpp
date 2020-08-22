@@ -407,7 +407,10 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
 }
 
 ObjPtr Interpreter::visitFunctionExpr(FunctionExpr& expr) {
-  return nilptr;
+  auto exprP = std::make_shared<FunctionExpr>(expr);
+  const auto funcPtr = std::make_shared<LukFunction>("", exprP, m_environment, false);
+
+  return std::make_shared<LukObject>(funcPtr);
 }
 
 
