@@ -37,7 +37,7 @@ public:
     ParseError error(TokPtr& tokP, const std::string& message);
 
 private:
-    size_t current;
+    size_t m_current;
     std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
@@ -72,6 +72,7 @@ private:
     PExpr finishCall(PExpr callee);
     PExpr primary();
 
+    TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);
     TokPtr& previous();
     TokPtr& advance();
@@ -79,7 +80,6 @@ private:
     bool isAtEnd();
     bool check(TokenType type);
     bool checkNext(TokenType type);
-    TokPtr& consume(TokenType type, std::string message);
     void synchronize();
 
 };

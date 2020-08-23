@@ -9,7 +9,7 @@ ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     , m_token(tokP) {}
 
 Parser::Parser(const std::vector<TokPtr>&& tokens, LukError& _lukErr)
-      : current(0),
+      : m_current(0),
       m_tokens(std::move(tokens)),
       lukErr(_lukErr) {
     logMsg("\nIn Parser constructor");
@@ -188,7 +188,11 @@ PStmt Parser::classDeclaration() {
 PStmt Parser::declaration() {
     try {
         if  (match({TokenType::CLASS})) return classDeclaration();
-        if (match({TokenType::FUN})) return function("function");
+        if ( check(TokenType::FUN) && checkNext(TokenType::IDENTIFIER)) {
+          consume(TokenType::FUN, "");  
+          return function("function");
+        }
+        
         if (match({TokenType::VAR})) return varDeclaration();
         
         return statement();
@@ -439,17 +443,17 @@ bool Parser::match(const std::vector<TokenType>& types) {
 }
 
 TokPtr& Parser::previous() {
-    return m_tokens[current - 1];
+    return m_tokens[m_current - 1];
 }
 
 TokPtr& Parser::advance() {
     if (!isAtEnd())
-        ++current;
+        ++m_current;
     return previous();
 }
 
 TokPtr& Parser::peek() {
-    return m_tokens[current];
+    return m_tokens[m_current];
 }
 
 bool Parser::isAtEnd() {
@@ -463,8 +467,8 @@ bool Parser::check(TokenType type) {
 
 bool Parser::checkNext(TokenType type) {
     if (isAtEnd()) return false;
-    if (m_tokens[current+1]->type == TokenType::END_OF_FILE) return false;
-    return m_tokens[current+1]->type == type;
+    if (m_tokens[m_current+1]->type == TokenType::END_OF_FILE) return false;
+    return m_tokens[m_current+1]->type == type;
 }
 
 
