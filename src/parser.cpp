@@ -192,7 +192,7 @@ PStmt Parser::declaration() {
         if (match({TokenType::VAR})) return varDeclaration();
         
         return statement();
-    } catch (ParseError err) {
+    } catch (ParseError& err) {
         synchronize();
         return nullptr;
     }
@@ -424,7 +424,8 @@ ParseError Parser::error(TokPtr& tokP, const std::string& message) {
         lukErr.error(errTitle, tokP->line, tokP->col, 
                 "at '" + tokP->lexeme + "' " + message);
     }
-    return *new ParseError(message, tokP);
+
+    throw ParseError(message, tokP);
 }
 
 bool Parser::match(const std::vector<TokenType>& types) {
@@ -456,10 +457,16 @@ bool Parser::isAtEnd() {
 }
 
 bool Parser::check(TokenType type) {
-    if (isAtEnd())
-        return false;
+    if (isAtEnd()) return false;
     return peek()->type == type;
 }
+
+bool Parser::checkNext(TokenType type) {
+    if (isAtEnd()) return false;
+    if (m_tokens[current+1]->type == TokenType::END_OF_FILE) return false;
+    return m_tokens[current+1]->type == type;
+}
+
 
 void Parser::synchronize() {
     advance();

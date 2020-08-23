@@ -21,6 +21,7 @@ using PObject = std::shared_ptr<LukObject>;
 class ParseError : public std::runtime_error {
 public:
     ParseError(const std::string& msg, TokPtr& tokP);
+
     TokPtr m_token;
 };
 
@@ -77,6 +78,7 @@ private:
     TokPtr& peek();
     bool isAtEnd();
     bool check(TokenType type);
+    bool checkNext(TokenType type);
     TokPtr& consume(TokenType type, std::string message);
     void synchronize();
 
