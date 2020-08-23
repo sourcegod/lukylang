@@ -407,11 +407,14 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
 }
 
 ObjPtr Interpreter::visitFunctionExpr(FunctionExpr& expr) {
+  logMsg("\nIn visitFunctionExpr, id: ", expr.id());
   // Note: lambda function not need to be in the environment stack
   auto exprP = std::make_shared<FunctionExpr>(expr);
   const auto funcPtr = std::make_shared<LukFunction>("", exprP, m_environment, false);
 
-  return std::make_shared<LukObject>(funcPtr);
+  auto objP = std::make_shared<LukObject>(funcPtr);
+  logMsg("voici objP for lambda, id: ", objP->id, ", string: ", objP->toString());
+    return objP;
 }
 
 

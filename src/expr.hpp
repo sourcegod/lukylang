@@ -55,6 +55,7 @@ public:
     
     virtual ObjPtr accept(ExprVisitor &v) =0;
     virtual bool isCallExpr() const { return false; }
+    virtual bool isFunctionExpr() const { return false; }
     virtual bool isGetExpr() const { return false; }
     virtual bool isSetExpr() const { return false; }
     virtual bool isVariableExpr() const { return false; }

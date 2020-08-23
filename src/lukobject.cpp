@@ -279,11 +279,12 @@ double LukObject::_toNumber() const {
 }
 
 std::string LukObject::_toString() const {
+  logMsg("\nIn _toString, id: ", id, ", m_type: ", m_type);
     switch(m_type) {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Number: return std::to_string(m_number);
-        case LukType::String: m_string;
+        case LukType::String: return m_string;
           // return *p_string;
         case LukType::Callable: 
         case LukType::Instance: 
