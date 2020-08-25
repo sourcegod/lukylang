@@ -150,13 +150,14 @@ public:
 
 class FunctionExpr : public Expr {
 public:
-    FunctionExpr(std::vector<TokPtr>& params, std::vector<PStmt>& body) {
-        m_params = std::move(params);
-        m_body  = std::move(body);
+    FunctionExpr(std::vector<TokPtr> params, std::vector<PStmt> body) {
+        m_params = params; // std::move(params);
+        m_body  = body; // std::move(body);
     }
+    
 
-    ObjPtr accept(ExprVisitor& v) { // override {
-        v.visitFunctionExpr(*this);
+    ObjPtr accept(ExprVisitor& v) override {
+        return v.visitFunctionExpr(*this);
     }
     
     std::vector<TokPtr> m_params;
@@ -184,7 +185,6 @@ public:
     LiteralExpr(ObjPtr& _value) 
         : value(_value) {
         logMsg("\nLiteralExpr constructor");
-        logMsg("_value.id: ", _value->id);
         logMsg("value.id: ", value->id);
     }
     ~LiteralExpr() {

@@ -169,6 +169,8 @@ public:
     // assignment operators 
     // TODO: convert nullptr to shared_ptr lukobject
     std::shared_ptr<LukObject> operator=(nullptr_t);
+    std::shared_ptr<LukObject> operator=(ObjPtr obj);
+    
     LukObject& operator=(const bool&& val);
     LukObject& operator=(const int&& val);
     LukObject& operator=(const double&& val);

@@ -11,6 +11,7 @@
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     PEnvironment m_globals;
+    ObjPtr m_objP;
 
     Interpreter();
     ~Interpreter() { 

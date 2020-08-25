@@ -126,8 +126,10 @@ void Interpreter::logTest() {
 }
 
 ObjPtr Interpreter::evaluate(PExpr expr) { 
-    logMsg("\nIn evaluate, *expr: ", typeid(*expr).name());
-    return expr->accept(*this);
+    logMsg("\nIn evaluate, expr: ", typeid(*expr).name());
+     auto obj = expr->accept(*this);
+    logMsg("Evaluating obj result after accept: ", obj->toString());
+    return obj;
 }
 
 void Interpreter::execute(PStmt& stmt) {
@@ -326,8 +328,10 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // Note: method get allow to convert smart pointer to raw pointer
+    logMsg("\nIn visitBinary: ");  
     ObjPtr left = evaluate(expr.left);
     ObjPtr right = evaluate(expr.right);
+    logMsg("left: ", left->toString(), ", operator: ", expr.op->lexeme, ", right: ", right->toString());
     switch(expr.op->type) {
         case TokenType::GREATER:
             checkNumberOperands(expr.op, left, right);
@@ -379,11 +383,12 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
 }
 
 ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
-    logMsg("\nIn visitcallExpr: "); 
+    logMsg("\nIn visitcallExpr: ", typeid(expr).name()); 
     auto callee = evaluate(expr.callee);
-    logMsg("callee: ", callee);
+    logMsg("Still In visitCallExpr, callee: ", callee);
     if (! callee->isCallable()) {
-       throw RuntimeError(expr.paren, "Can only call function and class.");
+      logMsg("voici calle: id", callee->id, ", string: ", callee->toString());
+      throw RuntimeError(expr.paren, "Can only call function and class.");
     }
 
     std::vector<ObjPtr> v_args;
@@ -410,11 +415,10 @@ ObjPtr Interpreter::visitFunctionExpr(FunctionExpr& expr) {
   logMsg("\nIn visitFunctionExpr, id: ", expr.id());
   // Note: lambda function not need to be in the environment stack
   auto exprP = std::make_shared<FunctionExpr>(expr);
-  const auto funcPtr = std::make_shared<LukFunction>("", exprP, m_environment, false);
+  auto funcPtr = std::make_shared<LukFunction>("", exprP, m_environment, false);
+  ObjPtr objP = std::make_shared<LukObject>(funcPtr);
 
-  auto objP = std::make_shared<LukObject>(funcPtr);
-  logMsg("voici objP for lambda, id: ", objP->id, ", string: ", objP->toString());
-    return objP;
+  return objP; 
 }
 
 
@@ -541,7 +545,8 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
-    return lookUpVariable(expr.name, expr);
+  logMsg("\nIn visitVariableExpr, name:   ", expr.name);
+  return lookUpVariable(expr.name, expr);
 }
 
 ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {

@@ -279,7 +279,6 @@ double LukObject::_toNumber() const {
 }
 
 std::string LukObject::_toString() const {
-  logMsg("\nIn _toString, id: ", id, ", m_type: ", m_type);
     switch(m_type) {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
@@ -322,6 +321,16 @@ std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
         p_instance = nullptr;
         return std::make_shared<LukObject>(*this);
 }
+
+std::shared_ptr<LukObject> LukObject::operator=(ObjPtr obj) {
+  logMsg("\In LukObject shared pointer  assignment operator: ");
+        m_type = obj->m_type;
+        m_string = obj->m_string;
+        p_callable = obj->p_callable;
+        p_instance = obj->p_instance;
+        return std::make_shared<LukObject>(*this);
+}
+
 
 LukObject& LukObject::operator=(const bool&& val) 
 {
