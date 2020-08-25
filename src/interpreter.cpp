@@ -464,8 +464,8 @@ ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
 }
 
 ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
-    logMsg("\nIn visitLiteralExpr Interpreter, value: ", typeid(*expr.value).name());
-    return expr.value;
+    logMsg("\nIn visitLiteralExpr Interpreter, value: ", expr.m_value->toString());
+    return expr.m_value;
 }
 
 ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {

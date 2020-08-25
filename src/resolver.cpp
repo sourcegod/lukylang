@@ -127,7 +127,7 @@ ObjPtr Resolver::visitGroupingExpr(GroupingExpr& expr) {
 }
 
 ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
-    logMsg("\nIn visitLiteralExpr, Resolver");
+    logMsg("\nIn visitLiteralExpr, Resolver, value: ", expr.m_value->toString());
 
     return nilptr;
 }

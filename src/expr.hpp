@@ -182,10 +182,10 @@ public:
 class LiteralExpr: public Expr {
 public:
 
-    LiteralExpr(ObjPtr& _value) 
-        : value(_value) {
+    LiteralExpr(ObjPtr& value) 
+        : m_value(value) {
         logMsg("\nLiteralExpr constructor");
-        logMsg("value.id: ", value->id);
+        logMsg("value->id: ", value->id);
     }
     ~LiteralExpr() {
         logMsg("~LiteralExpr destructor");
@@ -195,7 +195,7 @@ public:
         return v.visitLiteralExpr(*this); 
     }
 
-ObjPtr value;
+ObjPtr m_value;
 };
 
 class LogicalExpr : public Expr {
