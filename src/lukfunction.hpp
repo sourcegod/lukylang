@@ -1,8 +1,9 @@
 #ifndef LUKFUNCTION_HPP
 #define LUKFUNCTION_HPP
 
+#include "common.hpp"
 #include "lukcallable.hpp"
-#include "stmt.hpp"
+#include "expr.hpp"
 #include "logger.hpp"
 
 #include <string>
@@ -11,17 +12,13 @@
 #include <cassert>
 #include <typeinfo> // type name
 
-class LukObject;
-class Environment;
-class Interpreter;
-
 class LukFunction : public LukCallable {
 public:
     // Note: WARNING: cannot copy assignment derived object like FunctionStmt ..
     // so passing it by raw pointer.
     LukFunction() {}    
     LukFunction(const std::string& name, std::shared_ptr<FunctionExpr>& declaration, 
-        std::shared_ptr<Environment> closure,
+        EnvPtr closure,
         bool isInitializer) : 
       m_name(name),
       m_declaration(declaration),
@@ -50,7 +47,7 @@ public:
 private:
     const std::string m_name;
     std::shared_ptr<FunctionExpr> m_declaration;
-    std::shared_ptr<Environment> m_closure;
+    EnvPtr m_closure;
     bool m_isInitializer;
 
 };

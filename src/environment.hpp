@@ -15,6 +15,7 @@ class Environment;
 class CTracer;
 
 // using EnvPtr = std::shared_ptr<Environment>;
+
 class Environment {
 protected:
     static int next_id;

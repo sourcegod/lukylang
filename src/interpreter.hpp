@@ -1,9 +1,11 @@
 #ifndef INTERPRETER_HPP
 #define INTERPRETER_HPP
 
+#include "common.hpp"
 #include "expr.hpp"
 #include "stmt.hpp"
 #include "environment.hpp"
+
 #include <string>
 #include <vector>
 #include <unordered_map>
