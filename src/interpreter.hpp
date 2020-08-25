@@ -11,7 +11,6 @@
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     PEnvironment m_globals;
-    ObjPtr m_objP;
 
     Interpreter();
     ~Interpreter() { 
@@ -56,9 +55,9 @@ public:
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
 
 private:
-    PEnvironment m_environment;
+    PEnvironment m_env;
     ObjPtr m_result;
-    const std::string errTitle = "InterpretError: ";
+    const std::string m_errTitle = "InterpretError: ";
     std::unordered_map<unsigned, int> m_locals;
 
     bool isTruthy(ObjPtr& obj);
