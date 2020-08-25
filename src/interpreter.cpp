@@ -148,7 +148,7 @@ void Interpreter::resolve(Expr& expr, int depth) {
   m_locals[expr.id()] = depth;
 }
 
-void Interpreter::executeBlock(std::vector<StmtPtr>& statements, PEnvironment env) {
+void Interpreter::executeBlock(std::vector<StmtPtr>& statements, EnvPtr env) {
     logMsg("\nIn ExecuteBlock: ");
     auto previous = m_env;
     try {

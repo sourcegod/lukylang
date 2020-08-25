@@ -10,7 +10,7 @@
 
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
-    PEnvironment m_globals;
+    EnvPtr m_globals;
 
     Interpreter();
     ~Interpreter() { 
@@ -52,10 +52,10 @@ public:
     ObjPtr evaluate(ExprPtr expr);
     void execute(StmtPtr& stmt);
     void resolve(Expr& expr, int depth);
-    void executeBlock(std::vector<StmtPtr>& statements, PEnvironment env);
+    void executeBlock(std::vector<StmtPtr>& statements, EnvPtr env);
 
 private:
-    PEnvironment m_env;
+    EnvPtr m_env;
     ObjPtr m_result;
     const std::string m_errTitle = "InterpretError: ";
     std::unordered_map<unsigned, int> m_locals;

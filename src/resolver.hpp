@@ -8,7 +8,6 @@
 
 #include "expr.hpp"
 #include "stmt.hpp"
-#include "environment.hpp"
 #include "token.hpp"
 #include "lukobject.hpp"
 #include "lukerror.hpp"
@@ -17,7 +16,6 @@
 class Interpreter;
 class Token;
 class LukObject;
-class Environment;
 class LukError;
 class CTracer;
 
