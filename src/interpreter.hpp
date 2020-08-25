@@ -49,10 +49,10 @@ public:
     ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
     ObjPtr visitVariableExpr(VariableExpr& expr) override;
 
-    ObjPtr evaluate(PExpr expr);
-    void execute(PStmt& stmt);
+    ObjPtr evaluate(ExprPtr expr);
+    void execute(StmtPtr& stmt);
     void resolve(Expr& expr, int depth);
-    void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
+    void executeBlock(std::vector<StmtPtr>& statements, PEnvironment env);
 
 private:
     PEnvironment m_env;

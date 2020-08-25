@@ -1,6 +1,6 @@
 #ifndef STMT_HPP
 #define STMT_HPP
-
+#include "common.hpp"
 #include "expr.hpp"
 #include "lukobject.hpp"
 #include "token.hpp"
@@ -22,8 +22,9 @@ class Stmt;
 class VarStmt;
 class WhileStmt;
 
-using PStmt = std::shared_ptr<Stmt>;
-using PFunc = std::shared_ptr<FunctionStmt>;
+// using StmtPtr = std::shared_ptr<Stmt>;
+// using FuncPtr = std::shared_ptr<FunctionStmt>;
+
 class StmtVisitor {
 public:
     virtual void visitBlockStmt(BlockStmt&) =0;
@@ -46,20 +47,20 @@ public:
 
 class BlockStmt : public Stmt {
 public:
-    BlockStmt(std::vector<PStmt> _statements) {
+    BlockStmt(std::vector<StmtPtr> _statements) {
         statements = std::move(_statements);
     }
 
     void accept(StmtVisitor& v) override {
         v.visitBlockStmt(*this);
     }
-    std::vector<PStmt> statements;
+    std::vector<StmtPtr> statements;
 
 };
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(TokPtr name, std::shared_ptr<VariableExpr> superclass, std::vector<PFunc> methods) {
+    ClassStmt(TokPtr name, std::shared_ptr<VariableExpr> superclass, std::vector<FuncPtr> methods) {
       m_name = name;  
       m_superclass = std::move(superclass);
       m_methods = std::move(methods);
@@ -70,7 +71,7 @@ public:
     }
     TokPtr m_name;
     std::shared_ptr<VariableExpr> m_superclass;
-    std::vector<PFunc> m_methods;
+    std::vector<FuncPtr> m_methods;
 
 };
 
@@ -132,8 +133,8 @@ public:
 
 class IfStmt : public Stmt {
 public:
-    IfStmt(PExpr _condition, PStmt _thenBranch, 
-            PStmt _elseBranch) {
+    IfStmt(ExprPtr _condition, StmtPtr _thenBranch, 
+            StmtPtr _elseBranch) {
         condition = std::move(_condition);
         thenBranch  = std::move(_thenBranch);
         elseBranch = std::move(_elseBranch);
@@ -196,7 +197,7 @@ public:
 
 class WhileStmt : public Stmt {
 public:
-    WhileStmt(PExpr _condition, PStmt _body) { 
+    WhileStmt(ExprPtr _condition, StmtPtr _body) { 
         condition = std::move(_condition);
         body  = std::move(_body);
     }

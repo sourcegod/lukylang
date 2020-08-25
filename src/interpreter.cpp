@@ -129,14 +129,14 @@ void Interpreter::logTest() {
 #endif
 }
 
-ObjPtr Interpreter::evaluate(PExpr expr) { 
+ObjPtr Interpreter::evaluate(ExprPtr expr) { 
     logMsg("\nIn evaluate, expr: ", typeid(*expr).name());
      auto obj = expr->accept(*this);
     logMsg("Evaluating obj result after accept: ", obj->toString());
     return obj;
 }
 
-void Interpreter::execute(PStmt& stmt) {
+void Interpreter::execute(StmtPtr& stmt) {
     logMsg("\nIn execute top level, *stmt: ", typeid(*stmt).name());
     stmt->accept(*this);
 }
@@ -148,7 +148,7 @@ void Interpreter::resolve(Expr& expr, int depth) {
   m_locals[expr.id()] = depth;
 }
 
-void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
+void Interpreter::executeBlock(std::vector<StmtPtr>& statements, PEnvironment env) {
     logMsg("\nIn ExecuteBlock: ");
     auto previous = m_env;
     try {
@@ -194,7 +194,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   ObjPtr superclass = nilptr;
   std::shared_ptr<LukClass> supKlass = nullptr;
   if (stmt.m_superclass != nullptr) {
-    // Note: changing evaluate(PExpr&) to evaluate(Pexpr) to passing VariableExpr object
+    // Note: changing evaluate(ExprPtr&) to evaluate(ExprPtr) to passing VariableExpr object
     superclass = evaluate(stmt.m_superclass);
     logMsg("superclass: ", superclass);
     // TODO: It will better to test whether superclass is classable instead callable

@@ -77,11 +77,11 @@ private:
   FunctionType m_curFunction = FunctionType::None;
 
   // resolve expression
-  void resolve(PExpr expr);
+  void resolve(ExprPtr expr);
   void resolveLocal(Expr* expr, TokPtr& name);
   
   // resolve statements
-  void resolve(PStmt& stmt);
+  void resolve(StmtPtr& stmt);
   void resolveFunction(FunctionExpr& func, FunctionType ft);
   
 

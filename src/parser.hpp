@@ -14,8 +14,8 @@ class LukError;
 class LukObject;
 class Stmt;
 
-using PExpr = std::shared_ptr<Expr>;
-using PStmt = std::shared_ptr<Stmt>;
+using ExprPtr = std::shared_ptr<Expr>;
+using StmtPtr = std::shared_ptr<Stmt>;
 using PObject = std::shared_ptr<LukObject>;
 
 class ParseError : public std::runtime_error {
@@ -33,7 +33,7 @@ public:
       logMsg("\n~Parser destructor");
 
     }
-    std::vector<PStmt> parse();
+    std::vector<StmtPtr> parse();
     ParseError error(TokPtr& tokP, const std::string& message);
 
 private:
@@ -42,35 +42,35 @@ private:
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
 
-    PStmt statement();
-    std::vector<PStmt> block();
-    PStmt breakStatement();
-    PStmt classDeclaration();
-    PStmt declaration();
-    PStmt expressionStatement();
-    PStmt forStatement();
-    PFunc function(const std::string& kind);
-    PStmt ifStatement();
-    PStmt printStatement();
-    PStmt returnStatement();
-    PStmt varDeclaration();
-    PStmt whileStatement();
+    StmtPtr statement();
+    std::vector<StmtPtr> block();
+    StmtPtr breakStatement();
+    StmtPtr classDeclaration();
+    StmtPtr declaration();
+    StmtPtr expressionStatement();
+    StmtPtr forStatement();
+    FuncPtr function(const std::string& kind);
+    StmtPtr ifStatement();
+    StmtPtr printStatement();
+    StmtPtr returnStatement();
+    StmtPtr varDeclaration();
+    StmtPtr whileStatement();
     
-    PExpr expression();
+    ExprPtr expression();
     std::shared_ptr<FunctionExpr> functionBody(const std::string& kind);
-    PExpr assignment();
-    PExpr logicOr();
-    PExpr logicAnd();
+    ExprPtr assignment();
+    ExprPtr logicOr();
+    ExprPtr logicAnd();
     
    
-    PExpr equality();
-    PExpr comparison();
-    PExpr addition();
-    PExpr multiplication();
-    PExpr unary();
-    PExpr call();
-    PExpr finishCall(PExpr callee);
-    PExpr primary();
+    ExprPtr equality();
+    ExprPtr comparison();
+    ExprPtr addition();
+    ExprPtr multiplication();
+    ExprPtr unary();
+    ExprPtr call();
+    ExprPtr finishCall(ExprPtr callee);
+    ExprPtr primary();
 
     TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);

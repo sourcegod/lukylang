@@ -47,7 +47,7 @@ void Resolver::resolve(std::vector<std::shared_ptr<Stmt>>& statements) {
 }
 
 // resolve statement
-void Resolver::resolve(PStmt& stmt) {
+void Resolver::resolve(StmtPtr& stmt) {
   stmt->accept(*this);
 }
 
@@ -66,7 +66,7 @@ void Resolver::resolveFunction(FunctionExpr& func, FunctionType ft) {
 }
 
 // resolve expressions
-void Resolver::resolve(PExpr expr) {
+void Resolver::resolve(ExprPtr expr) {
   expr->accept(*this);
 }
 
@@ -225,7 +225,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   }
 
   if (stmt.m_superclass != nullptr) {
-    // Note: changing resolve(PExpr&) to resolve(Pexpr), to accept VariableExpr as parameter
+    // Note: changing resolve(ExprPtr&) to resolve(ExprPtr), to accept VariableExpr as parameter
     currentClass = ClassType::Subclass;
     resolve(stmt.m_superclass);
   }
