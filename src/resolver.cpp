@@ -71,7 +71,9 @@ void Resolver::resolve(PExpr expr) {
 }
 
 void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
-  // TODO: why we cannot receive as argument an Expr& instead Expr* ???
+  // FIX: why we cannot receive as argument an Expr& instead Expr* ???
+  // because expr is a pointer object, and a non const object, 
+  // so, we cannot pass as a constant (&) object.
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
     auto iter = scope.find(name->lexeme);
@@ -86,8 +88,9 @@ void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
 
 // expressions
 ObjPtr Resolver::visitAssignExpr(AssignExpr& expr) {
-  resolve(expr.value);
-  resolveLocal(&expr, expr.name);
+    logMsg("\nIn visitAssignExpr, Resolver, name:  ", expr.m_name);
+    resolve(expr.m_value);
+    resolveLocal(&expr, expr.m_name);
   
   return nilptr;
 }

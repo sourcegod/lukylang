@@ -77,17 +77,17 @@ private:
 
 class AssignExpr : public Expr {
 public:
-    AssignExpr(TokPtr& _name, PExpr _value) {
-        name = _name;
-        value = std::move(_value);
-    }
+    AssignExpr(TokPtr& name, PExpr value) : 
+        m_name(name),
+        m_value(std::move(value))
+        {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitAssignExpr(*this); 
     }
 
-    TokPtr name;
-    PExpr value;
+    TokPtr m_name;
+    PExpr m_value;
 };
 
 
@@ -181,12 +181,12 @@ public:
 
 class LiteralExpr: public Expr {
 public:
-
     LiteralExpr(ObjPtr& value) 
         : m_value(value) {
         logMsg("\nLiteralExpr constructor");
         logMsg("value->id: ", value->id);
     }
+
     ~LiteralExpr() {
         logMsg("~LiteralExpr destructor");
     }

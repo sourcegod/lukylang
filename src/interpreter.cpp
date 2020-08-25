@@ -317,13 +317,14 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 }
 
 ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
-    ObjPtr value = evaluate(expr.value);
+    logMsg("\nIn visitAssignExpr Interpreter, name:  ", expr.m_name);
+    ObjPtr value = evaluate(expr.m_value);
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
-      m_env->assignAt(iter->second, expr.name, value);
+      m_env->assignAt(iter->second, expr.m_name, value);
     } else {
-      m_globals->assign(expr.name, value);
+      m_globals->assign(expr.m_name, value);
     }
     
     return value;
