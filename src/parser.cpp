@@ -98,14 +98,14 @@ StmtPtr Parser::forStatement() {
         std::vector<StmtPtr> stmts;
         stmts.push_back(body);
         stmts.push_back(increment);
-        body = std::make_shared<BlockStmt>( stmts );
+        body = std::make_shared<BlockStmt>( std::move(stmts) );
     }
     body = std::make_shared<WhileStmt>(condition, body);
     if (initializer) {
         std::vector<StmtPtr> stmts;
         stmts.push_back( initializer );
         stmts.push_back( body );
-        return std::make_shared<BlockStmt>(stmts);
+        return std::make_shared<BlockStmt>( std::move(stmts) );
     }
 
     return body;

@@ -24,18 +24,9 @@ public:
     void logState();
     void logTest();
 
-    // statements    
-    void visitBlockStmt(BlockStmt& stmt) override;
-    void visitBreakStmt(BreakStmt& stmt) override;
-    void visitClassStmt(ClassStmt& stmt) override;
-    void visitExpressionStmt(ExpressionStmt&) override;
-    void visitFunctionStmt(FunctionStmt& stmt) override;
-    void visitIfStmt(IfStmt& stmt) override;
-    void visitPrintStmt(PrintStmt&) override;
-    void visitReturnStmt(ReturnStmt& stmt) override;
-    void visitVarStmt(VarStmt& stmt) override;
-    void visitWhileStmt(WhileStmt& stmt) override;
-    
+    ObjPtr evaluate(ExprPtr expr);
+    void execute(StmtPtr& stmt);
+   
     // expressions
     ObjPtr visitAssignExpr(AssignExpr& expr) override;
     ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
@@ -51,11 +42,21 @@ public:
     ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
     ObjPtr visitVariableExpr(VariableExpr& expr) override;
 
-    ObjPtr evaluate(ExprPtr expr);
-    void execute(StmtPtr& stmt);
     void resolve(Expr& expr, int depth);
     void executeBlock(std::vector<StmtPtr>& statements, EnvPtr env);
-
+    //
+    // statements    
+    void visitBlockStmt(BlockStmt& stmt) override;
+    void visitBreakStmt(BreakStmt& stmt) override;
+    void visitClassStmt(ClassStmt& stmt) override;
+    void visitExpressionStmt(ExpressionStmt&) override;
+    void visitFunctionStmt(FunctionStmt& stmt) override;
+    void visitIfStmt(IfStmt& stmt) override;
+    void visitPrintStmt(PrintStmt&) override;
+    void visitReturnStmt(ReturnStmt& stmt) override;
+    void visitVarStmt(VarStmt& stmt) override;
+    void visitWhileStmt(WhileStmt& stmt) override;
+ 
 private:
     EnvPtr m_env;
     ObjPtr m_result;

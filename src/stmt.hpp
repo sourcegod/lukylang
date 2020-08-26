@@ -12,13 +12,11 @@
 class BlockStmt;
 class BreakStmt;
 class ClassStmt;
-class Expr;
 class ExpressionStmt;
 class FunctionStmt;
 class IfStmt;
 class PrintStmt;
 class ReturnStmt;
-class Stmt;
 class VarStmt;
 class WhileStmt;
 
@@ -47,14 +45,14 @@ public:
 
 class BlockStmt : public Stmt {
 public:
-    BlockStmt(std::vector<StmtPtr> _statements) {
-        statements = std::move(_statements);
-    }
+    BlockStmt(std::vector<StmtPtr>&& statements) :
+        m_statements(std::move(statements))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitBlockStmt(*this);
     }
-    std::vector<StmtPtr> statements;
+    std::vector<StmtPtr> m_statements;
 
 };
 

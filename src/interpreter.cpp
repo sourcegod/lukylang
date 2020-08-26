@@ -141,181 +141,6 @@ void Interpreter::execute(StmtPtr& stmt) {
     stmt->accept(*this);
 }
 
-void Interpreter::resolve(Expr& expr, int depth) {
-  logMsg("\nIn Resolve expr, Interpreter");
-  // Note: FIX: abstract class Expr cannot be in map
-  // so, we store its uniq id in the map
-  m_locals[expr.id()] = depth;
-}
-
-void Interpreter::executeBlock(std::vector<StmtPtr>& statements, EnvPtr env) {
-    logMsg("\nIn ExecuteBlock: ");
-    auto previous = m_env;
-    try {
-        m_env = env;
-        for (auto& stmt: statements) {
-            if (stmt)
-                // not use move because for reuse of the block
-                // stmt->accept(*this);
-                execute(stmt);
-
-        }
-
-    // Note: must catch all exceptions, even the Return exception.
-    } catch(...) {
-        m_env = previous;
-        // throw up the exception
-        throw;
-    }
-    // finally, whether no exception
-    m_env = previous;
-    
-    logMsg("\nExit out  ExecuteBlock: ");
-}
-
-void Interpreter::visitBlockStmt(BlockStmt& stmt) {
-    executeBlock(stmt.statements, std::make_shared<Environment>(m_env) );
-}
-
-void Interpreter::visitBreakStmt(BreakStmt& stmt) {
-    std::string msg;
-    if (stmt.m_keyword->lexeme == "break") {
-        msg = "Error: 'break' must with while loop";
-        throw Jump(stmt.m_keyword, msg);
-    } else if (stmt.m_keyword->lexeme == "continue") {
-        msg = "Error: 'continue' must with while loop";
-        throw Jump(stmt.m_keyword, msg);
-    }
-         
-}
-
-void Interpreter::visitClassStmt(ClassStmt& stmt) {
-  logMsg("In visitClassStmt: name: ", stmt.m_name->lexeme);
-  ObjPtr superclass = nilptr;
-  std::shared_ptr<LukClass> supKlass = nullptr;
-  if (stmt.m_superclass != nullptr) {
-    // Note: changing evaluate(ExprPtr&) to evaluate(ExprPtr) to passing VariableExpr object
-    superclass = evaluate(stmt.m_superclass);
-    logMsg("superclass: ", superclass);
-    // TODO: It will better to test whether superclass is classable instead callable
-    if (!superclass->isCallable()) { //  instanceof LoxClass)) {
-      throw RuntimeError(stmt.m_superclass->m_name,
-            "Superclass must be a class.");
-    } else {
-      supKlass = superclass->getDynCast<LukClass>();
-    }
-
-  }
-
-  m_env->define(stmt.m_name->lexeme, nilptr);
-
-  if (stmt.m_superclass != nullptr) {
-    m_env = std::make_shared<Environment>(m_env);
-    m_env->define("super", superclass);
-
-  }
-
-  std::unordered_map<std::string, ObjPtr> methods;
-  for (auto meth: stmt.m_methods) {
-    auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
-        meth->m_function, m_env,
-        meth->m_name->lexeme == "init");
-    logMsg("func name: ", func->toString());
-    auto obj_ptr = std::make_shared<LukObject>(func);
-    logMsg("obj_ptr type: ", obj_ptr->getType());
-    logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
-    logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
-    methods[meth->m_name->lexeme] = obj_ptr;
-  }
-
-  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
-  if (stmt.m_superclass != nullptr) {
-    // Note: moving m_enclosing from private to public in Environment object
-    m_env = m_env->m_enclosing;
-  }
-  logMsg("Assign klass: ", stmt.m_name, ", to m_env");
-  m_env->assign(stmt.m_name, klass);
-logMsg("Exit out visitClassStmt\n");
-}
-
-void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
-    m_result = evaluate(stmt.expression);
-}
-
-void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
-    auto func = std::make_shared<LukFunction>(stmt.m_name->lexeme, 
-        stmt.m_function, 
-        m_env, false);
-    ObjPtr objP = std::make_shared<LukObject>(func);
-    m_env->define(stmt.m_name->lexeme, objP);
-    logMsg("FunctionExpr use_count: ", stmt.m_function.use_count());
-    
-}
-
-void Interpreter::visitIfStmt(IfStmt& stmt) {
-    auto val  = evaluate(stmt.condition);
-    if (isTruthy(val)) {
-        // Note: no moving statement pointer, because
-        // it will be necessary later, for function call
-        // execute(std::move(stmt.thenBranch));
-        // stmt.thenBranch->accept(*this);
-        execute(stmt.thenBranch);
-    } else if (stmt.elseBranch != nullptr) {
-        // execute(std::move(stmt.elseBranch));
-        // stmt.elseBranch->accept(*this);
-        execute(stmt.elseBranch);
-    }
-
-}
-
-void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    ObjPtr value = evaluate(stmt.expression);
-    // Note: printing obj->toString instead *obj pointer
-    // to avoid multiple object's destructors 
-    logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());
-    std::cout << stringify(value) << std::endl;
-    m_result = nilptr;
-
-}
-
-void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
-    ObjPtr value = nilptr;
-    if (stmt.value != nullptr) { 
-        value = evaluate(stmt.value);
-    }
-       
-    throw Return(value);
-}
-
-
-void Interpreter::visitVarStmt(VarStmt& stmt) {
-    // Note: new ObjPtr needs to be initialized to nilptr to avoid crash
-    ObjPtr value = nilptr;
-    if (stmt.initializer != nullptr) {
-        value = evaluate(stmt.initializer);
-    }
-    m_env->define(stmt.name->lexeme, value);
-
-    // log environment state for debugging
-    logState();
-}
-
-void Interpreter::visitWhileStmt(WhileStmt& stmt) {
-    auto val  = evaluate(stmt.condition);
-    while (isTruthy(val)) {
-        try {
-            execute(stmt.body);
-            val  = evaluate(stmt.condition);
-            // Note: catching must be by reference, not by value
-        } catch(Jump& jmp) {
-            if (jmp.m_keyword->lexeme == "break") break;
-            if (jmp.m_keyword->lexeme == "continue") continue;
-        }
-
-    }
-
-}
-
 ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
     logMsg("\nIn visitAssignExpr Interpreter, name:  ", expr.m_name);
     ObjPtr value = evaluate(expr.m_value);
@@ -592,6 +417,183 @@ void Interpreter::checkNumberOperand(TokPtr& op, ObjPtr& operand) {
 void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
     if (left->isNumber() && right->isNumber()) return;
     throw RuntimeError(op, "Operands must be numbers.");
+}
+
+
+void Interpreter::resolve(Expr& expr, int depth) {
+  logMsg("\nIn Resolve expr, Interpreter");
+  // Note: FIX: abstract class Expr cannot be in map
+  // so, we store its uniq id in the map
+  m_locals[expr.id()] = depth;
+}
+
+
+void Interpreter::executeBlock(std::vector<StmtPtr>& statements, EnvPtr env) {
+    logMsg("\nIn ExecuteBlock: ");
+    auto previous = m_env;
+    try {
+        m_env = env;
+        for (auto& stmt: statements) {
+            if (stmt)
+                // not use move because for reuse of the block
+                // stmt->accept(*this);
+                execute(stmt);
+
+        }
+
+    // Note: must catch all exceptions, even the Return exception.
+    } catch(...) {
+        m_env = previous;
+        // throw up the exception
+        throw;
+    }
+    // finally, whether no exception
+    m_env = previous;
+    
+    logMsg("\nExit out  ExecuteBlock: ");
+}
+
+void Interpreter::visitBlockStmt(BlockStmt& stmt) {
+    executeBlock(stmt.m_statements, std::make_shared<Environment>(m_env) );
+}
+
+void Interpreter::visitBreakStmt(BreakStmt& stmt) {
+    std::string msg;
+    if (stmt.m_keyword->lexeme == "break") {
+        msg = "Error: 'break' must with while loop";
+        throw Jump(stmt.m_keyword, msg);
+    } else if (stmt.m_keyword->lexeme == "continue") {
+        msg = "Error: 'continue' must with while loop";
+        throw Jump(stmt.m_keyword, msg);
+    }
+         
+}
+
+void Interpreter::visitClassStmt(ClassStmt& stmt) {
+  logMsg("In visitClassStmt: name: ", stmt.m_name->lexeme);
+  ObjPtr superclass = nilptr;
+  std::shared_ptr<LukClass> supKlass = nullptr;
+  if (stmt.m_superclass != nullptr) {
+    // Note: changing evaluate(ExprPtr&) to evaluate(ExprPtr) to passing VariableExpr object
+    superclass = evaluate(stmt.m_superclass);
+    logMsg("superclass: ", superclass);
+    // TODO: It will better to test whether superclass is classable instead callable
+    if (!superclass->isCallable()) { //  instanceof LoxClass)) {
+      throw RuntimeError(stmt.m_superclass->m_name,
+            "Superclass must be a class.");
+    } else {
+      supKlass = superclass->getDynCast<LukClass>();
+    }
+
+  }
+
+  m_env->define(stmt.m_name->lexeme, nilptr);
+
+  if (stmt.m_superclass != nullptr) {
+    m_env = std::make_shared<Environment>(m_env);
+    m_env->define("super", superclass);
+
+  }
+
+  std::unordered_map<std::string, ObjPtr> methods;
+  for (auto meth: stmt.m_methods) {
+    auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
+        meth->m_function, m_env,
+        meth->m_name->lexeme == "init");
+    logMsg("func name: ", func->toString());
+    auto obj_ptr = std::make_shared<LukObject>(func);
+    logMsg("obj_ptr type: ", obj_ptr->getType());
+    logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
+    logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
+    methods[meth->m_name->lexeme] = obj_ptr;
+  }
+
+  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
+  if (stmt.m_superclass != nullptr) {
+    // Note: moving m_enclosing from private to public in Environment object
+    m_env = m_env->m_enclosing;
+  }
+  logMsg("Assign klass: ", stmt.m_name, ", to m_env");
+  m_env->assign(stmt.m_name, klass);
+logMsg("Exit out visitClassStmt\n");
+}
+
+void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
+    m_result = evaluate(stmt.expression);
+}
+
+void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
+    auto func = std::make_shared<LukFunction>(stmt.m_name->lexeme, 
+        stmt.m_function, 
+        m_env, false);
+    ObjPtr objP = std::make_shared<LukObject>(func);
+    m_env->define(stmt.m_name->lexeme, objP);
+    logMsg("FunctionExpr use_count: ", stmt.m_function.use_count());
+    
+}
+
+void Interpreter::visitIfStmt(IfStmt& stmt) {
+    auto val  = evaluate(stmt.condition);
+    if (isTruthy(val)) {
+        // Note: no moving statement pointer, because
+        // it will be necessary later, for function call
+        // execute(std::move(stmt.thenBranch));
+        // stmt.thenBranch->accept(*this);
+        execute(stmt.thenBranch);
+    } else if (stmt.elseBranch != nullptr) {
+        // execute(std::move(stmt.elseBranch));
+        // stmt.elseBranch->accept(*this);
+        execute(stmt.elseBranch);
+    }
+
+}
+
+void Interpreter::visitPrintStmt(PrintStmt& stmt) {
+    ObjPtr value = evaluate(stmt.expression);
+    // Note: printing obj->toString instead *obj pointer
+    // to avoid multiple object's destructors 
+    logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());
+    std::cout << stringify(value) << std::endl;
+    m_result = nilptr;
+
+}
+
+void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
+    ObjPtr value = nilptr;
+    if (stmt.value != nullptr) { 
+        value = evaluate(stmt.value);
+    }
+       
+    throw Return(value);
+}
+
+
+void Interpreter::visitVarStmt(VarStmt& stmt) {
+    // Note: new ObjPtr needs to be initialized to nilptr to avoid crash
+    ObjPtr value = nilptr;
+    if (stmt.initializer != nullptr) {
+        value = evaluate(stmt.initializer);
+    }
+    m_env->define(stmt.name->lexeme, value);
+
+    // log environment state for debugging
+    logState();
+}
+
+void Interpreter::visitWhileStmt(WhileStmt& stmt) {
+    auto val  = evaluate(stmt.condition);
+    while (isTruthy(val)) {
+        try {
+            execute(stmt.body);
+            val  = evaluate(stmt.condition);
+            // Note: catching must be by reference, not by value
+        } catch(Jump& jmp) {
+            if (jmp.m_keyword->lexeme == "break") break;
+            if (jmp.m_keyword->lexeme == "continue") continue;
+        }
+
+    }
+
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 

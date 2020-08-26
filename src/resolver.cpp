@@ -197,7 +197,7 @@ ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
 // statements
 void Resolver::visitBlockStmt(BlockStmt& stmt) {
   beginScope();
-  resolve(stmt.statements);
+  resolve(stmt.m_statements);
   endScope();
 
 }
