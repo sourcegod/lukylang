@@ -300,8 +300,7 @@ void Resolver::visitVarStmt(VarStmt& stmt) {
 }
 
 void Resolver::visitWhileStmt(WhileStmt& stmt) {
-  resolve(stmt.condition);
-  resolve(stmt.body);
-
+  resolve(stmt.m_condition);
+  resolve(stmt.m_body);
 }
 

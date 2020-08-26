@@ -195,17 +195,17 @@ public:
 
 class WhileStmt : public Stmt {
 public:
-    WhileStmt(ExprPtr _condition, StmtPtr _body) { 
-        condition = std::move(_condition);
-        body  = std::move(_body);
-    }
+    WhileStmt(ExprPtr condition, StmtPtr body) :
+        m_condition(std::move(condition)),
+        m_body(std::move(body))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitWhileStmt(*this);
     }
 
-    ExprPtr condition;
-    StmtPtr body;
+    ExprPtr m_condition;
+    StmtPtr m_body;
 };
 
 

@@ -577,11 +577,11 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
 }
 
 void Interpreter::visitWhileStmt(WhileStmt& stmt) {
-    auto val  = evaluate(stmt.condition);
+    auto val  = evaluate(stmt.m_condition);
     while (isTruthy(val)) {
         try {
-            execute(stmt.body);
-            val  = evaluate(stmt.condition);
+            execute(stmt.m_body);
+            val  = evaluate(stmt.m_condition);
             // Note: catching must be by reference, not by value
         } catch(Jump& jmp) {
             if (jmp.m_keyword->lexeme == "break") break;
