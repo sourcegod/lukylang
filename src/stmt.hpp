@@ -164,16 +164,16 @@ public:
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(TokPtr _name, ExprPtr _expr) {
-        name = _name;
-        value = std::move(_expr);
-    }
+    ReturnStmt(TokPtr& name, ExprPtr expr) :
+        m_name(name),
+        m_value(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitReturnStmt(*this);
     }
-    TokPtr name;
-    ExprPtr value;
+    TokPtr m_name;
+    ExprPtr m_value;
 
 };
 

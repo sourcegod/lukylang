@@ -556,8 +556,8 @@ void Interpreter::visitPrintStmt(PrintStmt& stmt) {
 
 void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
     ObjPtr value = nilptr;
-    if (stmt.value != nullptr) { 
-        value = evaluate(stmt.value);
+    if (stmt.m_value != nullptr) { 
+        value = evaluate(stmt.m_value);
     }
        
     throw Return(value);

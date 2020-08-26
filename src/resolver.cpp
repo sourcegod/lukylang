@@ -278,14 +278,14 @@ void Resolver::visitPrintStmt(PrintStmt& stmt) {
 
 void Resolver::visitReturnStmt(ReturnStmt& stmt) {
   if (m_curFunction == FunctionType::None)
-    m_lukErr.error(errTitle, stmt.name, "Cannot return from top-level code.");
-  if (stmt.value != nullptr) {
+    m_lukErr.error(errTitle, stmt.m_name, "Cannot return from top-level code.");
+  if (stmt.m_value != nullptr) {
     if (m_curFunction == FunctionType::Initializer) {
-        m_lukErr.error(errTitle, stmt.name,
+        m_lukErr.error(errTitle, stmt.m_name,
             "Cannot return a value from an initializer.");
     }
     
-    resolve(stmt.value);
+    resolve(stmt.m_value);
   }
 
 }
