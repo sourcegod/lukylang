@@ -7,8 +7,6 @@
 #include <vector>
 
 // forward declarations
-class Expr;
-class LukObject;
 class AssignExpr;
 class BinaryExpr;
 class CallExpr;
@@ -18,7 +16,6 @@ class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
-class Stmt;
 class SuperExpr;
 class ThisExpr;
 class UnaryExpr;
@@ -151,10 +148,10 @@ public:
 
 class FunctionExpr : public Expr {
 public:
-    FunctionExpr(std::vector<TokPtr> params, std::vector<StmtPtr> body) {
-        m_params = params; // std::move(params);
-        m_body  = body; // std::move(body);
-    }
+    FunctionExpr(std::vector<TokPtr>& params, std::vector<StmtPtr>& body) :
+        m_params(std::move(params)),
+        m_body(std::move(body))
+    {}
     
 
     ObjPtr accept(ExprVisitor& v) override {
