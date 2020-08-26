@@ -176,13 +176,12 @@ StmtPtr Parser::classDeclaration() {
     
     std::vector<FuncPtr> methods;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-      methods.push_back(function("method"));
-
+      methods.push_back( std::move(function("method")) );
     }
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
   
-    return std::make_shared<ClassStmt>(name, superclass, methods);
+    return std::make_shared<ClassStmt>(name, superclass, std::move(methods) );
 }
 
 StmtPtr Parser::declaration() {

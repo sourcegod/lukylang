@@ -58,11 +58,11 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(TokPtr name, std::shared_ptr<VariableExpr> superclass, std::vector<FuncPtr> methods) {
-      m_name = name;  
-      m_superclass = std::move(superclass);
-      m_methods = std::move(methods);
-    }
+    ClassStmt(TokPtr& name, std::shared_ptr<VariableExpr>& superclass, std::vector<FuncPtr>&& methods) :
+      m_name(name),
+      m_superclass(std::move(superclass)),
+      m_methods(std::move(methods))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitClassStmt(*this);
