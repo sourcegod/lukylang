@@ -96,8 +96,8 @@ ObjPtr Resolver::visitAssignExpr(AssignExpr& expr) {
 }
 
 ObjPtr Resolver::visitBinaryExpr(BinaryExpr& expr) {
-  resolve(expr.left);
-  resolve(expr.right);
+  resolve(expr.m_left);
+  resolve(expr.m_right);
   
   return nilptr;
 }

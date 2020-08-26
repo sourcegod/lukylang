@@ -91,19 +91,19 @@ public:
 
 class BinaryExpr : public Expr {
 public:
-    BinaryExpr(ExprPtr _left, TokPtr& _op, ExprPtr _right) {
-        left = std::move(_left);
-        op = _op;
-        right = std::move(_right);
-    }
+    BinaryExpr(ExprPtr& left, TokPtr& op, ExprPtr& right) :
+        m_left(std::move(left)),
+        m_op(op),
+        m_right(std::move(right))
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitBinaryExpr(*this); 
     }
 
-    ExprPtr left;
-    TokPtr op;
-    ExprPtr right;
+    ExprPtr m_left;
+    TokPtr m_op;
+    ExprPtr m_right;
 };
 
 class CallExpr : public Expr {

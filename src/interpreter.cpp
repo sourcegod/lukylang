@@ -333,25 +333,25 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // Note: method get allow to convert smart pointer to raw pointer
     logMsg("\nIn visitBinary: ");  
-    ObjPtr left = evaluate(expr.left);
-    ObjPtr right = evaluate(expr.right);
-    logMsg("left: ", left->toString(), ", operator: ", expr.op->lexeme, ", right: ", right->toString());
-    switch(expr.op->type) {
+    ObjPtr left = evaluate(expr.m_left);
+    ObjPtr right = evaluate(expr.m_right);
+    logMsg("left: ", left->toString(), ", operator: ", expr.m_op->lexeme, ", right: ", right->toString());
+    switch(expr.m_op->type) {
         case TokenType::GREATER:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() > right->getNumber());
             // return (double)left > (double)right;
         
         case TokenType::GREATER_EQUAL:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() >= right->getNumber());
 
          case TokenType::LESS:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() < right->getNumber());
 
          case TokenType::LESS_EQUAL:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() <= right->getNumber());
             
    
@@ -359,7 +359,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
 
         case TokenType::MINUS:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() - right->getNumber());
             
         
@@ -370,15 +370,15 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
                 // return (std::string)left + (std::string)right;
                 // Adding each string to ostringstream
                 return std::make_shared<LukObject>(left->getString() + right->getString());
-            throw RuntimeError(expr.op, 
+            throw RuntimeError(expr.m_op, 
                     "Operands must be two numbers or tow strings.");
 
         case TokenType::SLASH:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() / right->getNumber());
 
         case TokenType::STAR:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
          default: break;
     }
