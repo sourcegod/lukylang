@@ -533,17 +533,13 @@ void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
 }
 
 void Interpreter::visitIfStmt(IfStmt& stmt) {
-    auto val  = evaluate(stmt.condition);
+    auto val  = evaluate(stmt.m_condition);
     if (isTruthy(val)) {
         // Note: no moving statement pointer, because
-        // it will be necessary later, for function call
-        // execute(std::move(stmt.thenBranch));
-        // stmt.thenBranch->accept(*this);
-        execute(stmt.thenBranch);
-    } else if (stmt.elseBranch != nullptr) {
-        // execute(std::move(stmt.elseBranch));
-        // stmt.elseBranch->accept(*this);
-        execute(stmt.elseBranch);
+        // it will be necessary use later, for function call
+        execute(stmt.m_thenBranch);
+    } else if (stmt.m_elseBranch != nullptr) {
+        execute(stmt.m_elseBranch);
     }
 
 }

@@ -206,11 +206,6 @@ void Resolver::visitBreakStmt(BreakStmt& stmt) {
 }
 
 
-void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
-  resolve(stmt.m_expression);
-
-}
-
 void Resolver::visitClassStmt(ClassStmt& stmt) {
   ClassType enclosingClass = currentClass;
   currentClass = ClassType::Class;
@@ -255,17 +250,24 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   currentClass = enclosingClass;
 }
 
-void Resolver::visitIfStmt(IfStmt& stmt) {
-  resolve(stmt.condition);
-  resolve(stmt.thenBranch);
-  if (stmt.elseBranch != nullptr) resolve(stmt.elseBranch);
 
+void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
+  resolve(stmt.m_expression);
 }
+
 
 void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
   declare(stmt.m_name);
   define(stmt.m_name);
   resolveFunction(*stmt.m_function, FunctionType::Function);
+
+}
+
+
+void Resolver::visitIfStmt(IfStmt& stmt) {
+  resolve(stmt.m_condition);
+  resolve(stmt.m_thenBranch);
+  if (stmt.m_elseBranch != nullptr) resolve(stmt.m_elseBranch);
 
 }
 

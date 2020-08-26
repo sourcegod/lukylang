@@ -132,20 +132,20 @@ public:
 
 class IfStmt : public Stmt {
 public:
-    IfStmt(ExprPtr _condition, StmtPtr _thenBranch, 
-            StmtPtr _elseBranch) {
-        condition = std::move(_condition);
-        thenBranch  = std::move(_thenBranch);
-        elseBranch = std::move(_elseBranch);
-    }
+    IfStmt(ExprPtr condition, StmtPtr thenBranch, 
+            StmtPtr elseBranch) :
+        m_condition(std::move(condition)),
+        m_thenBranch(std::move(thenBranch)),
+        m_elseBranch(std::move(elseBranch))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitIfStmt(*this);
     }
 
-    std::shared_ptr<Expr> condition;
-    std::shared_ptr<Stmt> thenBranch;
-    std::shared_ptr<Stmt> elseBranch;
+    ExprPtr m_condition;
+    StmtPtr m_thenBranch;
+    StmtPtr m_elseBranch;
 
 };
 
