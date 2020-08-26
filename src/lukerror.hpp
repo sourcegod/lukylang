@@ -1,9 +1,10 @@
 #ifndef LUKERROR_HPP
 #define LUKERROR_HPP
 
+#include "common.hpp"
+#include "token.hpp"
 #include <string>
 #include <vector>
-#include "token.hpp"
 
 class LukError {
 public:
