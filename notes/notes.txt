@@ -1,7 +1,7 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Sat, 15/08/2020
+Last update: Thu, 27/08/2020
 Last version: v0.27
 
 
@@ -57,7 +57,13 @@ To avoid conflict between two enumerations in the same scope.
 -- template function must be defining in the header file, 
 not in the implementation file, because it's managed in compile time.
 
-4.5 Destructor
+4.5 Constructors
+-- For optimization, it's better to initialize variables in Initializer list.
+It avoid to construct a new object when its initialized with assignment.
+Exemple:
+MyKlass(int a, int b) : m_a(a), m_b(b) {}
+
+4.6 Destructor
 -- To prevent destructor to be destroyed:
 to prevent deleting pointer object by user, you can use the delete operator:
 void operator delete(void *) = delete;
