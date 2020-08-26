@@ -1,10 +1,7 @@
 #include "lukclass.hpp"
 #include "lukinstance.hpp"
-#include "lukobject.hpp"
 #include "lukfunction.hpp"
 #include <memory>
-#include <cassert>
-#include <typeinfo>
 
 size_t LukClass::arity() { 
     ObjPtr method = findMethod("init"); 

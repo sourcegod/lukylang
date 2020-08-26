@@ -1,10 +1,7 @@
 #include "lukinstance.hpp"
-#include "lukobject.hpp"
 #include "lukclass.hpp"
-#include "token.hpp"
 #include "runtimeerror.hpp"
 #include "lukfunction.hpp"
-#include "environment.hpp"
 
 #include <memory>
 

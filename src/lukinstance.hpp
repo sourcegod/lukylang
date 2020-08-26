@@ -1,10 +1,9 @@
 #ifndef LUKINSTANCE_HPP
 #define LUKINSTANCE_HPP
 
-#include "lukobject.hpp"
+#include "common.hpp"
 #include "lukclass.hpp"
 #include "logger.hpp"
-#include "token.hpp"
 
 #include <iostream>
 #include <string>
@@ -12,16 +11,13 @@
 #include <unordered_map>
 
 class LukClass;
-class LukObject;
-class Token;
-using ObjPtr = std::shared_ptr<LukObject>;
 
 class LukInstance {
 // FIXME: temporary, this alias is allready in lukobject.hpp
 public:
     explicit LukInstance(std::shared_ptr<LukClass> klass)
-      : m_klass(klass) { 
-    }
+      : m_klass(klass) 
+    {}
       
     explicit LukInstance(LukInstance& other) {
       // Note: we should do a deep copy for this object
@@ -32,8 +28,7 @@ public:
       m_fields = other.getFields();
     }
     
-    ~LukInstance() { 
-    }
+    ~LukInstance() {}
 
       std::shared_ptr<LukInstance> clone() {
         return std::make_shared<LukInstance>(*this);
@@ -47,7 +42,6 @@ public:
     void set(TokPtr& name, ObjPtr valPtr);
 
 private:
-   // LukClass* m_klass;
     std::shared_ptr<LukClass> m_klass;
    std::unordered_map<std::string, ObjPtr> m_fields = {};
 

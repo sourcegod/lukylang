@@ -1,6 +1,7 @@
 #ifndef LUKCALLABLE_HPP
 #define LUKCALLABLE_HPP
 
+#include "common.hpp"
 
 #include <string>
 #include <vector>
@@ -8,9 +9,7 @@
 #include <sstream> // osstringstream
 #include <memory> // smart pointers
 
-class LukObject;
 class Interpreter;
-using ObjPtr = std::shared_ptr<LukObject>;
 using VArguments = std::vector<ObjPtr>;
 
 class LukCallable {
