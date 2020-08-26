@@ -1,14 +1,15 @@
 #ifndef RETURN_HPP
 #define RETURN_HPP
-#include "lukobject.hpp"
+#include "common.hpp"
 #include <stdexcept> // exception
 
 class Return : public std::exception {
 public:
-    explicit Return(ObjPtr& _value) 
-        : value(_value) {} 
+    explicit Return(ObjPtr& value) 
+        : m_value(value) 
+    {} 
     
-    ObjPtr value;
+    ObjPtr m_value;
 };
 
 #endif //  RETURN_HPP
