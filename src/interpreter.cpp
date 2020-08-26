@@ -450,7 +450,7 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
 }
 
 ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
-    return evaluate(expr.expression);
+    return evaluate(expr.m_expression);
 }
 
 ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {

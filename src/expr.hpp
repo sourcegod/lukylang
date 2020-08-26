@@ -127,25 +127,6 @@ public:
     std::vector<ExprPtr> m_args;
 };
 
-class GetExpr : public Expr {
-public:
-    GetExpr(ExprPtr object, TokPtr& name) :
-      m_object(std::move(object)),
-      m_name(name) {}
-    bool isGetExpr() const override { return true; }
-    std::string typeName() const override { return "GetExpr"; }
-    TokPtr getName() const override { return m_name; }
-    ExprPtr getObject() const override { return m_object; }
-
-
-    ObjPtr accept(ExprVisitor &v) override {
-        return v.visitGetExpr(*this); 
-    }
-
-    ExprPtr m_object;
-    TokPtr m_name;
-};
-
 class FunctionExpr : public Expr {
 public:
     FunctionExpr(std::vector<TokPtr>& params, std::vector<StmtPtr>& body) :
@@ -164,17 +145,38 @@ public:
 };
 
 
+class GetExpr : public Expr {
+public:
+    GetExpr(ExprPtr object, TokPtr& name) :
+      m_object(std::move(object)),
+      m_name(name) 
+    {}
+    
+    bool isGetExpr() const override { return true; }
+    std::string typeName() const override { return "GetExpr"; }
+    TokPtr getName() const override { return m_name; }
+    ExprPtr getObject() const override { return m_object; }
+
+
+    ObjPtr accept(ExprVisitor &v) override {
+        return v.visitGetExpr(*this); 
+    }
+
+    ExprPtr m_object;
+    TokPtr m_name;
+};
+
 class GroupingExpr : public Expr {
 public:
-    GroupingExpr(ExprPtr _expr) {
-        expression = std::move(_expr);
-    }
+    GroupingExpr(ExprPtr& expr) :
+        m_expression(std::move(expr))
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitGroupingExpr(*this); 
     }
 
-    ExprPtr expression;
+    ExprPtr m_expression;
 };
 
 class LiteralExpr: public Expr {

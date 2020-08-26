@@ -124,7 +124,7 @@ ObjPtr Resolver::visitGetExpr(GetExpr& expr) {
 }
 
 ObjPtr Resolver::visitGroupingExpr(GroupingExpr& expr) {
-  resolve(expr.expression);
+  resolve(expr.m_expression);
  
   return nilptr;
 }
