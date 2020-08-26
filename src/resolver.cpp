@@ -165,18 +165,18 @@ ObjPtr Resolver::visitSuperExpr(SuperExpr& expr) {
 
 
 ObjPtr Resolver::visitThisExpr(ThisExpr& expr) {
-
   if (currentClass == ClassType::None) {
       m_lukErr.error(errTitle, expr.m_keyword,
           "Cannot use 'this' outside of a class.");
     }
 
   resolveLocal(&expr, expr.m_keyword);
+
   return nilptr;
 }
 
 ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
-  resolve(expr.right);
+  resolve(expr.m_right);
   
   return nilptr;
 }

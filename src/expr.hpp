@@ -220,7 +220,8 @@ public:
     SetExpr(ExprPtr object, TokPtr name, ExprPtr value) :
       m_object(std::move(object)),
       m_name(name),
-      m_value(std::move(value)) {}
+      m_value(std::move(value)) 
+    {}
 
     bool isSetExpr() const override { return true; }
     std::string typeName() const override { return "SetExpr"; }
@@ -241,7 +242,8 @@ class SuperExpr : public Expr {
 public:
     SuperExpr(TokPtr& keyword, TokPtr& method) :
       m_keyword(keyword),
-      m_method(method) {}
+      m_method(method) 
+    {}
 
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitSuperExpr(*this); 
@@ -253,8 +255,9 @@ public:
 
 class ThisExpr : public Expr {
 public:
-    ThisExpr(TokPtr& keyword) 
-      : m_keyword(keyword) {}
+    ThisExpr(TokPtr& keyword) :
+      m_keyword(keyword) 
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitThisExpr(*this); 
@@ -265,17 +268,17 @@ public:
 
 class UnaryExpr : public Expr {
 public:
-    UnaryExpr(TokPtr& _op, ExprPtr _right) {
-        op = _op;
-        right = std::move(_right);
-    }
+    UnaryExpr(TokPtr& op, ExprPtr& right) :
+        m_op(op),
+        m_right(std::move(right))
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitUnaryExpr(*this); 
     }
 
-    TokPtr op;
-    ExprPtr right;
+    TokPtr m_op;
+    ExprPtr m_right;
 };
 
 class VariableExpr : public Expr {
