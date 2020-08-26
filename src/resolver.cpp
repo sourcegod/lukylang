@@ -103,8 +103,8 @@ ObjPtr Resolver::visitBinaryExpr(BinaryExpr& expr) {
 }
 
 ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
-  resolve(expr.callee);
-  for (std::shared_ptr<Expr>& arg : expr.args) {
+  resolve(expr.m_callee);
+  for (std::shared_ptr<Expr>& arg : expr.m_args) {
     resolve(arg);
   }
 

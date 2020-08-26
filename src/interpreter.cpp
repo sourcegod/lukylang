@@ -388,15 +388,15 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
 
 ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     logMsg("\nIn visitcallExpr: ", typeid(expr).name()); 
-    auto callee = evaluate(expr.callee);
+    auto callee = evaluate(expr.m_callee);
     logMsg("Still In visitCallExpr, callee: ", callee);
     if (! callee->isCallable()) {
       logMsg("voici calle: id", callee->id, ", string: ", callee->toString());
-      throw RuntimeError(expr.paren, "Can only call function and class.");
+      throw RuntimeError(expr.m_paren, "Can only call function and class.");
     }
 
     std::vector<ObjPtr> v_args;
-    for (auto& arg: expr.args) {
+    for (auto& arg: expr.m_args) {
         v_args.push_back(evaluate(arg));
     }
     const auto& func = callee->getCallable();
@@ -406,7 +406,7 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
         msg << "Expected " << func->arity() 
            << " arguments but got " 
            << v_args.size() << ".";
-        throw RuntimeError(expr.paren, msg.str());
+        throw RuntimeError(expr.m_paren, msg.str());
     }
     logMsg("func->toString : ",func->toString());
     logMsg("func.use_count: ", func.use_count());

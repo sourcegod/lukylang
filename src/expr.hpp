@@ -108,11 +108,11 @@ public:
 
 class CallExpr : public Expr {
 public:
-    CallExpr(ExprPtr _callee, TokPtr& _paren, std::vector<ExprPtr> _args) {
-        callee = std::move(_callee);
-        paren = _paren;
-        args = std::move(_args);
-    }
+    CallExpr(ExprPtr callee, TokPtr& paren, std::vector<ExprPtr> args) :
+        m_callee(std::move(callee)),
+        m_paren(paren),
+        m_args(std::move(args))
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitCallExpr(*this); 
@@ -120,11 +120,11 @@ public:
 
     bool isCallExpr() const override { return true; }
     std::string typeName() const override { return "CallExpr"; }
-    virtual TokPtr getName() const { return paren; }
+    virtual TokPtr getName() const { return m_paren; }
 
-    ExprPtr callee;
-    TokPtr paren;
-    std::vector<ExprPtr> args;
+    ExprPtr m_callee;
+    TokPtr m_paren;
+    std::vector<ExprPtr> m_args;
 };
 
 class GetExpr : public Expr {
