@@ -567,10 +567,10 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
 void Interpreter::visitVarStmt(VarStmt& stmt) {
     // Note: new ObjPtr needs to be initialized to nilptr to avoid crash
     ObjPtr value = nilptr;
-    if (stmt.initializer != nullptr) {
-        value = evaluate(stmt.initializer);
+    if (stmt.m_initializer != nullptr) {
+        value = evaluate(stmt.m_initializer);
     }
-    m_env->define(stmt.name->lexeme, value);
+    m_env->define(stmt.m_name->lexeme, value);
 
     // log environment state for debugging
     logState();

@@ -291,11 +291,11 @@ void Resolver::visitReturnStmt(ReturnStmt& stmt) {
 }
 
 void Resolver::visitVarStmt(VarStmt& stmt) {
-  declare(stmt.name);
-  if (stmt.initializer != nullptr) {
-    resolve(stmt.initializer);
+  declare(stmt.m_name);
+  if (stmt.m_initializer != nullptr) {
+    resolve(stmt.m_initializer);
   }
-  define(stmt.name);
+  define(stmt.m_name);
 
 }
 

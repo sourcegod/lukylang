@@ -180,16 +180,16 @@ public:
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(TokPtr _name, ExprPtr _expr) {
-        name = _name;
-        initializer = std::move(_expr);
-    }
+    VarStmt(TokPtr& name, ExprPtr expr) :
+        m_name(name),
+        m_initializer(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitVarStmt(*this);
     }
-    TokPtr name;
-    ExprPtr initializer;
+    TokPtr m_name;
+    ExprPtr m_initializer;
 
 };
 
