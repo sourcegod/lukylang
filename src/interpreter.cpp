@@ -199,7 +199,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     logMsg("superclass: ", superclass);
     // TODO: It will better to test whether superclass is classable instead callable
     if (!superclass->isCallable()) { //  instanceof LoxClass)) {
-      throw RuntimeError(stmt.m_superclass->name,
+      throw RuntimeError(stmt.m_superclass->m_name,
             "Superclass must be a class.");
     } else {
       supKlass = superclass->getDynCast<LukClass>();
@@ -215,7 +215,7 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
 
   }
 
-  std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
+  std::unordered_map<std::string, ObjPtr> methods;
   for (auto meth: stmt.m_methods) {
     auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
         meth->m_function, m_env,
@@ -550,8 +550,8 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
-  logMsg("\nIn visitVariableExpr, name:   ", expr.name);
-  return lookUpVariable(expr.name, expr);
+  logMsg("\nIn visitVariableExpr, name:   ", expr.m_name);
+  return lookUpVariable(expr.m_name, expr);
 }
 
 ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {

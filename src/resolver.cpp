@@ -184,12 +184,12 @@ ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
 ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
-    auto iter = scope.find(expr.name->lexeme);
+    auto iter = scope.find(expr.m_name->lexeme);
     if (iter != scope.end() && iter->second == false) {
-      m_lukErr.error(errTitle, expr.name, "Cannot read local variable in its own initializer.");
+      m_lukErr.error(errTitle, expr.m_name, "Cannot read local variable in its own initializer.");
     }
   }
-  resolveLocal(&expr, expr.name);
+  resolveLocal(&expr, expr.m_name);
 
   return nilptr;
 }
@@ -219,8 +219,8 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   define(stmt.m_name);
 
   if (stmt.m_superclass != nullptr &&
-      stmt.m_name->lexeme == stmt.m_superclass->name->lexeme) {
-      m_lukErr.error(errTitle, stmt.m_superclass->name,
+      stmt.m_name->lexeme == stmt.m_superclass->m_name->lexeme) {
+      m_lukErr.error(errTitle, stmt.m_superclass->m_name,
         "A class cannot inherit from itself.");
   }
 

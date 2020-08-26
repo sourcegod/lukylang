@@ -284,18 +284,19 @@ public:
 class VariableExpr : public Expr {
 public:
     VariableExpr();
-    VariableExpr(TokPtr _name) {
-        name = _name;
-    }
+    VariableExpr(TokPtr& name) :
+        m_name(name)
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitVariableExpr(*this); 
     }
+    
     bool isVariableExpr() const override { return true; }
     std::string typeName() const override { return "VariableExpr"; }
-    TokPtr getName() const override { return name; }
+    TokPtr getName() const override { return m_name; }
 
-    TokPtr name;
+    TokPtr m_name;
 };
 
 
