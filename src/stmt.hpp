@@ -20,7 +20,7 @@ class ReturnStmt;
 class VarStmt;
 class WhileStmt;
 
-// using StmtPtr = std::shared_ptr<Stmt>;
+// using StmtPtr = StmtPtr;
 // using FuncPtr = std::shared_ptr<FunctionStmt>;
 
 class StmtVisitor {
@@ -151,21 +151,20 @@ public:
 
 class PrintStmt : public Stmt {
 public:
-    PrintStmt(std::shared_ptr<Expr> _expr) {
-        expression = std::move(_expr);
-    }
+    PrintStmt(ExprPtr expr) :
+        m_expression(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitPrintStmt(*this);
     }
 
-    std::shared_ptr<Expr> expression;
-
+    ExprPtr m_expression;
 };
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
+    ReturnStmt(TokPtr _name, ExprPtr _expr) {
         name = _name;
         value = std::move(_expr);
     }
@@ -174,14 +173,14 @@ public:
         v.visitReturnStmt(*this);
     }
     TokPtr name;
-    std::shared_ptr<Expr> value;
+    ExprPtr value;
 
 };
 
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
+    VarStmt(TokPtr _name, ExprPtr _expr) {
         name = _name;
         initializer = std::move(_expr);
     }
@@ -190,7 +189,7 @@ public:
         v.visitVarStmt(*this);
     }
     TokPtr name;
-    std::shared_ptr<Expr> initializer;
+    ExprPtr initializer;
 
 };
 
@@ -205,8 +204,8 @@ public:
         v.visitWhileStmt(*this);
     }
 
-    std::shared_ptr<Expr> condition;
-    std::shared_ptr<Stmt> body;
+    ExprPtr condition;
+    StmtPtr body;
 };
 
 

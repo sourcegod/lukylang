@@ -272,7 +272,7 @@ void Resolver::visitIfStmt(IfStmt& stmt) {
 }
 
 void Resolver::visitPrintStmt(PrintStmt& stmt) {
-  resolve(stmt.expression);
+  resolve(stmt.m_expression);
 
 }
 

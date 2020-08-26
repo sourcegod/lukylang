@@ -545,7 +545,7 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    ObjPtr value = evaluate(stmt.expression);
+    ObjPtr value = evaluate(stmt.m_expression);
     // Note: printing obj->toString instead *obj pointer
     // to avoid multiple object's destructors 
     logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());
