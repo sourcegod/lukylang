@@ -519,7 +519,7 @@ logMsg("Exit out visitClassStmt\n");
 }
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
-    m_result = evaluate(stmt.expression);
+    m_result = evaluate(stmt.m_expression);
 }
 
 void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {

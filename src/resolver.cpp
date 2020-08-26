@@ -207,7 +207,7 @@ void Resolver::visitBreakStmt(BreakStmt& stmt) {
 
 
 void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
-  resolve(stmt.expression);
+  resolve(stmt.m_expression);
 
 }
 

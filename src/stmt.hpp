@@ -76,28 +76,29 @@ public:
 
 class BreakStmt : public Stmt {
 public:
-    BreakStmt(TokPtr& keyword) 
-      : m_keyword(keyword) {}
+    BreakStmt(TokPtr& keyword)  :
+      m_keyword(keyword) 
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitBreakStmt(*this);
     }
+    
     TokPtr m_keyword;
-
 };
 
 
 class ExpressionStmt : public Stmt {
 public:
-    ExpressionStmt(std::shared_ptr<Expr> _expr) {
-        expression = std::move(_expr);
-    }
+    ExpressionStmt(ExprPtr expr) :
+        m_expression(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitExpressionStmt(*this);
     }
 
-    std::shared_ptr<Expr> expression;
+    std::shared_ptr<Expr> m_expression;
 };
 
 class FunctionStmt : public Stmt {
