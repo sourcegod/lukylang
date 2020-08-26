@@ -1,12 +1,13 @@
-#include <fstream> // for file
-#include <iostream> // for IO buffer
-#include <sstream> // for string buffer
+#include "common.hpp"
 #include "lukerror.hpp"
-#include "token.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
 #include "resolver.hpp"
 #include "interpreter.hpp"
+
+#include <fstream> // for file
+#include <iostream> // for IO buffer
+#include <sstream> // for string buffer
 
 using namespace std;
 // test macro from the preprocessor to retriev string
