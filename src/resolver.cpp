@@ -136,8 +136,8 @@ ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
 }
 
 ObjPtr Resolver::visitLogicalExpr(LogicalExpr& expr) {
-  resolve(expr.left);
-  resolve(expr.right);
+  resolve(expr.m_left);
+  resolve(expr.m_right);
   
   return nilptr;
 }

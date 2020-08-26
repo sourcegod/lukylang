@@ -453,20 +453,22 @@ ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.m_expression);
 }
 
+ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
+    logMsg("\nIn visitLiteralExpr Interpreter, value: ", expr.m_value->toString());
+    return expr.m_value;
+}
+
+
 ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
-    ObjPtr left = evaluate(expr.left);
-    if (expr.op->type == TokenType::OR) {
+    ObjPtr left = evaluate(expr.m_left);
+    if (expr.m_op->type == TokenType::OR) {
         if (isTruthy(left)) return left;
+
     } else {
         if (!isTruthy(left)) return left;
     }
     
-    return evaluate(expr.right);
-}
-
-ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
-    logMsg("\nIn visitLiteralExpr Interpreter, value: ", expr.m_value->toString());
-    return expr.m_value;
+    return evaluate(expr.m_right);
 }
 
 ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {

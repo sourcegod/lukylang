@@ -181,8 +181,8 @@ public:
 
 class LiteralExpr: public Expr {
 public:
-    LiteralExpr(ObjPtr& value) 
-        : m_value(value) {
+    LiteralExpr(ObjPtr& value) :
+        m_value(value) {
         logMsg("\nLiteralExpr constructor");
         logMsg("value->id: ", value->id);
     }
@@ -195,24 +195,24 @@ public:
         return v.visitLiteralExpr(*this); 
     }
 
-ObjPtr m_value;
+    ObjPtr m_value;
 };
 
 class LogicalExpr : public Expr {
 public:
-    LogicalExpr(ExprPtr& _left, TokPtr& _op, ExprPtr& _right) {
-        left = std::move(_left);
-        op = _op;
-        right = std::move(_right);
-    }
+    LogicalExpr(ExprPtr& left, TokPtr& op, ExprPtr& right) :
+        m_left(std::move(left)),
+        m_op(op),
+        m_right(std::move(right))
+    {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitLogicalExpr(*this); 
     }
 
-    ExprPtr left;
-    TokPtr op;
-    ExprPtr right;
+    ExprPtr m_left;
+    TokPtr m_op;
+    ExprPtr m_right;
 };
 
 class SetExpr : public Expr {

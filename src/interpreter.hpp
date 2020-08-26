@@ -43,8 +43,8 @@ public:
     ObjPtr visitFunctionExpr(FunctionExpr& expr);
     ObjPtr visitGetExpr(GetExpr& expr);
     ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
-    ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
     ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 
+    ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
     ObjPtr visitSetExpr(SetExpr& expr);
     ObjPtr visitSuperExpr(SuperExpr& expr);
     ObjPtr visitThisExpr(ThisExpr& expr);
