@@ -98,16 +98,16 @@ public:
         v.visitExpressionStmt(*this);
     }
 
-    std::shared_ptr<Expr> m_expression;
+    ExprPtr m_expression;
 };
 
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(TokPtr& name, std::shared_ptr<FunctionExpr> function) {
-        m_name = name;
-        m_function = function;
-    }
+    FunctionStmt(TokPtr& name, std::shared_ptr<FunctionExpr> function) :
+        m_name(name),
+        m_function(function)
+    {}
 
     
     // Note: to prevent deleting pointer object by user, you can use the delete operator
