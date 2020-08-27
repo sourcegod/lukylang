@@ -2,7 +2,7 @@ Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
 Last update: Thu, 27/08/2020
-Last version: v0.27
+Last version: v0.28
 
 
   1. Compile
@@ -74,6 +74,15 @@ or in c++11, you can tell to the compiler do not provide a destructor deleted: ~
 or make a "union" between base and derived object...
 or create a smart pointer to this object.
 
+4.7 Inused variables
+-- You can comment in the argument name to avoid compiler warnings about inused
+parameters.
+Exemple:
+void test(int a, int /*b*/) {}
+-- Or you can make a macro or function template with empty body.
+Exemple:
+template <typename...T> void inused(T&&...) {}
+
 
   5. Release version
   
@@ -81,6 +90,8 @@ or create a smart pointer to this object.
 6.1 Logger object
 -- We add logType function to print type of an object or variable using:
 typeid(T).name() with including <typeinfo>.
+
+-- Adding inused function for remove inused parameters compiler warnings .
 
 6.2 In multiple objects
 # v0.26:
