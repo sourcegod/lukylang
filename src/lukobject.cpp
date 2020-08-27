@@ -147,8 +147,8 @@ LukObject::LukObject(TokPtr& tokP)
 }
 
 
-LukObject::LukObject(nullptr_t nup) {
-  logMsg("\In LukObject constructor nullptr: ");
+LukObject::LukObject(nullptr_t) {
+  logMsg("\nIn LukObject constructor nullptr: ");
         m_type = LukType::Nil;
         m_string = "nil";
         // p_string = nullptr;
@@ -313,7 +313,7 @@ void LukObject::cast(LukType tp) {
 
 // assignment operators
 std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
-  logMsg("\In LukObject nullptr assignment operator: ");
+  logMsg("\nIn LukObject nullptr assignment operator: ");
         m_type = LukType::Nil;
         m_string = "nil";
         // p_string = nullptr;
@@ -323,7 +323,7 @@ std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
 }
 
 std::shared_ptr<LukObject> LukObject::operator=(ObjPtr obj) {
-  logMsg("\In LukObject shared pointer  assignment operator: ");
+  logMsg("\nIn LukObject shared pointer  assignment operator: ");
         m_type = obj->m_type;
         m_string = obj->m_string;
         p_callable = obj->p_callable;

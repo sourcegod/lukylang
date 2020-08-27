@@ -202,7 +202,7 @@ void Resolver::visitBlockStmt(BlockStmt& stmt) {
 
 }
 
-void Resolver::visitBreakStmt(BreakStmt& stmt) {
+void Resolver::visitBreakStmt(BreakStmt& /*stmt*/) {
 }
 
 

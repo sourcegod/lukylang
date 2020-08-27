@@ -5,7 +5,7 @@
 #include "return.hpp"
 
 ObjPtr  LukFunction::call(Interpreter& interp, std::vector<ObjPtr>& v_args) {
-    TRACE_MSG("Call Function Tracer: ");
+    // TRACE_MSG("Call Function Tracer: ");
     // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
     auto env = std::make_shared<Environment>(m_closure);
     for (unsigned i=0; i < m_declaration->m_params.size(); ++i) {
