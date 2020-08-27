@@ -1,6 +1,7 @@
 #ifndef LUKCLASS_HPP
 #define LUKCLASS_HPP
 
+#include "common.hpp"
 #include "lukcallable.hpp"
 #include "logger.hpp"
 
@@ -9,7 +10,6 @@
 #include <memory>
 #include <unordered_map>
 
-using ObjPtr = std::shared_ptr<LukObject>;
 class LukClass : public LukCallable {
 public:
   std::string m_name;
@@ -23,8 +23,7 @@ public:
     m_methods(methods) 
     {}
 
-    ~LukClass() {
-    }
+    ~LukClass() {}
 
     virtual size_t arity() override;
     virtual ObjPtr  call(Interpreter& interp, std::vector<ObjPtr>& v_args) override;

@@ -22,7 +22,7 @@ extern TLog LogConf;
 
 class CLog {
 public:
-  CLog() { CLog(log_DEBUG); }
+  CLog() : m_level(log_DEBUG) {} // { CLog(log_DEBUG); }
   CLog(TLogLevel level) {
     m_level = level;
     if (m_level > log_OFF && m_level <= LogConf.level && LogConf.headers) {
@@ -115,11 +115,17 @@ private:
 // std::string CTracer::m_in {"Enter "};
 // std::string CTracer::m_out {"Exit "};
 
+// inused function for inused variables specially for the macros
+template <typename... T> 
+void inused(T&&...) {}
 // variadic template
 // base case
 template <typename T>
 void logMsg(T val) {
   // if (LogConf.level >= log_DEBUG) {
+#ifndef DEBUG
+  inused(val);
+#endif
 #ifdef DEBUG // {
     std::cerr << val << "\n";
   // }
@@ -130,6 +136,9 @@ void logMsg(T val) {
 template <typename T, typename... TArgs>
 void logMsg(T first, TArgs... args) {
   // if (LogConf.level >= log_DEBUG) {
+#ifndef DEBUG
+  inused(first, args...);
+#endif
 #ifdef DEBUG // {
     std::cerr << first << " ";
     logMsg(args...);

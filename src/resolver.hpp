@@ -8,7 +8,6 @@
 
 #include "expr.hpp"
 #include "stmt.hpp"
-#include "environment.hpp"
 #include "token.hpp"
 #include "lukobject.hpp"
 #include "lukerror.hpp"
@@ -17,7 +16,6 @@
 class Interpreter;
 class Token;
 class LukObject;
-class Environment;
 class LukError;
 class CTracer;
 
@@ -35,6 +33,7 @@ public:
     ObjPtr visitAssignExpr(AssignExpr& expr) override;
     ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
     ObjPtr visitCallExpr(CallExpr& expr) override;
+    ObjPtr visitFunctionExpr(FunctionExpr& expr);
     ObjPtr visitGetExpr(GetExpr& expr) override;
     ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
     ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 
@@ -50,8 +49,8 @@ public:
     void visitBreakStmt(BreakStmt& stmt) override;
     void visitClassStmt(ClassStmt& stmt) override;
     void visitExpressionStmt(ExpressionStmt& stmt) override;
-    void visitIfStmt(IfStmt& stmt) override;
     void visitFunctionStmt(FunctionStmt& stmt) override;
+    void visitIfStmt(IfStmt& stmt) override;
     void visitPrintStmt(PrintStmt& stmt) override;
     void visitReturnStmt(ReturnStmt& stmt) override;
     void visitVarStmt(VarStmt& stmt) override;
@@ -76,12 +75,12 @@ private:
   FunctionType m_curFunction = FunctionType::None;
 
   // resolve expression
-  void resolve(PExpr expr);
+  void resolve(ExprPtr expr);
   void resolveLocal(Expr* expr, TokPtr& name);
   
   // resolve statements
-  void resolve(PStmt& stmt);
-  void resolveFunction(FunctionStmt& func, FunctionType ft);
+  void resolve(StmtPtr& stmt);
+  void resolveFunction(FunctionExpr& func, FunctionType ft);
   
 
   void beginScope();

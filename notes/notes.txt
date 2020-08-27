@@ -1,8 +1,8 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Sat, 15/08/2020
-Last version: v0.27
+Last update: Thu, 27/08/2020
+Last version: v0.28
 
 
   1. Compile
@@ -57,7 +57,13 @@ To avoid conflict between two enumerations in the same scope.
 -- template function must be defining in the header file, 
 not in the implementation file, because it's managed in compile time.
 
-4.5 Destructor
+4.5 Constructors
+-- For optimization, it's better to initialize variables in Initializer list.
+It avoid to construct a new object when its initialized with assignment.
+Exemple:
+MyKlass(int a, int b) : m_a(a), m_b(b) {}
+
+4.6 Destructor
 -- To prevent destructor to be destroyed:
 to prevent deleting pointer object by user, you can use the delete operator:
 void operator delete(void *) = delete;
@@ -68,6 +74,15 @@ or in c++11, you can tell to the compiler do not provide a destructor deleted: ~
 or make a "union" between base and derived object...
 or create a smart pointer to this object.
 
+4.7 Inused variables
+-- You can comment in the argument name to avoid compiler warnings about inused
+parameters.
+Exemple:
+void test(int a, int /*b*/) {}
+-- Or you can make a macro or function template with empty body.
+Exemple:
+template <typename...T> void inused(T&&...) {}
+
 
   5. Release version
   
@@ -75,6 +90,8 @@ or create a smart pointer to this object.
 6.1 Logger object
 -- We add logType function to print type of an object or variable using:
 typeid(T).name() with including <typeinfo>.
+
+-- Adding inused function for remove inused parameters compiler warnings .
 
 6.2 In multiple objects
 # v0.26:

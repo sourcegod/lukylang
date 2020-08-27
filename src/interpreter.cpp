@@ -24,10 +24,12 @@ Interpreter::Interpreter() {
     logTest();
 
     m_globals = std::make_shared<Environment>();
-    m_environment = m_globals;
+    m_env = m_globals;
     m_globals->m_name = "Globals, " + m_globals->m_name;
+    m_result = nilptr;
+
     // TRACE_ALL;
-    TRACE_MSG("Env globals tracer: ");
+    // TRACE_MSG("Env globals tracer: ");
     auto func = std::make_shared<ClockFunc>();
     ObjPtr objP = std::make_shared<LukObject>(func);
     m_globals->define("clock", objP);
@@ -38,8 +40,9 @@ Interpreter::Interpreter() {
 void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
     logMsg("\nIn Interpret, starts loop");
 
-    if (statements.empty()) 
+    if (statements.empty()) { 
         std::cerr << "Interp: vector is empty.\n";
+    }
     logState();
     try {
          for (auto& stmt : statements) {
@@ -48,18 +51,20 @@ void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements) {
             }
         }
         
-    // } catch (std::runtime_error err) {
     // Note: passing exception by reference to avoid copy
     } catch (RuntimeError& err) {
-        std::cerr << errTitle << err.what() << "\n";
+        std::cerr << m_errTitle << err.what() << "\n";
     }
-    if (!m_result->isNil())
+
+    assert(m_result != nullptr);
+    if (m_result != nullptr && !m_result->isNil()) {
         printResult();
+    }
+
     logState();
 
   logMsg("\nExit out  Interpret");
 
-    return;
 }
 
 void Interpreter::printResult() {
@@ -85,9 +90,8 @@ void Interpreter::logState() {
   if (values.empty()) {
       logMsg("m_globals env is empty");
   } else {
-      // for (auto& iter: m_globals->m_values)  {
       for (auto& iter: values)  {
-          logMsg(iter.first, ":", iter.second->toString());
+        logMsg(iter.first, ":", iter.second->toString());
       }
   }
 
@@ -125,198 +129,27 @@ void Interpreter::logTest() {
 #endif
 }
 
-ObjPtr Interpreter::evaluate(PExpr expr) { 
-    logMsg("\nIn evaluate, *expr: ", typeid(*expr).name());
-    return expr->accept(*this);
+ObjPtr Interpreter::evaluate(ExprPtr expr) { 
+    logMsg("\nIn evaluate, expr: ", typeid(*expr).name());
+     auto obj = expr->accept(*this);
+    logMsg("Evaluating obj result after accept: ", obj->toString());
+    return obj;
 }
 
-void Interpreter::execute(PStmt& stmt) {
+void Interpreter::execute(StmtPtr& stmt) {
     logMsg("\nIn execute top level, *stmt: ", typeid(*stmt).name());
     stmt->accept(*this);
 }
 
-void Interpreter::resolve(Expr& expr, int depth) {
-  logMsg("\nIn Resolve expr, Interpreter");
-  // Note: FIX: abstract class Expr cannot be in map
-  // so, we store its uniq id in the map
-  m_locals[expr.id()] = depth;
-}
-
-void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
-    logMsg("\nIn ExecuteBlock: ");
-    auto previous = m_environment;
-    try {
-        m_environment = env;
-        for (auto& stmt: statements) {
-            if (stmt)
-                // not use move because for reuse of the block
-                // stmt->accept(*this);
-                execute(stmt);
-
-        }
-
-    // Note: must catch all exceptions, even the Return exception.
-    } catch(...) {
-        m_environment = previous;
-        // throw up the exception
-        throw;
-    }
-    // finally, whether no exception
-    m_environment = previous;
-    
-    logMsg("\nExit out  ExecuteBlock: ");
-}
-
-void Interpreter::visitBlockStmt(BlockStmt& stmt) {
-    executeBlock(stmt.statements, std::make_shared<Environment>(m_environment) );
-}
-
-void Interpreter::visitBreakStmt(BreakStmt& stmt) {
-    std::string msg;
-    if (stmt.m_keyword->lexeme == "break") {
-        msg = "Error: 'break' must with while loop";
-        throw Jump(stmt.m_keyword, msg);
-    } else if (stmt.m_keyword->lexeme == "continue") {
-        msg = "Error: 'continue' must with while loop";
-        throw Jump(stmt.m_keyword, msg);
-    }
-         
-}
-
-void Interpreter::visitClassStmt(ClassStmt& stmt) {
-  logMsg("In visitClassStmt: name: ", stmt.m_name->lexeme);
-  ObjPtr superclass;
-  std::shared_ptr<LukClass> supKlass = nullptr;
-  if (stmt.m_superclass != nullptr) {
-    // Note: changing evaluate(PExpr&) to evaluate(Pexpr) to passing VariableExpr object
-    superclass = evaluate(stmt.m_superclass);
-    logMsg("superclass: ", superclass);
-    // TODO: It will better to test whether superclass is classable instead callable
-    if (!superclass->isCallable()) { //  instanceof LoxClass)) {
-      throw RuntimeError(stmt.m_superclass->name,
-            "Superclass must be a class.");
-    } else {
-      supKlass = superclass->getDynCast<LukClass>();
-    }
-
-  }
-
-  m_environment->define(stmt.m_name->lexeme, nilptr);
-
-  if (stmt.m_superclass != nullptr) {
-    m_environment = std::make_shared<Environment>(m_environment);
-    m_environment->define("super", superclass);
-
-  }
-
-  std::unordered_map<std::string, std::shared_ptr<LukObject>> methods;
-  for (auto meth: stmt.m_methods) {
-    auto func = std::make_shared<LukFunction>(meth, m_environment,
-        meth->name->lexeme == "init");
-    logMsg("func name: ", func->toString());
-    auto obj_ptr = std::make_shared<LukObject>(func);
-    logMsg("obj_ptr type: ", obj_ptr->getType());
-    logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
-    logMsg("Adding meth to methods map: ", meth->name->lexeme);
-    methods[meth->name->lexeme] = obj_ptr;
-  }
-
-  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
-  if (stmt.m_superclass != nullptr) {
-    // Note: moving m_enclosing from private to public in Environment object
-    m_environment = m_environment->m_enclosing;
-  }
-  logMsg("Assign klass: ", stmt.m_name, ", to m_environment");
-  m_environment->assign(stmt.m_name, klass);
-logMsg("Exit out visitClassStmt\n");
-}
-
-void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
-    m_result = evaluate(stmt.expression);
-}
-
-void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
-    auto stmtPtr = std::make_shared<FunctionStmt>(stmt);
-    auto func = std::make_shared<LukFunction>(stmtPtr, m_environment, false);
-    ObjPtr objP = std::make_shared<LukObject>(func);
-    m_environment->define(stmt.name->lexeme, objP);
-    logMsg("FunctionStmt use_count: ", stmtPtr.use_count());
-    
-}
-
-void Interpreter::visitIfStmt(IfStmt& stmt) {
-    auto val  = evaluate(stmt.condition);
-    if (isTruthy(val)) {
-        // Note: no moving statement pointer, because
-        // it will be necessary later, for function call
-        // execute(std::move(stmt.thenBranch));
-        // stmt.thenBranch->accept(*this);
-        execute(stmt.thenBranch);
-    } else if (stmt.elseBranch != nullptr) {
-        // execute(std::move(stmt.elseBranch));
-        // stmt.elseBranch->accept(*this);
-        execute(stmt.elseBranch);
-    }
-
-}
-
-void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    ObjPtr value = evaluate(stmt.expression);
-    // Note: printing obj->toString instead *obj pointer
-    // to avoid multiple object's destructors 
-    logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());
-    std::cout << stringify(value) << std::endl;
-    m_result = nilptr;
-
-}
-
-void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
-    ObjPtr value;
-    if (stmt.value != nullptr) { 
-        value = evaluate(stmt.value);
-    } else {
-        value = nilptr;
-    }
-    
-    throw Return(value);
-}
-
-
-void Interpreter::visitVarStmt(VarStmt& stmt) {
-    ObjPtr value;
-    if (stmt.initializer != nullptr) {
-        value = evaluate(stmt.initializer);
-    }
-    m_environment->define(stmt.name->lexeme, value);
-
-    // log environment state for debugging
-    logState();
-}
-
-void Interpreter::visitWhileStmt(WhileStmt& stmt) {
-    auto val  = evaluate(stmt.condition);
-    while (isTruthy(val)) {
-        try {
-            execute(stmt.body);
-            val  = evaluate(stmt.condition);
-            // Note: catching must be by reference, not by value
-        } catch(Jump& jmp) {
-            if (jmp.m_keyword->lexeme == "break") break;
-            if (jmp.m_keyword->lexeme == "continue") continue;
-        }
-
-    }
-
-}
-
 ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
-    ObjPtr value = evaluate(expr.value);
+    logMsg("\nIn visitAssignExpr Interpreter, name:  ", expr.m_name);
+    ObjPtr value = evaluate(expr.m_value);
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
-      m_environment->assignAt(iter->second, expr.name, value);
+      m_env->assignAt(iter->second, expr.m_name, value);
     } else {
-      m_globals->assign(expr.name, value);
+      m_globals->assign(expr.m_name, value);
     }
     
     return value;
@@ -324,24 +157,26 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // Note: method get allow to convert smart pointer to raw pointer
-    ObjPtr left = evaluate(expr.left);
-    ObjPtr right = evaluate(expr.right);
-    switch(expr.op->type) {
+    logMsg("\nIn visitBinary: ");  
+    ObjPtr left = evaluate(expr.m_left);
+    ObjPtr right = evaluate(expr.m_right);
+    logMsg("left: ", left->toString(), ", operator: ", expr.m_op->lexeme, ", right: ", right->toString());
+    switch(expr.m_op->type) {
         case TokenType::GREATER:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() > right->getNumber());
             // return (double)left > (double)right;
         
         case TokenType::GREATER_EQUAL:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() >= right->getNumber());
 
          case TokenType::LESS:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() < right->getNumber());
 
          case TokenType::LESS_EQUAL:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() <= right->getNumber());
             
    
@@ -349,7 +184,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
 
         case TokenType::MINUS:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() - right->getNumber());
             
         
@@ -360,15 +195,15 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
                 // return (std::string)left + (std::string)right;
                 // Adding each string to ostringstream
                 return std::make_shared<LukObject>(left->getString() + right->getString());
-            throw RuntimeError(expr.op, 
+            throw RuntimeError(expr.m_op, 
                     "Operands must be two numbers or tow strings.");
 
         case TokenType::SLASH:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() / right->getNumber());
 
         case TokenType::STAR:
-            checkNumberOperands(expr.op, left, right);
+            checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
          default: break;
     }
@@ -377,15 +212,16 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
 }
 
 ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
-    logMsg("\nIn visitcallExpr: "); 
-    auto callee = evaluate(expr.callee);
-    logMsg("callee: ", callee);
+    logMsg("\nIn visitcallExpr: ", typeid(expr).name()); 
+    auto callee = evaluate(expr.m_callee);
+    logMsg("Still In visitCallExpr, callee: ", callee);
     if (! callee->isCallable()) {
-       throw RuntimeError(expr.paren, "Can only call function and class.");
+      logMsg("voici calle: id", callee->id, ", string: ", callee->toString());
+      throw RuntimeError(expr.m_paren, "Can only call function and class.");
     }
 
     std::vector<ObjPtr> v_args;
-    for (auto& arg: expr.args) {
+    for (auto& arg: expr.m_args) {
         v_args.push_back(evaluate(arg));
     }
     const auto& func = callee->getCallable();
@@ -395,7 +231,7 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
         msg << "Expected " << func->arity() 
            << " arguments but got " 
            << v_args.size() << ".";
-        throw RuntimeError(expr.paren, msg.str());
+        throw RuntimeError(expr.m_paren, msg.str());
     }
     logMsg("func->toString : ",func->toString());
     logMsg("func.use_count: ", func.use_count());
@@ -403,6 +239,17 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     logMsg("\nExit out visitcallExpr, before returns func->call:  "); 
     return func->call(*this, v_args);
 }
+
+ObjPtr Interpreter::visitFunctionExpr(FunctionExpr& expr) {
+  logMsg("\nIn visitFunctionExpr, id: ", expr.id());
+  // Note: lambda function not need to be in the environment stack
+  auto exprP = std::make_shared<FunctionExpr>(expr);
+  auto funcPtr = std::make_shared<LukFunction>("", exprP, m_env, false);
+  ObjPtr objP = std::make_shared<LukObject>(funcPtr);
+
+  return objP; 
+}
+
 
 ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   logMsg("\nIn visitGetExpr, name: ", expr.m_name);
@@ -428,40 +275,41 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
 }
 
 ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
-    return evaluate(expr.expression);
+    return evaluate(expr.m_expression);
 }
 
+ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
+    logMsg("\nIn visitLiteralExpr Interpreter, value: ", expr.m_value->toString());
+    return expr.m_value;
+}
+
+
 ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
-    ObjPtr left = evaluate(expr.left);
-    if (expr.op->type == TokenType::OR) {
+    ObjPtr left = evaluate(expr.m_left);
+    if (expr.m_op->type == TokenType::OR) {
         if (isTruthy(left)) return left;
+
     } else {
         if (!isTruthy(left)) return left;
     }
     
-    return evaluate(expr.right);
-}
-
-ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
-    logMsg("\nIn visitLiteralExpr, Interpreter");
-    return expr.value;
+    return evaluate(expr.m_right);
 }
 
 ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
     logMsg("\nIn visitSet: ");
     logMsg("name: ", expr.m_name);
-  auto obj = evaluate(expr.m_object);
-  if (not obj->isInstance()) {
+  auto objP = evaluate(expr.m_object);
+  if (not objP->isInstance()) {
     throw RuntimeError(expr.m_name,
       "Only instances have fields.");
   }
 
   auto value = evaluate(expr.m_value);
-
   logMsg("value: ", value);
-  logMsg("obj: ", obj, ", type: ", obj->getType());
-  logMsg("obj->getId: ", obj->getId());
-  auto instPtr = obj->getInstance();
+  logMsg("obj: ", objP, ", type: ", objP->getType());
+  logMsg("obj->getId: ", objP->getId());
+  auto instPtr = objP->getInstance();
   logMsg("instptr tostring: ", instPtr->toString());
   logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
   instPtr->set(expr.m_name, value);
@@ -478,12 +326,12 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
   if (iter != m_locals.end()) {
     // iter->second is the depth
     int distance = iter->second;
-    auto objClass = m_environment->getAt(distance, "super");
+    auto objClass = m_env->getAt(distance, "super");
     // TODO: it will better to test whether is classable
     auto superclass = objClass->getDynCast<LukClass>();
     
     // "this" is always one level nearer than "super"'s environment.
-    auto objInst = m_environment->getAt(
+    auto objInst = m_env->getAt(
       distance - 1, "this");
     auto instPtr = objInst->getInstance();
     ObjPtr method = superclass->findMethod(expr.m_method->lexeme);
@@ -512,13 +360,13 @@ ObjPtr Interpreter::visitThisExpr(ThisExpr& expr) {
 }
 
 ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
-    ObjPtr right = evaluate(expr.right);
-    switch(expr.op->type) {
+    ObjPtr right = evaluate(expr.m_right);
+    switch(expr.m_op->type) {
         case TokenType::BANG:
             return std::make_shared<LukObject>(!isTruthy(right));
         
         case TokenType::MINUS:
-            checkNumberOperand(expr.op, right);
+            checkNumberOperand(expr.m_op, right);
             return std::make_shared<LukObject>(-right->getNumber());
         default: break;
     }
@@ -527,7 +375,8 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
-    return lookUpVariable(expr.name, expr);
+  logMsg("\nIn visitVariableExpr, name:   ", expr.m_name);
+  return lookUpVariable(expr.m_name, expr);
 }
 
 ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
@@ -537,7 +386,7 @@ ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
   auto iter = m_locals.find(expr.id());
   if (iter != m_locals.end()) {
     // iter->second is the depth
-    return m_environment->getAt(iter->second, name->lexeme);
+    return m_env->getAt(iter->second, name->lexeme);
   }
 
   return m_globals->get(name);
@@ -568,6 +417,179 @@ void Interpreter::checkNumberOperand(TokPtr& op, ObjPtr& operand) {
 void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
     if (left->isNumber() && right->isNumber()) return;
     throw RuntimeError(op, "Operands must be numbers.");
+}
+
+
+void Interpreter::resolve(Expr& expr, int depth) {
+  logMsg("\nIn Resolve expr, Interpreter");
+  // Note: FIX: abstract class Expr cannot be in map
+  // so, we store its uniq id in the map
+  m_locals[expr.id()] = depth;
+}
+
+
+void Interpreter::executeBlock(std::vector<StmtPtr>& statements, EnvPtr env) {
+    logMsg("\nIn ExecuteBlock: ");
+    auto previous = m_env;
+    try {
+        m_env = env;
+        for (auto& stmt: statements) {
+            if (stmt)
+                // not use move because for reuse of the block
+                // stmt->accept(*this);
+                execute(stmt);
+
+        }
+
+    // Note: must catch all exceptions, even the Return exception.
+    } catch(...) {
+        m_env = previous;
+        // throw up the exception
+        throw;
+    }
+    // finally, whether no exception
+    m_env = previous;
+    
+    logMsg("\nExit out  ExecuteBlock: ");
+}
+
+void Interpreter::visitBlockStmt(BlockStmt& stmt) {
+    executeBlock(stmt.m_statements, std::make_shared<Environment>(m_env) );
+}
+
+void Interpreter::visitBreakStmt(BreakStmt& stmt) {
+    std::string msg;
+    if (stmt.m_keyword->lexeme == "break") {
+        msg = "Error: 'break' must with while loop";
+        throw Jump(stmt.m_keyword, msg);
+    } else if (stmt.m_keyword->lexeme == "continue") {
+        msg = "Error: 'continue' must with while loop";
+        throw Jump(stmt.m_keyword, msg);
+    }
+         
+}
+
+void Interpreter::visitClassStmt(ClassStmt& stmt) {
+  logMsg("In visitClassStmt: name: ", stmt.m_name->lexeme);
+  ObjPtr superclass = nilptr;
+  std::shared_ptr<LukClass> supKlass = nullptr;
+  if (stmt.m_superclass != nullptr) {
+    // Note: changing evaluate(ExprPtr&) to evaluate(ExprPtr) to passing VariableExpr object
+    superclass = evaluate(stmt.m_superclass);
+    logMsg("superclass: ", superclass);
+    // TODO: It will better to test whether superclass is classable instead callable
+    if (!superclass->isCallable()) { //  instanceof LoxClass)) {
+      throw RuntimeError(stmt.m_superclass->m_name,
+            "Superclass must be a class.");
+    } else {
+      supKlass = superclass->getDynCast<LukClass>();
+    }
+
+  }
+
+  m_env->define(stmt.m_name->lexeme, nilptr);
+
+  if (stmt.m_superclass != nullptr) {
+    m_env = std::make_shared<Environment>(m_env);
+    m_env->define("super", superclass);
+
+  }
+
+  std::unordered_map<std::string, ObjPtr> methods;
+  for (auto meth: stmt.m_methods) {
+    auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
+        meth->m_function, m_env,
+        meth->m_name->lexeme == "init");
+    logMsg("func name: ", func->toString());
+    auto obj_ptr = std::make_shared<LukObject>(func);
+    logMsg("obj_ptr type: ", obj_ptr->getType());
+    logMsg("ObjPtr callable: ", obj_ptr->getCallable()->toString());
+    logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
+    methods[meth->m_name->lexeme] = obj_ptr;
+  }
+
+  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
+  if (stmt.m_superclass != nullptr) {
+    // Note: moving m_enclosing from private to public in Environment object
+    m_env = m_env->m_enclosing;
+  }
+  logMsg("Assign klass: ", stmt.m_name, ", to m_env");
+  m_env->assign(stmt.m_name, klass);
+logMsg("Exit out visitClassStmt\n");
+}
+
+void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
+    m_result = evaluate(stmt.m_expression);
+}
+
+void Interpreter::visitFunctionStmt(FunctionStmt& stmt) {
+    auto func = std::make_shared<LukFunction>(stmt.m_name->lexeme, 
+        stmt.m_function, 
+        m_env, false);
+    ObjPtr objP = std::make_shared<LukObject>(func);
+    m_env->define(stmt.m_name->lexeme, objP);
+    logMsg("FunctionExpr use_count: ", stmt.m_function.use_count());
+    
+}
+
+void Interpreter::visitIfStmt(IfStmt& stmt) {
+    auto val  = evaluate(stmt.m_condition);
+    if (isTruthy(val)) {
+        // Note: no moving statement pointer, because
+        // it will be necessary use later, for function call
+        execute(stmt.m_thenBranch);
+    } else if (stmt.m_elseBranch != nullptr) {
+        execute(stmt.m_elseBranch);
+    }
+
+}
+
+void Interpreter::visitPrintStmt(PrintStmt& stmt) {
+    ObjPtr value = evaluate(stmt.m_expression);
+    // Note: printing obj->toString instead *obj pointer
+    // to avoid multiple object's destructors 
+    logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());
+    std::cout << stringify(value) << std::endl;
+    m_result = nilptr;
+
+}
+
+void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
+    ObjPtr value = nilptr;
+    if (stmt.m_value != nullptr) { 
+        value = evaluate(stmt.m_value);
+    }
+       
+    throw Return(value);
+}
+
+
+void Interpreter::visitVarStmt(VarStmt& stmt) {
+    // Note: new ObjPtr needs to be initialized to nilptr to avoid crash
+    ObjPtr value = nilptr;
+    if (stmt.m_initializer != nullptr) {
+        value = evaluate(stmt.m_initializer);
+    }
+    m_env->define(stmt.m_name->lexeme, value);
+
+    // log environment state for debugging
+    logState();
+}
+
+void Interpreter::visitWhileStmt(WhileStmt& stmt) {
+    auto val  = evaluate(stmt.m_condition);
+    while (isTruthy(val)) {
+        try {
+            execute(stmt.m_body);
+            val  = evaluate(stmt.m_condition);
+            // Note: catching must be by reference, not by value
+        } catch(Jump& jmp) {
+            if (jmp.m_keyword->lexeme == "break") break;
+            if (jmp.m_keyword->lexeme == "continue") continue;
+        }
+
+    }
+
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 

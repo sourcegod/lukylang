@@ -1,6 +1,6 @@
 #ifndef STMT_HPP
 #define STMT_HPP
-
+#include "common.hpp"
 #include "expr.hpp"
 #include "lukobject.hpp"
 #include "token.hpp"
@@ -12,18 +12,17 @@
 class BlockStmt;
 class BreakStmt;
 class ClassStmt;
-class Expr;
 class ExpressionStmt;
 class FunctionStmt;
 class IfStmt;
 class PrintStmt;
 class ReturnStmt;
-class Stmt;
 class VarStmt;
 class WhileStmt;
 
-using PStmt = std::shared_ptr<Stmt>;
-using PFunc = std::shared_ptr<FunctionStmt>;
+// using StmtPtr = StmtPtr;
+// using FuncPtr = std::shared_ptr<FunctionStmt>;
+
 class StmtVisitor {
 public:
     virtual void visitBlockStmt(BlockStmt&) =0;
@@ -46,88 +45,69 @@ public:
 
 class BlockStmt : public Stmt {
 public:
-    BlockStmt(std::vector<PStmt> _statements) {
-        statements = std::move(_statements);
-    }
+    BlockStmt(std::vector<StmtPtr>&& statements) :
+        m_statements(std::move(statements))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitBlockStmt(*this);
     }
-    std::vector<PStmt> statements;
+    std::vector<StmtPtr> m_statements;
 
 };
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(TokPtr name, std::shared_ptr<VariableExpr> superclass, std::vector<PFunc> methods) {
-      m_name = name;  
-      m_superclass = std::move(superclass);
-      m_methods = std::move(methods);
-    }
+    ClassStmt(TokPtr& name, std::shared_ptr<VariableExpr>& superclass, std::vector<FuncPtr>&& methods) :
+      m_name(name),
+      m_superclass(std::move(superclass)),
+      m_methods(std::move(methods))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitClassStmt(*this);
     }
     TokPtr m_name;
     std::shared_ptr<VariableExpr> m_superclass;
-    std::vector<PFunc> m_methods;
+    std::vector<FuncPtr> m_methods;
 
 };
 
 
 class BreakStmt : public Stmt {
 public:
-    BreakStmt(TokPtr& keyword) 
-      : m_keyword(keyword) {}
+    BreakStmt(TokPtr& keyword)  :
+      m_keyword(keyword) 
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitBreakStmt(*this);
     }
+    
     TokPtr m_keyword;
-
 };
 
 
 class ExpressionStmt : public Stmt {
 public:
-    ExpressionStmt(std::shared_ptr<Expr> _expr) {
-        expression = std::move(_expr);
-    }
+    ExpressionStmt(ExprPtr expr) :
+        m_expression(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitExpressionStmt(*this);
     }
 
-    std::shared_ptr<Expr> expression;
-};
-
-class IfStmt : public Stmt {
-public:
-    IfStmt(PExpr _condition, PStmt _thenBranch, 
-            PStmt _elseBranch) {
-        condition = std::move(_condition);
-        thenBranch  = std::move(_thenBranch);
-        elseBranch = std::move(_elseBranch);
-    }
-
-    void accept(StmtVisitor& v) override {
-        v.visitIfStmt(*this);
-    }
-
-    std::shared_ptr<Expr> condition;
-    std::shared_ptr<Stmt> thenBranch;
-    std::shared_ptr<Stmt> elseBranch;
-
+    ExprPtr m_expression;
 };
 
 class FunctionStmt : public Stmt {
 public:
     FunctionStmt() {}
-    FunctionStmt(TokPtr& _name, std::vector<TokPtr>& _params, std::vector<PStmt>& _body) {
-        name = _name;
-        params = std::move(_params);
-        body  = std::move(_body);
-    }
+    FunctionStmt(TokPtr& name, std::shared_ptr<FunctionExpr> function) :
+        m_name(name),
+        m_function(function)
+    {}
 
     
     // Note: to prevent deleting pointer object by user, you can use the delete operator
@@ -144,71 +124,88 @@ public:
     void accept(StmtVisitor& v) override {
         v.visitFunctionStmt(*this);
     }
-    TokPtr name;
-    std::vector<TokPtr> params;
-    std::vector<PStmt> body;
-
+    
+    TokPtr m_name;
+    std::shared_ptr<FunctionExpr> m_function;
 };
 
 
+class IfStmt : public Stmt {
+public:
+    IfStmt(ExprPtr condition, StmtPtr thenBranch, 
+            StmtPtr elseBranch) :
+        m_condition(std::move(condition)),
+        m_thenBranch(std::move(thenBranch)),
+        m_elseBranch(std::move(elseBranch))
+    {}
+
+    void accept(StmtVisitor& v) override {
+        v.visitIfStmt(*this);
+    }
+
+    ExprPtr m_condition;
+    StmtPtr m_thenBranch;
+    StmtPtr m_elseBranch;
+
+};
+
 class PrintStmt : public Stmt {
 public:
-    PrintStmt(std::shared_ptr<Expr> _expr) {
-        expression = std::move(_expr);
-    }
+    PrintStmt(ExprPtr expr) :
+        m_expression(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitPrintStmt(*this);
     }
 
-    std::shared_ptr<Expr> expression;
-
+    ExprPtr m_expression;
 };
 
 class ReturnStmt : public Stmt {
 public:
-    ReturnStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
-        name = _name;
-        value = std::move(_expr);
-    }
+    ReturnStmt(TokPtr& name, ExprPtr expr) :
+        m_name(name),
+        m_value(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitReturnStmt(*this);
     }
-    TokPtr name;
-    std::shared_ptr<Expr> value;
+    TokPtr m_name;
+    ExprPtr m_value;
 
 };
 
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(TokPtr _name, std::shared_ptr<Expr> _expr) {
-        name = _name;
-        initializer = std::move(_expr);
-    }
+    VarStmt(TokPtr& name, ExprPtr expr) :
+        m_name(name),
+        m_initializer(std::move(expr))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitVarStmt(*this);
     }
-    TokPtr name;
-    std::shared_ptr<Expr> initializer;
+    TokPtr m_name;
+    ExprPtr m_initializer;
 
 };
 
 class WhileStmt : public Stmt {
 public:
-    WhileStmt(PExpr _condition, PStmt _body) { 
-        condition = std::move(_condition);
-        body  = std::move(_body);
-    }
+    WhileStmt(ExprPtr condition, StmtPtr body) :
+        m_condition(std::move(condition)),
+        m_body(std::move(body))
+    {}
 
     void accept(StmtVisitor& v) override {
         v.visitWhileStmt(*this);
     }
 
-    std::shared_ptr<Expr> condition;
-    std::shared_ptr<Stmt> body;
+    ExprPtr m_condition;
+    StmtPtr m_body;
 };
 
 

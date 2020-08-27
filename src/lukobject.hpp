@@ -1,6 +1,7 @@
 #ifndef LUKOBJECT_HPP
 #define LUKOBJECT_HPP
 
+#include "common.hpp"
 #include "lukinstance.hpp"
 #include "logger.hpp"
 #include "token.hpp"
@@ -22,8 +23,7 @@ class LukCallable;
 class LukFunction;
 class LukObject;
 class LukInstance;
-using TObject = LukObject;
-using ObjPtr = std::shared_ptr<LukObject>;
+// using ObjPtr = std::shared_ptr<LukObject>;
 // macro to make global variable the static nilptr
 #define nilptr LukObject::getStatNilPtr()
 
@@ -169,6 +169,8 @@ public:
     // assignment operators 
     // TODO: convert nullptr to shared_ptr lukobject
     std::shared_ptr<LukObject> operator=(nullptr_t);
+    std::shared_ptr<LukObject> operator=(ObjPtr obj);
+    
     LukObject& operator=(const bool&& val);
     LukObject& operator=(const int&& val);
     LukObject& operator=(const double&& val);

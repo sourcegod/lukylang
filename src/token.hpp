@@ -1,14 +1,12 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
-#include "logger.hpp"
 
+#include "common.hpp"
+#include "logger.hpp"
 #include <string>
 #include <memory> // for smart pointers
 
-// forward declaration
-class Token;
-
-using TokPtr = std::shared_ptr<Token>;
+// using TokPtr = std::shared_ptr<Token>;
 enum class TokenType {
     // Single-character tokens.
     LEFT_PAREN, RIGHT_PAREN,

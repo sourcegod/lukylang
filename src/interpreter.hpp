@@ -1,16 +1,18 @@
 #ifndef INTERPRETER_HPP
 #define INTERPRETER_HPP
 
+#include "common.hpp"
 #include "expr.hpp"
 #include "stmt.hpp"
 #include "environment.hpp"
+
 #include <string>
 #include <vector>
 #include <unordered_map>
 
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
-    PEnvironment m_globals;
+    EnvPtr m_globals;
 
     Interpreter();
     ~Interpreter() { 
@@ -22,6 +24,27 @@ public:
     void logState();
     void logTest();
 
+    ObjPtr evaluate(ExprPtr expr);
+    void execute(StmtPtr& stmt);
+   
+    // expressions
+    ObjPtr visitAssignExpr(AssignExpr& expr) override;
+    ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
+    ObjPtr visitCallExpr(CallExpr& expr) override;
+    ObjPtr visitFunctionExpr(FunctionExpr& expr);
+    ObjPtr visitGetExpr(GetExpr& expr);
+    ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
+    ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 
+    ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
+    ObjPtr visitSetExpr(SetExpr& expr);
+    ObjPtr visitSuperExpr(SuperExpr& expr);
+    ObjPtr visitThisExpr(ThisExpr& expr);
+    ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
+    ObjPtr visitVariableExpr(VariableExpr& expr) override;
+
+    void resolve(Expr& expr, int depth);
+    void executeBlock(std::vector<StmtPtr>& statements, EnvPtr env);
+    //
     // statements    
     void visitBlockStmt(BlockStmt& stmt) override;
     void visitBreakStmt(BreakStmt& stmt) override;
@@ -33,30 +56,11 @@ public:
     void visitReturnStmt(ReturnStmt& stmt) override;
     void visitVarStmt(VarStmt& stmt) override;
     void visitWhileStmt(WhileStmt& stmt) override;
-    
-    // expressions
-    ObjPtr visitAssignExpr(AssignExpr& expr) override;
-    ObjPtr visitBinaryExpr(BinaryExpr& expr) override;
-    ObjPtr visitCallExpr(CallExpr& expr) override;
-    ObjPtr visitGetExpr(GetExpr& expr);
-    ObjPtr visitGroupingExpr(GroupingExpr& expr) override;
-    ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
-    ObjPtr visitLiteralExpr(LiteralExpr& expr) override; 
-    ObjPtr visitSetExpr(SetExpr& expr);
-    ObjPtr visitSuperExpr(SuperExpr& expr);
-    ObjPtr visitThisExpr(ThisExpr& expr);
-    ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
-    ObjPtr visitVariableExpr(VariableExpr& expr) override;
-
-    ObjPtr evaluate(PExpr expr);
-    void execute(PStmt& stmt);
-    void resolve(Expr& expr, int depth);
-    void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
-
+ 
 private:
-    PEnvironment m_environment;
+    EnvPtr m_env;
     ObjPtr m_result;
-    const std::string errTitle = "InterpretError: ";
+    const std::string m_errTitle = "InterpretError: ";
     std::unordered_map<unsigned, int> m_locals;
 
     bool isTruthy(ObjPtr& obj);

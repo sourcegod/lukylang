@@ -1,19 +1,20 @@
 #ifndef ENVIRONMENT_HPP
 #define ENVIRONMENT_HPP
 
-#include <string>
-#include <unordered_map>
+#include "common.hpp"
 #include "token.hpp"
 #include "lukobject.hpp"
 #include "logger.hpp"
 
+#include <string>
+#include <unordered_map>
 #include <memory> // smart pointers
 
 class LukObject;
 class Environment;
 class CTracer;
-using TObject = LukObject;
-using PEnvironment = std::shared_ptr<Environment>;
+
+// using EnvPtr = std::shared_ptr<Environment>;
 
 class Environment {
 protected:
@@ -22,7 +23,7 @@ public:
     int m_id;
     std::string m_name;
     
-    PEnvironment m_enclosing;
+    EnvPtr m_enclosing;
     Environment() 
     : m_id(++next_id) { 
         m_enclosing = nullptr;
@@ -32,7 +33,7 @@ public:
         logMsg("\nIn Environment constructor, name: ", m_name);
     }
     
-    explicit Environment(PEnvironment encl)
+    explicit Environment(EnvPtr encl)
         : m_id(++next_id), m_enclosing(encl) {
             setName();
             // std::cerr << "Env: copy ctor: " << m_name << "\n"; 

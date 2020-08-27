@@ -1,12 +1,13 @@
-#include <fstream> // for file
-#include <iostream> // for IO buffer
-#include <sstream> // for string buffer
+#include "common.hpp"
 #include "lukerror.hpp"
-#include "token.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
 #include "resolver.hpp"
 #include "interpreter.hpp"
+
+#include <fstream> // for file
+#include <iostream> // for IO buffer
+#include <sstream> // for string buffer
 
 using namespace std;
 // test macro from the preprocessor to retriev string
@@ -56,8 +57,8 @@ static void run(const std::string& source, LukError& lukErr) {
     if (lukErr.hadError) return;
     
     // Interpreter
-    // interp.interpret(std::move(stmts));
-    interp.interpret((stmts));
+    interp.interpret(std::move(stmts));
+    // interp.interpret((stmts));
 
 
     std::cout << std::endl;

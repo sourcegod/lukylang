@@ -147,8 +147,8 @@ LukObject::LukObject(TokPtr& tokP)
 }
 
 
-LukObject::LukObject(nullptr_t nup) {
-  logMsg("\In LukObject constructor nullptr: ");
+LukObject::LukObject(nullptr_t) {
+  logMsg("\nIn LukObject constructor nullptr: ");
         m_type = LukType::Nil;
         m_string = "nil";
         // p_string = nullptr;
@@ -283,7 +283,7 @@ std::string LukObject::_toString() const {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Number: return std::to_string(m_number);
-        case LukType::String: m_string;
+        case LukType::String: return m_string;
           // return *p_string;
         case LukType::Callable: 
         case LukType::Instance: 
@@ -313,7 +313,7 @@ void LukObject::cast(LukType tp) {
 
 // assignment operators
 std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
-  logMsg("\In LukObject nullptr assignment operator: ");
+  logMsg("\nIn LukObject nullptr assignment operator: ");
         m_type = LukType::Nil;
         m_string = "nil";
         // p_string = nullptr;
@@ -321,6 +321,16 @@ std::shared_ptr<LukObject> LukObject::operator=(nullptr_t) {
         p_instance = nullptr;
         return std::make_shared<LukObject>(*this);
 }
+
+std::shared_ptr<LukObject> LukObject::operator=(ObjPtr obj) {
+  logMsg("\nIn LukObject shared pointer  assignment operator: ");
+        m_type = obj->m_type;
+        m_string = obj->m_string;
+        p_callable = obj->p_callable;
+        p_instance = obj->p_instance;
+        return std::make_shared<LukObject>(*this);
+}
+
 
 LukObject& LukObject::operator=(const bool&& val) 
 {

@@ -47,31 +47,33 @@ void Resolver::resolve(std::vector<std::shared_ptr<Stmt>>& statements) {
 }
 
 // resolve statement
-void Resolver::resolve(PStmt& stmt) {
+void Resolver::resolve(StmtPtr& stmt) {
   stmt->accept(*this);
 }
 
-void Resolver::resolveFunction(FunctionStmt& func, FunctionType ft) {
+void Resolver::resolveFunction(FunctionExpr& func, FunctionType ft) {
   auto enclosingFt = m_curFunction;
   m_curFunction = ft;
   beginScope();
-  for (TokPtr& param: func.params) {
+  for (TokPtr& param: func.m_params) {
     declare(param);
     define(param);
   }
 
-  resolve(func.body);
+  resolve(func.m_body);
   endScope();
   m_curFunction = enclosingFt;
 }
 
 // resolve expressions
-void Resolver::resolve(PExpr expr) {
+void Resolver::resolve(ExprPtr expr) {
   expr->accept(*this);
 }
 
 void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
-  // TODO: why we cannot receive as argument an Expr& instead Expr* ???
+  // FIX: why we cannot receive as argument an Expr& instead Expr* ???
+  // because expr is a pointer object, and a non const object, 
+  // so, we cannot pass as a constant (&) object.
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
     auto iter = scope.find(name->lexeme);
@@ -86,27 +88,34 @@ void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
 
 // expressions
 ObjPtr Resolver::visitAssignExpr(AssignExpr& expr) {
-  resolve(expr.value);
-  resolveLocal(&expr, expr.name);
+    logMsg("\nIn visitAssignExpr, Resolver, name:  ", expr.m_name);
+    resolve(expr.m_value);
+    resolveLocal(&expr, expr.m_name);
   
   return nilptr;
 }
 
 ObjPtr Resolver::visitBinaryExpr(BinaryExpr& expr) {
-  resolve(expr.left);
-  resolve(expr.right);
+  resolve(expr.m_left);
+  resolve(expr.m_right);
   
   return nilptr;
 }
 
 ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
-  resolve(expr.callee);
-  for (std::shared_ptr<Expr>& arg : expr.args) {
+  resolve(expr.m_callee);
+  for (std::shared_ptr<Expr>& arg : expr.m_args) {
     resolve(arg);
   }
 
   return nilptr;
 }
+
+ObjPtr Resolver::visitFunctionExpr(FunctionExpr& expr) {
+  resolveFunction(expr, FunctionType::Function);
+  return nilptr;
+}
+
 
 ObjPtr Resolver::visitGetExpr(GetExpr& expr) {
   resolve(expr.m_object);
@@ -115,20 +124,20 @@ ObjPtr Resolver::visitGetExpr(GetExpr& expr) {
 }
 
 ObjPtr Resolver::visitGroupingExpr(GroupingExpr& expr) {
-  resolve(expr.expression);
+  resolve(expr.m_expression);
  
   return nilptr;
 }
 
 ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
-    logMsg("\nIn visitLiteralExpr, Resolver");
+    logMsg("\nIn visitLiteralExpr, Resolver, value: ", expr.m_value->toString());
 
     return nilptr;
 }
 
 ObjPtr Resolver::visitLogicalExpr(LogicalExpr& expr) {
-  resolve(expr.left);
-  resolve(expr.right);
+  resolve(expr.m_left);
+  resolve(expr.m_right);
   
   return nilptr;
 }
@@ -156,18 +165,18 @@ ObjPtr Resolver::visitSuperExpr(SuperExpr& expr) {
 
 
 ObjPtr Resolver::visitThisExpr(ThisExpr& expr) {
-
   if (currentClass == ClassType::None) {
       m_lukErr.error(errTitle, expr.m_keyword,
           "Cannot use 'this' outside of a class.");
     }
 
   resolveLocal(&expr, expr.m_keyword);
+
   return nilptr;
 }
 
 ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
-  resolve(expr.right);
+  resolve(expr.m_right);
   
   return nilptr;
 }
@@ -175,12 +184,12 @@ ObjPtr Resolver::visitUnaryExpr(UnaryExpr& expr) {
 ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
-    auto iter = scope.find(expr.name->lexeme);
+    auto iter = scope.find(expr.m_name->lexeme);
     if (iter != scope.end() && iter->second == false) {
-      m_lukErr.error(errTitle, expr.name, "Cannot read local variable in its own initializer.");
+      m_lukErr.error(errTitle, expr.m_name, "Cannot read local variable in its own initializer.");
     }
   }
-  resolveLocal(&expr, expr.name);
+  resolveLocal(&expr, expr.m_name);
 
   return nilptr;
 }
@@ -188,19 +197,14 @@ ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
 // statements
 void Resolver::visitBlockStmt(BlockStmt& stmt) {
   beginScope();
-  resolve(stmt.statements);
+  resolve(stmt.m_statements);
   endScope();
 
 }
 
-void Resolver::visitBreakStmt(BreakStmt& stmt) {
+void Resolver::visitBreakStmt(BreakStmt& /*stmt*/) {
 }
 
-
-void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
-  resolve(stmt.expression);
-
-}
 
 void Resolver::visitClassStmt(ClassStmt& stmt) {
   ClassType enclosingClass = currentClass;
@@ -210,13 +214,13 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   define(stmt.m_name);
 
   if (stmt.m_superclass != nullptr &&
-      stmt.m_name->lexeme == stmt.m_superclass->name->lexeme) {
-      m_lukErr.error(errTitle, stmt.m_superclass->name,
+      stmt.m_name->lexeme == stmt.m_superclass->m_name->lexeme) {
+      m_lukErr.error(errTitle, stmt.m_superclass->m_name,
         "A class cannot inherit from itself.");
   }
 
   if (stmt.m_superclass != nullptr) {
-    // Note: changing resolve(PExpr&) to resolve(Pexpr), to accept VariableExpr as parameter
+    // Note: changing resolve(ExprPtr&) to resolve(ExprPtr), to accept VariableExpr as parameter
     currentClass = ClassType::Subclass;
     resolve(stmt.m_superclass);
   }
@@ -233,13 +237,12 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   auto& scope = m_scopes.back(); 
   scope["this"] = true;
 
-  for (auto method: stmt.m_methods) {
+  for (auto funcStmt: stmt.m_methods) {
     auto declaration = FunctionType::Method;
-    if (method->name->lexeme == "init") {
+    if (funcStmt->m_name->lexeme == "init") {
       declaration = FunctionType::Initializer;
     }
-
-    resolveFunction(*method, declaration); // [local] 
+    resolveFunction(*funcStmt->m_function, declaration); // [local] 
   }
 
   endScope();
@@ -247,51 +250,57 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
   currentClass = enclosingClass;
 }
 
-void Resolver::visitIfStmt(IfStmt& stmt) {
-  resolve(stmt.condition);
-  resolve(stmt.thenBranch);
-  if (stmt.elseBranch != nullptr) resolve(stmt.elseBranch);
+
+void Resolver::visitExpressionStmt(ExpressionStmt& stmt) {
+  resolve(stmt.m_expression);
+}
+
+
+void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
+  declare(stmt.m_name);
+  define(stmt.m_name);
+  resolveFunction(*stmt.m_function, FunctionType::Function);
 
 }
 
-void Resolver::visitFunctionStmt(FunctionStmt& stmt) {
-  declare(stmt.name);
-  define(stmt.name);
-  resolveFunction(stmt, FunctionType::Function);
+
+void Resolver::visitIfStmt(IfStmt& stmt) {
+  resolve(stmt.m_condition);
+  resolve(stmt.m_thenBranch);
+  if (stmt.m_elseBranch != nullptr) resolve(stmt.m_elseBranch);
 
 }
 
 void Resolver::visitPrintStmt(PrintStmt& stmt) {
-  resolve(stmt.expression);
+  resolve(stmt.m_expression);
 
 }
 
 void Resolver::visitReturnStmt(ReturnStmt& stmt) {
   if (m_curFunction == FunctionType::None)
-    m_lukErr.error(errTitle, stmt.name, "Cannot return from top-level code.");
-  if (stmt.value != nullptr) {
+    m_lukErr.error(errTitle, stmt.m_name, "Cannot return from top-level code.");
+  if (stmt.m_value != nullptr) {
     if (m_curFunction == FunctionType::Initializer) {
-        m_lukErr.error(errTitle, stmt.name,
+        m_lukErr.error(errTitle, stmt.m_name,
             "Cannot return a value from an initializer.");
     }
     
-    resolve(stmt.value);
+    resolve(stmt.m_value);
   }
 
 }
 
 void Resolver::visitVarStmt(VarStmt& stmt) {
-  declare(stmt.name);
-  if (stmt.initializer != nullptr) {
-    resolve(stmt.initializer);
+  declare(stmt.m_name);
+  if (stmt.m_initializer != nullptr) {
+    resolve(stmt.m_initializer);
   }
-  define(stmt.name);
+  define(stmt.m_name);
 
 }
 
 void Resolver::visitWhileStmt(WhileStmt& stmt) {
-  resolve(stmt.condition);
-  resolve(stmt.body);
-
+  resolve(stmt.m_condition);
+  resolve(stmt.m_body);
 }
 
