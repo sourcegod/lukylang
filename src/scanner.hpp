@@ -45,7 +45,8 @@ class Scanner {
     void string();
     void number();
     void identifier();
-
+    void skipComments();
+    void skipMultilineComments();
    
     // Reserved keywords
     std::unordered_map<std::string, TokenType> keywords;

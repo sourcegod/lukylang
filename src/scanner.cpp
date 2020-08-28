@@ -86,8 +86,10 @@ void Scanner::scanToken() {
         case '/':
             if (match('/')) {
                 // a comment goes until the end of the line.
-                while (peek() != '\n' && !isAtEnd())
-                    advance();
+                skipComments();
+                // while (peek() != '\n' && !isAtEnd()) advance();
+            } else if (match('*')) {
+                skipMultilineComments();
             } else {
                 addToken(TokenType::SLASH);
             }
@@ -234,3 +236,33 @@ const std::vector<TokPtr>&& Scanner::scanTokens() {
     // Note: move function must be used when returning vector of pointer.
     return std::move(m_tokens);
 }
+
+void Scanner::skipComments() {
+    while (!isAtEnd()) {
+        if (peek() != '\n') {
+            advance();
+        } else {
+            line++;
+            col =0;
+            return;
+        }
+    }
+
+}
+
+
+void Scanner::skipMultilineComments() {
+    while (!isAtEnd()) {
+        advance();
+        if (peek() == '\n') {
+            line++;
+            col =0;
+            continue;
+        }
+        if (peek() == '/' && peekNext() == '*') skipMultilineComments();
+        if (match('*') && match('/')) break;
+    }
+
+}
+
+
