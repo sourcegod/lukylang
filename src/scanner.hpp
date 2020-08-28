@@ -30,21 +30,21 @@ class Scanner {
     LukError& lukErr;
     const std::string errTitle = "ScanError: ";
 
-    char advance();
     void scanToken();
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);
 
+    char advance();
     bool isAtEnd() const;
+    void identifier();
+    void number();
+    void string();
     bool match(char);
     char peek() const;
     char peekNext() const;
     bool isDigit(char) const;
     bool isAlpha(char) const;
     bool isAlNum(char) const;
-    void string();
-    void number();
-    void identifier();
     void skipComments();
     void skipMultilineComments();
    
