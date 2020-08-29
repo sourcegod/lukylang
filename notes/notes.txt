@@ -5,6 +5,17 @@ Last update: Sat, 29/08/2020
 Last version: v0.29
 
 
+  0. Changelog
+# v0.29: nested multiline comments
+
+# Version 0.28: Lambda Function
+
+# Version 0.27: optimization 1
+
+# Version 0.26: superclass
+
+#--------------------------------------------------------------------------------
+
   1. Compile
 1.1 
 -- Using SConstruct file with scons script.
@@ -168,7 +179,7 @@ type.
 # v0.28:
 ...
 
-# v0.29:
+# v0.29: Nested multiline comments
 -- Adding skipComments and skipMultiComments functions in the Scanner class.
 -- Reordered functions and renamed global variables.
 
@@ -383,11 +394,18 @@ and returning ObjPtr type instead LukObject type.
 # v0.28: Lambda function
 -- Adding lambda file to the examples directory.
 
-8.2 Tests directory# v0.27:
+# v0.29: Nested multiline comments 
+-- Adding multiline_comments file in examples directory.
+
+8.2 Tests directory
+# v0.27:
 -- Adding tests files to the tests directory.
 
 # v0.28: Lambda function
 -- Adding lambda file to the tests directory.
+
+# v0.29: Nested multiline comments 
+-- Adding multiline_comments file in tests directory.
 
 
 8.3 Notes directory
