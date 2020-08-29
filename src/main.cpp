@@ -12,6 +12,8 @@
 using namespace std;
 // test macro from the preprocessor to retriev string
 // #define stringify( name ) #name
+const std::string m_errTitle = "LukyError: ";
+LukError m_lukErr;
 
 /*
 static void printer(const vector<Token>& v_tokens) {
@@ -35,26 +37,33 @@ static void printer(const vector<Token>& v_tokens) {
 
 }
 */
+bool hasOnlySpaces(const std::string& str) {
+    // ignore spaces, tabs, newlines,
+    // vertical tabs, feeds and carriage returns
+    return str.find_first_not_of(" \t\n\v\f\r") == std::string::npos;
+}
 
-static void run(const std::string& source, LukError& lukErr) {
+static void run(const std::string& source) {
+    if (source.empty() || hasOnlySpaces(source)) return;
+
     // scanner
-    Scanner scanner(source, lukErr);
+    Scanner scanner(source, m_lukErr);
     const std::vector<TokPtr>&& v_tokens = scanner.scanTokens();
-    if (lukErr.hadError) return;
+    if (m_lukErr.hadError) return;
     // printer
     // printer(tokens);
     // /*
     // parser
-    Parser parser(std::move(v_tokens), lukErr);
+    Parser parser(std::move(v_tokens), m_lukErr);
     auto stmts = parser.parse();
     // if found error during parsing, report
-    if (lukErr.hadError)  return;
+    if (m_lukErr.hadError)  return;
     static Interpreter  interp;
-    Resolver resol(interp, lukErr);
+    Resolver resol(interp, m_lukErr);
     resol.resolve((stmts));
     
     // Stop if there was a resolution error.
-    if (lukErr.hadError) return;
+    if (m_lukErr.hadError) return;
     
     // Interpreter
     interp.interpret(std::move(stmts));
@@ -65,30 +74,37 @@ static void run(const std::string& source, LukError& lukErr) {
 
 }
 
-static void runFile(const std::string& path, LukError& LukError) {
+static void runFile(const std::string& path) {
+  // TODO: use filesystem library in C++17 to check whether file exists
     std::ifstream file(path);
+    if (!file.is_open()) {
+      const std::string msg = "cannot open file " + path;
+      m_lukErr.error(m_errTitle, msg);
+      return;
+    }
+
     std::ostringstream stream;
     stream << file.rdbuf();
     file.close();
-    run(stream.str(), LukError);
+    run(stream.str());
 }
 
-static void runPrompt(LukError& LukError) {
+static void runPrompt() {
     std::string line;
     while (1) {
         std::cout << "-> ";
         // manage ctrl-D to exit the input loop
         if (!getline(std::cin, line)) break;
         if (line == "") continue;
-        run(line, LukError);
-        LukError.hadError = false;
+        run(line);
+        m_lukErr.hadError = false;
     }
 
 }
 
-static void runCommand(const std::string& line, LukError& LukError) {
-    run(line, LukError);
-    LukError.hadError = false;
+static void runCommand(const std::string& line) {
+    run(line);
+    m_lukErr.hadError = false;
 
 }
 
@@ -112,21 +128,21 @@ static void test() {
 
 int main(int argc, char* argv[]) {
     // test();
-    LukError lukErr;
+    // LukError lukErr;
     if (argc >2) {
         const std::string opt = std::string(argv[1]);
         if (opt == "-c") {
             const std::string line = argv[2];
-            runCommand(line, lukErr);
+            runCommand(line);
         } else {
             cout << "Usage: luky [filename]\n" 
               << "-c: line" << endl;
         }
     } else if (argc == 2) {
         cout << "Run file " << argv[1] << endl;
-        runFile(argv[1], lukErr);
+        runFile(argv[1]);
     } else {
-        runPrompt(lukErr);
+        runPrompt();
     }
 
     return 0;
