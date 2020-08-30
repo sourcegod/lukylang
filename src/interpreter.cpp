@@ -382,6 +382,11 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         case TokenType::MINUS:
             checkNumberOperand(expr.m_op, right);
             return std::make_shared<LukObject>(-right->getNumber());
+
+        case TokenType::PLUS:
+            checkNumberOperand(expr.m_op, right);
+            return std::make_shared<LukObject>(right->getNumber());
+
         default: break;
     }
 

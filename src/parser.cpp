@@ -350,9 +350,9 @@ ExprPtr Parser::multiplication() {
 }
 
 ExprPtr Parser::unary() {
-    if (match({TokenType::BANG, TokenType::MINUS})) {
+    if (match({TokenType::BANG, TokenType::MINUS, TokenType::PLUS})) {
         TokPtr op = previous();
-        ExprPtr right    = unary();
+        ExprPtr right = unary();
         return std::make_shared<UnaryExpr>(op, right);
     }
 
