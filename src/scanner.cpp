@@ -1,38 +1,51 @@
 #include "scanner.hpp"
 #include "lukerror.hpp"
 
-Scanner::Scanner(const std::string& _source, LukError& _lukErr)
-      : start(0), current(0),
-      line(1), col(1),
-      source(_source), lukErr(_lukErr) {
-    
+Scanner::Scanner(const std::string& source, LukError& lukErr)
+      : m_start(0), m_current(0),
+      m_line(1), m_col(0),
+      m_source(source), m_lukErr(lukErr) {
     logMsg("\nIn Scanner constructor");
-    // initialize reserved keywords map
-    keywords["and"]    = TokenType::AND;
-    keywords["break"]    = TokenType::BREAK;
-    keywords["class"]  = TokenType::CLASS;
-    keywords["continue"]    = TokenType::CONTINUE;
-    keywords["else"]   = TokenType::ELSE;
-    keywords["false"]  = TokenType::FALSE;
-    keywords["for"]    = TokenType::FOR;
-    keywords["fun"]    = TokenType::FUN;
-    keywords["if"]     = TokenType::IF;
-    keywords["nil"]    = TokenType::NIL;
-    keywords["or"]     = TokenType::OR;
-    keywords["print"]  = TokenType::PRINT;
-    keywords["return"] = TokenType::RETURN;
-    keywords["super"]  = TokenType::SUPER;
-    keywords["this"]   = TokenType::THIS;
-    keywords["true"]   = TokenType::TRUE;
-    keywords["var"]    = TokenType::VAR;
-    keywords["while"]  = TokenType::WHILE;
+    // initialize reserved m_keywords map
+    m_keywords["and"]    = TokenType::AND;
+    m_keywords["break"]    = TokenType::BREAK;
+    m_keywords["class"]  = TokenType::CLASS;
+    m_keywords["continue"]    = TokenType::CONTINUE;
+    m_keywords["else"]   = TokenType::ELSE;
+    m_keywords["false"]  = TokenType::FALSE;
+    m_keywords["for"]    = TokenType::FOR;
+    m_keywords["fun"]    = TokenType::FUN;
+    m_keywords["if"]     = TokenType::IF;
+    m_keywords["nil"]    = TokenType::NIL;
+    m_keywords["or"]     = TokenType::OR;
+    m_keywords["print"]  = TokenType::PRINT;
+    m_keywords["return"] = TokenType::RETURN;
+    m_keywords["super"]  = TokenType::SUPER;
+    m_keywords["this"]   = TokenType::THIS;
+    m_keywords["true"]   = TokenType::TRUE;
+    m_keywords["var"]    = TokenType::VAR;
+    m_keywords["while"]  = TokenType::WHILE;
 }
 
-char Scanner::advance() {
-    current++;
-    col++;
-    return source[current - 1];
+void Scanner::addToken(const TokenType type, const std::string& literal) {
+    // FIXE: manage the right lexeme
+    const size_t lexLen = m_current - m_start;
+    // avoid string copy
+    auto lexeme = literal;
+    if (type != TokenType::IDENTIFIER ||
+            type != TokenType::NUMBER ||
+            type != TokenType::STRING) {
+        lexeme = m_source.substr(m_start, lexLen);
+    }
+    
+    // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
 }
+
+void Scanner::addToken(const TokenType _tokenType) { 
+    addToken(_tokenType, ""); 
+}
+
 
 void Scanner::scanToken() {
     const char c = advance();
@@ -85,9 +98,11 @@ void Scanner::scanToken() {
             break;
         case '/':
             if (match('/')) {
-                // a comment goes until the end of the line.
-                while (peek() != '\n' && !isAtEnd())
-                    advance();
+                // a comment goes until the end of the m_line.
+                skipComments();
+                // while (peek() != '\n' && !isAtEnd()) advance();
+            } else if (match('*')) {
+                skipMultilineComments();
             } else {
                 addToken(TokenType::SLASH);
             }
@@ -101,8 +116,8 @@ void Scanner::scanToken() {
             // ignore whitespace
             break;
         case '\n':
-            line++;
-            col =1;
+            m_line++;
+            m_col =0;
             break;
         default: {
             if (isDigit(c)) {
@@ -112,20 +127,34 @@ void Scanner::scanToken() {
             } else {
                 std::string errMessage = "Unexpected character: ";
                 errMessage += c;
-                lukErr.error(errTitle, line, col, errMessage);
+                m_lukErr.error(m_errTitle, m_line, m_col, errMessage);
                 break;
             }
         }
     }
 }
 
-bool Scanner::isAlpha(const char c) const {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+const std::vector<TokPtr>&& Scanner::scanTokens() {
+    while (!isAtEnd()) {
+        // we are at the beginning of the next lexeme
+        m_start = m_current;
+        scanToken();
+    }
+    TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", m_line, m_col);
+    // Note: it will be safer to move the pointer to the vector
+    m_tokens.push_back( std::move(endOfFile) );
+    
+    // Note: move function must be used when returning vector of pointer.
+    return std::move(m_tokens);
 }
 
-bool Scanner::isAlNum(const char c) const {
-    return isAlpha(c) || isDigit(c);
+char Scanner::advance() {
+    m_current++;
+    m_col++;
+    return m_source[m_current - 1];
 }
+
+bool Scanner::isAtEnd() const { return m_current >= m_source.size(); }
 
 void Scanner::identifier() {
     // using "maximal munch"
@@ -133,16 +162,14 @@ void Scanner::identifier() {
     while (isAlNum(peek()))
         advance();
     // see if the identifier is a reserved keyword
-    const size_t idLen = current - start;
-    const std::string identifier  = source.substr(start, idLen);
-        if ( keywords.find(identifier) != keywords.end() ) {
-            addToken(keywords[identifier]);
+    const size_t idLen = m_current - m_start;
+    const std::string identifier  = m_source.substr(m_start, idLen);
+        if ( m_keywords.find(identifier) != m_keywords.end() ) {
+            addToken(m_keywords[identifier]);
     } else {
         addToken(TokenType::IDENTIFIER);
     }
 }
-
-bool Scanner::isDigit(const char c) const { return c >= '0' && c <= '9'; }
 
 void Scanner::number() {
     while (isDigit(peek()))
@@ -154,83 +181,89 @@ void Scanner::number() {
         while (isDigit(peek()))
             advance();
     }
-    const size_t numLen = current - start;
-    const std::string numberLiteral = source.substr(start, numLen);
+    const size_t numLen = m_current - m_start;
+    const std::string numberLiteral = m_source.substr(m_start, numLen);
     addToken(TokenType::NUMBER, numberLiteral);
 }
 
 void Scanner::string() {
     while (peek() != '"' && !isAtEnd()) {
         if (peek() == '\n') {
-            line++;
-            col=1;
+            m_line++;
+            m_col=0;
         }
         advance();
     }
     // unterminated string
     if (isAtEnd()) {
-        lukErr.error(errTitle, line, col, "Unterminated string.");
+        m_lukErr.error(m_errTitle, m_line, m_col, "Unterminated string.");
         return;
     }
     // closing "
     advance();
-    const size_t stringLen = current - start;
+    const size_t stringLen = m_current - m_start;
     // trim the surrounding quotes
-    const std::string stringLiteral = source.substr(start + 1, stringLen - 2);
+    const std::string stringLiteral = m_source.substr(m_start + 1, stringLen - 2);
     addToken(TokenType::STRING, stringLiteral);
 }
-
-void Scanner::addToken(const TokenType type, const std::string& literal) {
-    // FIXE: manage the right lexeme
-    const size_t lexLen = current - start;
-    // avoid string copy
-    auto lexeme = literal;
-    if (type != TokenType::IDENTIFIER ||
-            type != TokenType::NUMBER ||
-            type != TokenType::STRING) {
-        lexeme = source.substr(start, lexLen);
-    }
-    
-    // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
-    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, line, col) );
-}
-
-void Scanner::addToken(const TokenType _tokenType) { 
-    addToken(_tokenType, ""); 
-}
-
-bool Scanner::isAtEnd() const { return current >= source.size(); }
 
 bool Scanner::match(const char expected) {
     if (isAtEnd())
         return false;
-    if (source[current] != expected)
+    if (m_source[m_current] != expected)
         return false;
-    current++;
+    m_current++;
     return true;
 }
 
-char Scanner::peekNext() const {
-    if (current + 1 >= source.length())
-        return '\0';
-    return source[current + 1];
-}
 char Scanner::peek() const {
     if (isAtEnd())
         return '\0';
-    return source[current];
+    return m_source[m_current];
 }
 
-const std::vector<TokPtr>&& Scanner::scanTokens() {
-    while (!isAtEnd()) {
-        // we are at the beginning of the next lexeme
-        start = current;
-        scanToken();
-    }
-    TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", line, col);
-    // Note: it will be safer to move the pointer to the vector
-    m_tokens.push_back( std::move(endOfFile) );
-    
-    // Note: move function must be used when returning vector of pointer.
-    return std::move(m_tokens);
+char Scanner::peekNext() const {
+    if (m_current + 1 >= m_source.length())
+        return '\0';
+    return m_source[m_current + 1];
 }
+
+bool Scanner::isDigit(const char c) const { return c >= '0' && c <= '9'; }
+
+bool Scanner::isAlpha(const char c) const {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+}
+
+bool Scanner::isAlNum(const char c) const {
+    return isAlpha(c) || isDigit(c);
+}
+
+void Scanner::skipComments() {
+    while (!isAtEnd()) {
+        if (peek() != '\n') {
+            advance();
+        } else {
+            m_line++;
+            m_col =0;
+            return;
+        }
+    }
+
+}
+
+
+void Scanner::skipMultilineComments() {
+    while (!isAtEnd()) {
+        advance();
+        if (peek() == '\n') {
+            m_line++;
+            m_col =0;
+            continue;
+        }
+        if (peek() == '/' && peekNext() == '*') skipMultilineComments();
+        if (match('*') && match('/')) break;
+    }
+
+}
+
+

@@ -1,0 +1,17 @@
+// Test on comments
+
+print "Before multi comments";
+
+/* here is a comment
+on multiple lines
+// here is a single comm on single line
+/* and a new comm inserted */
+*/
+
+print "After multi comments";
+
+print "It's finish...";
+
+/* 
+Its finish 
+*/

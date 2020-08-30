@@ -7,11 +7,10 @@
 #include "lukerror.hpp"
 #include "token.hpp"
 
-// forward declarations
 
 class Scanner {
-  public:
-    Scanner(const std::string& _source, LukError& _lukErr);
+public:
+    Scanner(const std::string& source, LukError& lukErr);
     
     ~Scanner() {
       logMsg("\n~Scanner destructor");
@@ -20,35 +19,36 @@ class Scanner {
     const std::vector<TokPtr>&& scanTokens();
 
   private:
-    size_t start;
-    size_t current;
-    size_t line;
-    size_t col;
-    std::string source;
-    // std::vector<Token> tokens;
+    size_t m_start;
+    size_t m_current;
+    size_t m_line;
+    size_t m_col;
+    std::string m_source;
     std::vector<TokPtr> m_tokens;
-    LukError& lukErr;
-    const std::string errTitle = "ScanError: ";
+    LukError& m_lukErr;
+    const std::string m_errTitle = "ScanError: ";
+    // Reserved keywords
+    std::unordered_map<std::string, TokenType> m_keywords;
 
-    char advance();
-    void scanToken();
+
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);
 
+    void scanToken();
+    char advance();
     bool isAtEnd() const;
+    void identifier();
+    void number();
+    void string();
     bool match(char);
     char peek() const;
     char peekNext() const;
     bool isDigit(char) const;
     bool isAlpha(char) const;
     bool isAlNum(char) const;
-    void string();
-    void number();
-    void identifier();
-
+    void skipComments();
+    void skipMultilineComments();
    
-    // Reserved keywords
-    std::unordered_map<std::string, TokenType> keywords;
 };
 
 #endif // SCANNER_HPP
