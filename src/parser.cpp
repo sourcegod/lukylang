@@ -233,7 +233,6 @@ std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
     std::vector<StmtPtr> body = block();
 
     return std::make_shared<FunctionExpr>(params, body);
-
 }
 
 ExprPtr Parser::expression() {
@@ -304,52 +303,57 @@ ExprPtr Parser::logicAnd() {
 }
 
 ExprPtr Parser::equality() {
-    ExprPtr expr = comparison();
+    ExprPtr left = comparison();
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         TokPtr op = previous();
         ExprPtr right    = comparison();
-        expr = std::make_shared<BinaryExpr>(expr, op, right);
+        left = std::make_shared<BinaryExpr>(left, op, right);
     }
-    return expr;
+    
+    return left;
 }
 
 ExprPtr Parser::comparison() {
-    ExprPtr expr = addition();
+    ExprPtr left = addition();
     while (
         match({TokenType::GREATER, TokenType::LESS, 
             TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
         TokPtr op = previous();
         ExprPtr right = addition();
-        expr = std::make_shared<BinaryExpr>(expr, op, right);
+        left = std::make_shared<BinaryExpr>(left, op, right);
     }
-    return expr;
+    
+    return left;
 }
 
 ExprPtr Parser::addition() {
-    ExprPtr expr = multiplication();
+    ExprPtr left = multiplication();
     while (match({TokenType::MINUS, TokenType::PLUS})) {
-        TokPtr Operator = previous();
+        TokPtr op = previous();
         ExprPtr right = multiplication();
-        expr = std::make_shared<BinaryExpr>(expr, Operator, right);
+        left = std::make_shared<BinaryExpr>(left, op, right);
     }
-    return expr;
+    
+    return left;
 }
 
 ExprPtr Parser::multiplication() {
-    ExprPtr expr = unary();
-    while (match({TokenType::SLASH, TokenType::STAR})) {
-        TokPtr Operator = previous();
+    ExprPtr left = unary();
+    while (match({TokenType::SLASH, TokenType::STAR, TokenType::MODULO})) {
+        // Note: cannot use operator as variable name, cause it's a reserved keyword in C++
+        TokPtr op = previous();
         ExprPtr right = unary();
-        expr = std::make_shared<BinaryExpr>(expr, Operator, right);
+        left = std::make_shared<BinaryExpr>(left, op, right);
     }
-    return expr;
+    
+    return left;
 }
 
 ExprPtr Parser::unary() {
     if (match({TokenType::BANG, TokenType::MINUS})) {
-        TokPtr Operator = previous();
+        TokPtr op = previous();
         ExprPtr right    = unary();
-        return std::make_shared<UnaryExpr>(Operator, right);
+        return std::make_shared<UnaryExpr>(op, right);
     }
 
     return call();
