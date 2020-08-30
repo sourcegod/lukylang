@@ -184,11 +184,13 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
 
         case TokenType::MINUS:
+        case TokenType::MINUS_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() - right->getNumber());
             
         
         case TokenType::PLUS:
+        case TokenType::PLUS_EQUAL:
             if (left->isNumber() && right->isNumber())
               return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
             if (left->isString() && right->isString())
@@ -199,13 +201,23 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
                     "Operands must be two numbers or tow strings.");
 
         case TokenType::SLASH:
+        case TokenType::SLASH_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() / right->getNumber());
 
         case TokenType::STAR:
+        case TokenType::STAR_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
-         default: break;
+
+        
+        /*
+        case TokenType::MODULO:
+        case TokenType::MODULO_EQUAL:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(left->getNumber() % right->getNumber());
+        */
+        default: break;
     }
     // unrichable
     return nilptr;
