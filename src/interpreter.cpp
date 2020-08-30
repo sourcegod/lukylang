@@ -13,7 +13,7 @@
 #include <vector>
 #include <typeinfo> // type name
 #include <sstream> // for stringstream
-
+#include <cmath> // for fmod
 Interpreter::Interpreter() {
     logMsg("\nIn Interpreter constructor");
     LogConf.headers = true;
@@ -211,12 +211,14 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
 
         
-        /*
+        
         case TokenType::MODULO:
         case TokenType::MODULO_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() % right->getNumber());
-        */
+            // Note: cannot use modulus % on double
+            // use instead fmod function for modulus between double
+            return std::make_shared<LukObject>( std::fmod(left->getNumber(),  right->getNumber()) );
+        
         default: break;
     }
     // unrichable
