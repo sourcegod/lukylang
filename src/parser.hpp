@@ -59,10 +59,10 @@ private:
     ExprPtr expression();
     std::shared_ptr<FunctionExpr> functionBody(const std::string& kind);
     ExprPtr assignment();
+    ExprPtr compoundAssignment(ExprPtr left, TokPtr op);
     ExprPtr logicOr();
     ExprPtr logicAnd();
     
-   
     ExprPtr equality();
     ExprPtr comparison();
     ExprPtr addition();
