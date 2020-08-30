@@ -73,7 +73,7 @@ void Scanner::scanToken() {
             } else if (match('*')) {
                 skipMultilineComments();
             } else {
-                addToken(match('=') ? TokenTyppe::SLASH_EQUAL : TokenType::SLASH);
+                addToken(match('=') ? TokenType::SLASH_EQUAL : TokenType::SLASH);
             }
             break;
 
