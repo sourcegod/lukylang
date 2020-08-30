@@ -382,7 +382,16 @@ and returning ObjPtr type instead LukObject type.
 # v0.28: Lambda function
 -- Adding common file to regroup all aliases types.
 
-  7.22
+
+#--------------------------------------------------------------------------------
+
+  7.22 Main object
+0.29: Nested multiline comments
+-- Refactorized and added hasOnlySpaces function in file: main.cpp.
+
+#--------------------------------------------------------------------------------
+
+  7.23
 
 #--------------------------------------------------------------------------------
 
