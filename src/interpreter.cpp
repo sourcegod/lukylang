@@ -193,10 +193,11 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         case TokenType::PLUS_EQUAL:
             if (left->isNumber() && right->isNumber())
               return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
-            if (left->isString() && right->isString())
-                // return (std::string)left + (std::string)right;
+            // Note: temporary can concatenate string with number before having number to string convertion function
+            if (left->isString() || right->isString())
                 // Adding each string to ostringstream
-                return std::make_shared<LukObject>(left->getString() + right->getString());
+                // return std::make_shared<LukObject>(left->getString() + right->getString());
+                return std::make_shared<LukObject>( format(left) + format(right) );
             throw RuntimeError(expr.m_op, 
                     "Operands must be two numbers or tow strings.");
 
@@ -613,6 +614,19 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
 }
 
+std::string Interpreter::format(ObjPtr& obj) { 
+    if (obj->isNumber()) {
+        std::string text = obj->toString(); 
+        std::string end = ".000000";
+        // extract decimal part if ending by .0
+        if (endsWith(text, end)) 
+            return text.substr(0, text.size() - end.size());
+        return text;
+    } 
+   
+    return obj->toString();
+}
+
 std::string Interpreter::stringify(ObjPtr& obj) { 
     logMsg("\nIn stringify, obj id: ", obj->getId(), ", val: ", obj->toString());
     // if (obj->isNil() || obj->isBool()) return obj->toString();
@@ -629,5 +643,4 @@ std::string Interpreter::stringify(ObjPtr& obj) {
     logMsg("\nExit out stringify \n");
     return obj->toString();
 }
-
 

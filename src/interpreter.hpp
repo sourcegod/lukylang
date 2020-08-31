@@ -81,6 +81,7 @@ private:
     }
 
     
+    std::string format(ObjPtr& obj);
     std::string stringify(ObjPtr& obj);
 
 };
