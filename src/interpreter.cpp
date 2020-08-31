@@ -194,12 +194,13 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             if (left->isNumber() && right->isNumber())
               return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
             // Note: temporary can concatenate string with number before having number to string convertion function
-            if (left->isString() || right->isString())
+            if ( (left->isString() && right->isNumber()) || 
+                (left->isNumber() && right->isString()) )
                 // Adding each string to ostringstream
                 // return std::make_shared<LukObject>(left->getString() + right->getString());
                 return std::make_shared<LukObject>( format(left) + format(right) );
             throw RuntimeError(expr.m_op, 
-                    "Operands must be two numbers or tow strings.");
+                    "Operands must be string and number.");
 
         case TokenType::SLASH:
         case TokenType::SLASH_EQUAL:
@@ -208,8 +209,18 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
 
         case TokenType::STAR:
         case TokenType::STAR_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
+            if (left->isNumber() && right->isNumber())
+              return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
+
+            // Note: can multiply string by number
+            if ( left->isString() && right->isNumber() ) 
+                return std::make_shared<LukObject>( multiplyString(left, right, expr.m_op) );
+            if ( left->isNumber() && right->isString() ) 
+                return std::make_shared<LukObject>( multiplyString(right, left, expr.m_op) );
+            
+            throw RuntimeError(expr.m_op, 
+                    "Operands must be string and number.");
+
 
         
         
@@ -612,6 +623,21 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
     }
 
+}
+
+std::string Interpreter::multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op) {
+    auto nb = int(num->toNumber());
+    const std::string cstItem = item->toString();
+    auto result = cstItem;
+    // TODO: it will better to detect whether is double or int
+    if (nb % 1 != 0) throw new RuntimeError(op,
+            "String multiplier must be an integer");
+    if (nb <0) nb =0;
+    for (int i=1; i < nb; i++) {
+        result += cstItem;
+    }
+
+    return result;
 }
 
 std::string Interpreter::format(ObjPtr& obj) { 
