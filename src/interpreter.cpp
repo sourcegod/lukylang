@@ -468,6 +468,8 @@ void Interpreter::executeBlock(std::vector<StmtPtr>& statements, EnvPtr env) {
     }
     // finally, whether no exception
     m_env = previous;
+    // reset global variable m_result
+    m_result = nilptr;
     
     logMsg("\nExit out  ExecuteBlock: ");
 }
