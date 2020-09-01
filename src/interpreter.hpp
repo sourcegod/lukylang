@@ -81,6 +81,8 @@ private:
     }
 
     
+    std::string format(ObjPtr& obj);
+    std::string multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op);
     std::string stringify(ObjPtr& obj);
 
 };

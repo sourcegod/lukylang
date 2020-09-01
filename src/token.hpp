@@ -14,12 +14,16 @@ enum class TokenType {
     COMMA, DOT, 
     MINUS, PLUS, SEMICOLON, 
     SLASH, STAR,
+    MODULO, QUESTION, COLON, 
 
     // One or two character tokens.
     BANG, BANG_EQUAL,
     EQUAL, EQUAL_EQUAL,
     GREATER, GREATER_EQUAL,
     LESS, LESS_EQUAL,
+    PLUS_EQUAL, MINUS_EQUAL, 
+    STAR_EQUAL, SLASH_EQUAL, 
+    MODULO_EQUAL,
 
     // Literals.
     IDENTIFIER, STRING, NUMBER,

@@ -3,6 +3,16 @@
 # Date: samedi, 24/08/2019
 
 
+# Version 0.30.0: Compound Assign Operators part 1
+Date: mardi, 01/09/2020
+-- Adding compound assign operators part 1 wit operators:
++unary operator, +=, -=, *=, /=, %, %= 
+-- Adding compoundAssignment function in the parser.
+-- Adding format, multiplyString function to manage string concatenation, and
+string multiplier.
+
+#--------------------------------------------------------------------------------
+
 # Version 0.29: Nested Multiline Comments
 Date: dimanche, 30/08/2020
 -- Adding nested multiline comments in Scanner class.
