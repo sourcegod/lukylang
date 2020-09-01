@@ -1,17 +1,17 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Sat, 29/08/2020
-Last version: v0.29
+Last update: Tue, 01/09/2020
+Last version: v0.30.0
+
 
 
   0. Changelog
-# v0.29: nested multiline comments
 
+# Version 0.30.0: Compound Assign Operators part 1
+# Version 0.29: nested multiline comments
 # Version 0.28: Lambda Function
-
 # Version 0.27: optimization 1
-
 # Version 0.26: superclass
 
 #--------------------------------------------------------------------------------
@@ -165,6 +165,10 @@ type.
 -- Adding uniq id to the Token class.
 
 
+# v0.30.0: Compound Assign Operators part 1
+-- Added compound assignment operators part 1, in the Token class.
+
+
 7.3 LukError object
 # v0.27:
 -- Passing TokPtr type to error function.
@@ -183,6 +187,9 @@ type.
 -- Adding skipComments and skipMultiComments functions in the Scanner class.
 -- Reordered functions and renamed global variables.
 
+# v0.30.0: Compound Assign Operators part 1
+-- Added compound assignment operators part 1, in the Scanner class.
+
 
 7.5 Parser object
 # v0.27:
@@ -192,6 +199,10 @@ Manage vector of TokPtr token type, instead vector of token class.
 # v0.28:
 -- Adding lambda parsing in the primary function.
 
+
+# v0.30.0: Compound Assign Operators part 1
+-- Added compound assignment operators part 1, in the Parser class.
+-- Added modulo operator, in the Parser class.
 
 7.6 AstPrinter object
 # v0.27:
@@ -227,6 +238,15 @@ nil.
 
 # v0.28: Lambda function
 -- Adding visitFunctionExpr function for interpret lambda function.
+
+
+# v0.30.0: Compound Assign Operators part 1
+-- Added compound assignment operators part 1, in visitBinaryExpr function, in the Interpreter class.
+-- Added modulo operator and compound assignment modulo, in visitBinaryExpr function, in the Interpreter class.
+-- Added plus operator for unary operation, in Parser and Interpreter class.
+-- Added m_result reinitialization, when exit executeblock function, in the Interpreter class.
+-- Added format function, and added capability to concatenate string with number in visitBinary function, in the Interpreter class.
+-- Added multiplyString function, and string multiplier in visitBinaryExpr, in Interpreter class.
 
 
 7.8 Environment object
