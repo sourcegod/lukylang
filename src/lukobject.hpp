@@ -237,6 +237,7 @@ private:
     int _toInt() const;
     double _toDouble() const;
     std::string _toString() const;
+    void fromToken(Token& tok);
     
 
 };
