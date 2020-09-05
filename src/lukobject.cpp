@@ -129,6 +129,21 @@ void LukObject::fromToken(Token& tok) {
             m_type = LukType::Bool;
             m_bool = false; 
             break;
+
+        /*
+        case TokenType::INT: 
+            m_type = LukType::INT;
+            m_int = std::stoi(tok.literal); 
+            break;
+        */
+
+        /*
+        case TokenType::DOUBLE: 
+            m_type = LukType::Double;
+            m_double = std::stod(tok.literal); 
+            break;
+        */
+
         case TokenType::NUMBER: 
             m_type = LukType::Double;
             m_double = std::stod(tok.literal); 
@@ -182,24 +197,8 @@ LukObject::LukObject(const LukObject&& obj) {
 
 // returns the current value to string
 std::string LukObject::value() {
-        switch(m_type) {
-            case LukType::Nil: 
-                return "nil";
-            case LukType::Bool: 
-                return m_bool ? "true" : "false";
-            case LukType::Double: 
-                return std::to_string(m_double);
-            case LukType::String: 
-                return m_string;
-                // return *p_string;
-            case LukType::Callable: 
-            case LukType::Instance:  
-              return m_string;
-              // return *p_string;
-        }
-
-        return "";
-    }
+       return _toString();
+}
 
 // convertions
 bool LukObject::toBool() {
