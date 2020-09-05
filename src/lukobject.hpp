@@ -274,6 +274,7 @@ inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
     switch(tp) {
         case Type::Nil: return ost << "<Nil>";
         case Type::Bool: return ost << "<Bool>";
+        case Type::Int: return ost << "<Int>";
         case Type::Double: return ost << "<Double>";
         case Type::String: return ost << "<String>";
         case Type::Callable: return ost << "<Callable>";
