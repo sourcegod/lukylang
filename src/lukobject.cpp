@@ -99,7 +99,7 @@ LukObject::LukObject(Token tok)
             m_type = LukType::Bool;
             m_bool = false; 
             break;
-        case TokenType::Double: 
+        case TokenType::NUMBER: 
             m_type = LukType::Double;
             m_double = std::stod(tok.literal); 
             break;
@@ -131,7 +131,7 @@ LukObject::LukObject(TokPtr& tokP)
             m_type = LukType::Bool;
             m_bool = false; 
             break;
-        case TokenType::Double: 
+        case TokenType::NUMBER: 
             m_type = LukType::Double;
             m_double = std::stod(tokP->literal); 
             break;

@@ -626,7 +626,7 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 }
 
 std::string Interpreter::multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op) {
-    auto nb = int(num->toNumber());
+    auto nb = num->toInt();
     const std::string cstItem = item->toString();
     auto result = cstItem;
     // TODO: it will better to detect whether is double or int
