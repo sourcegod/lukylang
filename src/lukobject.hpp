@@ -28,8 +28,8 @@ class LukInstance;
 #define nilptr LukObject::getStatNilPtr()
 
 enum class LukType { 
-    Nil=0, Bool=1, Number=2, String=3,
-    Callable =4, Instance=5
+    Nil=0, Bool=1, Int=2, Double=3, String=4,
+    Callable =5, Instance=6
 };
 
 class LukObject {
@@ -43,7 +43,8 @@ public:
     int id;
     LukType m_type;
     bool m_bool = false;
-    double m_number =0;
+    int m_int =0;
+    double m_double =0.;
     std::string m_string = "";
     std::shared_ptr<std::string> p_string;
     std::shared_ptr<LukCallable> p_callable;
@@ -90,7 +91,8 @@ public:
 
     // convertions
     bool toBool();
-    double toNumber();
+    int toInt();
+    double toDouble();
     std::string toString();
     std::string value();
 
@@ -127,8 +129,9 @@ public:
     // test type state
     bool isNil() const { return m_type == LukType::Nil; }
     bool isBool() const { return m_type == LukType::Bool; }
-    bool isNumber() const { return m_type == LukType::Number; }
-    bool isDouble() const { return m_type == LukType::Number; }
+    bool isInt() const { return m_type == LukType::Int; }
+    bool isDouble() const { return m_type == LukType::Double; }
+    bool isNumber() const { return m_type == LukType::Int || m_type == LukType::Double; }
     bool isString() const { return m_type == LukType::String; }
     bool isCallable() const { return m_type == LukType::Callable; }
     bool isInstance() const { return m_type == LukType::Instance; }
@@ -150,7 +153,10 @@ public:
     static ObjPtr& getStatNilPtr() { return stat_nilPtr; }
 
     bool getBool() const noexcept { return m_bool; }
-    double getNumber() const noexcept { return m_number; }
+    int getInt() const noexcept { return m_int; }
+    double getDouble() const noexcept { return m_double; }
+    // TODO: should be returned int or double
+    double getNumber() const noexcept { return m_double; }
     std::string getString() const noexcept { return m_string; }
     std::shared_ptr<std::string> getPtrString() const noexcept { return p_string; }
     std::shared_ptr<LukCallable> getCallable() const noexcept { return p_callable; }
@@ -163,7 +169,8 @@ public:
 
     // convertion operators to cast the LukObject type
     operator bool() const { return _toBool(); }
-    operator double() const { return _toNumber(); }
+    operator int() const { return _toInt(); }
+    operator double() const { return _toDouble(); }
     operator std::string() const { return _toString(); }
 
     // assignment operators 
@@ -227,7 +234,8 @@ public:
 private:
     // methods
     bool _toBool() const;
-    double _toNumber() const;
+    int _toInt() const;
+    double _toDouble() const;
     std::string _toString() const;
     
 
@@ -248,9 +256,6 @@ inline bool operator<=(const LukObject& a, const LukObject& b) { return a< b || 
 inline bool operator>(const LukObject& a, const LukObject& b) { return !(a <= b); }
 inline bool operator>=(const LukObject& a, const LukObject& b) { return !(a < b); }
 
-
-
-// /*
 // comparison operators for LukType object
 bool operator<(LukType a, LukType b);
 bool operator>(LukType a, LukType b);
@@ -268,7 +273,7 @@ inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
     switch(tp) {
         case Type::Nil: return ost << "<Nil>";
         case Type::Bool: return ost << "<Bool>";
-        case Type::Number: return ost << "<Number>";
+        case Type::Double: return ost << "<Double>";
         case Type::String: return ost << "<String>";
         case Type::Callable: return ost << "<Callable>";
         case Type::Instance: return ost << "<Instance>";
