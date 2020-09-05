@@ -30,59 +30,50 @@ LukObject::LukObject()
 }
 
 LukObject::LukObject(bool val) 
-    : id(++next_id) {
+    : m_bool(val), id(++next_id) {
     logMsg("\nLukObject constructor bool,  id: ", id);
-    m_type = LukType::Bool; m_bool = val; 
+    m_type = LukType::Bool; 
 }
 
 LukObject::LukObject(int val) 
-    : id(++next_id) { 
+    : m_int(val), id(++next_id) { 
     logMsg("\nLukObject constructor int,  id: ", id, "val: ", val);
-      m_type = LukType::Double; m_double = val; 
+      m_type = LukType::Int;
 }
 
 LukObject::LukObject(double val) 
-    : id(++next_id) {
+    : m_double(val), id(++next_id) {
     logMsg("\nLukObject constructor double,  id: ", id, "val: ", val);
   m_type = LukType::Double; 
-  m_double = val; 
 }
 
 LukObject::LukObject(const std::string& val) 
-    : id(++next_id) { 
+    : m_string(val), id(++next_id) { 
     logMsg("\nLukObject constructor string,  id: ", id, "val: ", val);
     m_type = LukType::String; 
-    m_string = val; 
-    // p_string = std::make_shared<std::string>(val);
 }
 
 LukObject::LukObject(const char* val) 
-    : id(++next_id) { 
+    : m_string(std::string(val)), id(++next_id) { 
     logMsg("\nLukObject constructor char*,  id: ", id, "val: ", val);
     m_type = LukType::String; 
-    m_string = std::string(val); 
-    // p_string = std::make_shared<std::string>(val);
 }
 
 LukObject::LukObject(std::shared_ptr<LukCallable> callable)
-    : id(++next_id) { 
+    : p_callable(callable), id(++next_id) { 
     logMsg("\nLukObject constructor callable,  id: ", id, "val: ", callable->toString());
     m_type = LukType::Callable;
-    p_callable = callable; // std::make_shared<LukCallable>(callable);
     m_string = callable->toString();
-    // p_string = std::make_shared<std::string>(callable->toString());
 }
 
 // std::shared_ptr<LukFunction> LukObject::getFunc() { return std::make_shared<LukFunction>(p_callable); }
 
 LukObject::LukObject(std::shared_ptr<LukInstance> instance)
-        : id(++next_id) { 
+        : p_instance(instance), id(++next_id) { 
     logMsg("\nLukObject constructor instance,  id: ", id, "val: ", instance->toString());
     m_type = LukType::Instance;
-    p_instance = instance;
     logMsg("\nIn LukObject instance toString: ", instance->toString());
     m_string = p_instance->toString();
-        // p_string = std::make_shared<std::string>(p_instance->toString());
 }
 
 LukObject::LukObject(Token tok) 
@@ -97,6 +88,7 @@ LukObject::LukObject(TokPtr& tokP)
     // LukObject(*tokP.get());
     
     fromToken(*tokP);
+
     /*
     switch(tokP->type) {
         case TokenType::NIL:
@@ -123,7 +115,6 @@ LukObject::LukObject(TokPtr& tokP)
     }
     */
 
-  
 }
 
 void LukObject::fromToken(Token& tok) {
@@ -153,7 +144,8 @@ void LukObject::fromToken(Token& tok) {
 
 }
 
-LukObject::LukObject(nullptr_t) {
+LukObject::LukObject(nullptr_t) 
+      : id(++next_id) {
   logMsg("\nIn LukObject constructor nullptr: ");
         m_type = LukType::Nil;
         m_string = "nil";
