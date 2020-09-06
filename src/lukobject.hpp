@@ -73,7 +73,8 @@ public:
         logMsg("\n~LukObject destructor,  id: ", id, ", val: ", toString());
     }
     
-
+    // get current object
+    LukObject& getObj() { return *this; }
     // get the type id
     LukType getType() { return m_type; }
 
