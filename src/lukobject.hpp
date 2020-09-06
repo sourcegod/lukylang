@@ -31,7 +31,6 @@ enum class LukType {
     Nil=0, Bool=1, Int=2, Double=3, String=4,
     Callable =5, Instance=6
 };
-
 class LukObject {
 protected:
     static int next_id;
@@ -95,6 +94,7 @@ public:
     double toDouble();
     std::string toString();
     std::string value();
+    
 
     // convert string to number  
     // Note: template function must be defining in the header file, not in the implementation file.
@@ -102,7 +102,7 @@ public:
     // Note: usage:
     // double number = stringToNumber<double>("0.6");
     template<typename T>
-        T stringToNumber(const std::string& stg) {
+    T stringToNumber(const std::string& stg) {
         T tValue;
         std::stringstream stream(stg);
         stream >> tValue;
@@ -113,9 +113,10 @@ public:
 
         return tValue;
     }
- 
-    // Note: make dynamic casting to convert base object to derived one.
-    // Note: template function must be defining in the header file, not in the implementation file.
+    
+
+    /// Note: make dynamic casting to convert base object to derived one.
+    /// Note: template function must be defining in the header file, not in the implementation file.
     template <typename T>
     std::shared_ptr<T> getDynCast()  {
       if (p_callable == nullptr) {
@@ -197,6 +198,7 @@ public:
     LukObject& operator-=(const LukObject& obj);
     LukObject& operator*=(const LukObject& obj);
     LukObject& operator/=(const LukObject& obj);
+    LukObject& operator%=(const LukObject& obj);
 
     /*
         Note: these operators are non member functions
@@ -242,11 +244,14 @@ private:
 
 };
 
+
 // binary operators 
 inline LukObject& operator+(LukObject a, const LukObject & b) { return a += b; }
 inline LukObject& operator-(LukObject a, const LukObject& b) { return a -= b; }
 inline LukObject& operator*(LukObject a, const LukObject& b) { return a *= b; }
 inline LukObject& operator/(LukObject a, const LukObject& b) { return a /= b; }
+inline LukObject& operator%(LukObject a, const LukObject& b) { return a %= b; }
+//
 /// Note: "==" and "<" operators are implemented in the source filefor better readability
 // equality != operator
 inline bool operator!=(LukObject& a, LukObject& b) { return !(a == b); }

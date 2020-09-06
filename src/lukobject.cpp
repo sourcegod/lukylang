@@ -12,7 +12,7 @@
 #include <iostream> // cout and cerr
 #include <sstream> // ostringstream
 #include <stdexcept> // exception
-
+#include <cmath> // for fmod
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
 
@@ -580,6 +580,38 @@ LukObject& LukObject::operator/=(const LukObject& obj) {
     }
 
 }
+
+LukObject& LukObject::operator%=(const LukObject& obj) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Nil:
+                throw std::runtime_error("Cannot modulus nil");
+            case LukType::Bool:
+                throw std::runtime_error("Cannot modulus bools");
+            case LukType::Int:
+                m_int %= obj.m_int; break;
+            case LukType::Double:
+                m_double = std::fmod(m_double, obj.m_double); break;
+            case LukType::String:
+                throw std::runtime_error("Cannot modulus strings.");
+            default:
+                throw std::runtime_error("Cannot modulus objects.");
+        }
+
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return (*this) /= obj;
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return (*this) /= ob;
+    }
+
+}
+
 
 // unary operators
 // unary minus operator
