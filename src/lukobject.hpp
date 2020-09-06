@@ -220,6 +220,7 @@ public:
     friend inline LukObject& operator-(LukObject a, const LukObject& b); 
     friend inline LukObject& operator*(LukObject a, const LukObject& b); 
     friend inline LukObject& operator/(LukObject a, const LukObject& b); 
+    friend inline LukObject& operator%(LukObject a, const LukObject& b); 
 
     // comparison operators
      friend bool operator<(const LukObject& a, const LukObject& b);
