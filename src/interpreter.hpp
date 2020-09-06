@@ -5,6 +5,7 @@
 #include "expr.hpp"
 #include "stmt.hpp"
 #include "environment.hpp"
+#include "lukerror.hpp"
 
 #include <string>
 #include <vector>
@@ -13,8 +14,9 @@
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     EnvPtr m_globals;
+    LukError& m_lukErr;
 
-    Interpreter();
+    Interpreter(LukError& lukErr);
     ~Interpreter() { 
       logMsg("\n~Interpreter destructor\n");
     }

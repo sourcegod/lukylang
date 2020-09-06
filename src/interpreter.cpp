@@ -1,4 +1,5 @@
 #include "interpreter.hpp"
+#include "lukerror.hpp"
 #include "runtimeerror.hpp"
 #include "jump.hpp"
 #include "lukcallable.hpp"
@@ -14,7 +15,7 @@
 #include <typeinfo> // type name
 #include <sstream> // for stringstream
 #include <cmath> // for fmod
-Interpreter::Interpreter() {
+Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     logMsg("\nIn Interpreter constructor");
     LogConf.headers = true;
     LogConf.level = log_DEBUG;
@@ -626,11 +627,12 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 }
 
 std::string Interpreter::multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op) {
-    auto nb = num->toInt();
+    auto nb = num->getNumber();
     const std::string cstItem = item->toString();
     auto result = cstItem;
     // TODO: it will better to detect whether is double or int
-    if (nb % 1 != 0) throw new RuntimeError(op,
+    std::cerr << "voici : " << nb << std::endl;
+    if (std::fmod(nb, 1) != 0) throw new RuntimeError(op,
             "String multiplier must be an integer");
     if (nb <0) nb =0;
     for (int i=1; i < nb; i++) {
