@@ -133,6 +133,10 @@ void Interpreter::logTest() {
 ObjPtr Interpreter::evaluate(ExprPtr expr) { 
     logMsg("\nIn evaluate, expr: ", typeid(*expr).name());
      auto obj = expr->accept(*this);
+     if (obj == nullptr) {
+       std::cerr << "Evaluated expr " << expr->typeName() << " to nullptr \n";
+     }
+
     logMsg("Evaluating obj result after accept: ", obj->toString());
     return obj;
 }
@@ -157,8 +161,12 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 }
 
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
-    // Note: method get allow to convert smart pointer to raw pointer
-    logMsg("\nIn visitBinary: ");  
+#ifdef LUK_GET_NUM
+#undef LUK_GET_NUM
+#endif
+#define LUK_GET_NUM(x) (x)->isInt() ? (x)->getInt() : (x)->getDouble()
+    // Note: the method .get allow to convert smart pointer to raw pointer
+    logMsg("\nIn visitBinary: "); 
     ObjPtr left = evaluate(expr.m_left);
     ObjPtr right = evaluate(expr.m_right);
     logMsg("left: ", left->toString(), ", operator: ", expr.m_op->lexeme, ", right: ", right->toString());
@@ -192,8 +200,14 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         
         case TokenType::PLUS:
         case TokenType::PLUS_EQUAL:
-            if (left->isNumber() && right->isNumber())
-              return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
+            if (left->isNumber() && right->isNumber()) {
+              // auto obj = (*left) + (*right);
+              // auto lnum = LUK_GET_NUM(left);
+              // auto rnum = LUK_GET_NUM(right);
+                // return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
+                return std::make_shared<LukObject>( *left + *right );
+            }
+            
             // Note: temporary can concatenate string with number before having number to string convertion function
             if ( (left->isString() && right->isNumber()) || 
                 (left->isNumber() && right->isString()) )
@@ -234,6 +248,9 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         
         default: break;
     }
+
+#undef LUK_GET_NUM
+
     // unrichable
     return nilptr;
 }

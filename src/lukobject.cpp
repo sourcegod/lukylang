@@ -176,7 +176,7 @@ LukObject::LukObject(const LukObject& obj) {
     if (this != &obj) {
       swap(obj);
       // cannot use obj.getId function, cause obj is constant
-      logMsg("\nIn LukObject, copy constructor, id: ", id, ", val: ", obj);
+      logMsg("\nIn LukObject, copy constructor, id: ", id, ", val: ");
       
     }
 
@@ -451,7 +451,6 @@ LukObject& LukObject::operator=(const LukObject&& obj) {
 // compound assignment operators
 // += operator
 LukObject& LukObject::operator+=(const LukObject& obj) {
-    std::ostringstream oss;
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
