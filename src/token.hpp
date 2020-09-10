@@ -26,7 +26,8 @@ enum class TokenType {
     MODULO_EQUAL,
 
     // Literals.
-    IDENTIFIER, STRING, NUMBER,
+    IDENTIFIER, STRING, NUMBER, 
+    INT, DOUBLE,
 
     // Reserved Keywords.
     AND, BREAK, 
