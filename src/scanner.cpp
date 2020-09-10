@@ -34,7 +34,9 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
     auto lexeme = literal;
     if (type != TokenType::IDENTIFIER ||
             type != TokenType::NUMBER ||
-            type != TokenType::STRING) {
+            type != TokenType::STRING ||
+            type != TokenType::INT ||
+            type != TokenType::DOUBLE) {
         lexeme = m_source.substr(m_start, lexLen);
     }
     
@@ -141,10 +143,12 @@ void Scanner::identifier() {
 }
 
 void Scanner::number() {
+  bool isDecimal = false;
     while (isDigit(peek()))
         advance();
     // look for fractional part
     if (peek() == '.' && isDigit(peekNext())) {
+      isDecimal = true;
         // consume the "."
         advance();
         while (isDigit(peek()))
@@ -152,7 +156,10 @@ void Scanner::number() {
     }
     const size_t numLen = m_current - m_start;
     const std::string numberLiteral = m_source.substr(m_start, numLen);
-    addToken(TokenType::NUMBER, numberLiteral);
+    if (not isDecimal) 
+        addToken(TokenType::INT, numberLiteral);
+    else
+        addToken(TokenType::DOUBLE, numberLiteral);
 }
 
 void Scanner::string() {
