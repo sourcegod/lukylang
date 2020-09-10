@@ -171,33 +171,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     ObjPtr right = evaluate(expr.m_right);
     logMsg("left: ", left->toString(), ", operator: ", expr.m_op->lexeme, ", right: ", right->toString());
     switch(expr.m_op->type) {
-        case TokenType::GREATER:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() > right->getNumber());
-            // return (double)left > (double)right;
-        
-        case TokenType::GREATER_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() >= right->getNumber());
-
-         case TokenType::LESS:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() < right->getNumber());
-
-         case TokenType::LESS_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() <= right->getNumber());
-            
-   
-         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(!isEqual(left, right));
-         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
-
-        case TokenType::MINUS:
-        case TokenType::MINUS_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() - right->getNumber());
-            
-        
+       
         case TokenType::PLUS:
         case TokenType::PLUS_EQUAL:
             if (left->isNumber() && right->isNumber()) {
@@ -216,36 +190,77 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
                 return std::make_shared<LukObject>( format(left) + format(right) );
             throw RuntimeError(expr.m_op, 
                     "Operands must be string and number.");
-
-        case TokenType::SLASH:
-        case TokenType::SLASH_EQUAL:
+        case TokenType::MINUS:
+        case TokenType::MINUS_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() / right->getNumber());
-
+            return std::make_shared<LukObject>(*left - *right);
+ 
         case TokenType::STAR:
         case TokenType::STAR_EQUAL:
             if (left->isNumber() && right->isNumber())
-              return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
+              return std::make_shared<LukObject>(*left * *right);
 
             // Note: can multiply string by number
-            if ( left->isString() && right->isNumber() ) 
-                return std::make_shared<LukObject>( multiplyString(left, right, expr.m_op) );
-            if ( left->isNumber() && right->isString() ) 
-                return std::make_shared<LukObject>( multiplyString(right, left, expr.m_op) );
+            if ( left->isString() && right->isNumber() ) { 
+                if ( not right->isInt()) {
+                    // if (std::fmod(nb, 1) != 0) 
+                    throw RuntimeError(expr.m_op,
+                        "String multiplier must be an integer");
+                }
+                auto str = left->getString();
+                auto num = right->getNumber();
+                 
+                return std::make_shared<LukObject>( multiplyString(str, num) );
+            } else if ( left->isNumber() && right->isString() ) { 
+                if ( not left->isInt()) {
+                    throw RuntimeError(expr.m_op,
+                        "String multiplier must be an integer");
+                }
+                auto str = right->getString();
+                auto num = left->getNumber();
+                
+                return std::make_shared<LukObject>( multiplyString(str, num) );
+            }
             
             throw RuntimeError(expr.m_op, 
                     "Operands must be string and number.");
 
+         case TokenType::SLASH:
+        case TokenType::SLASH_EQUAL:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left / *right);
 
-        
+       
         
         case TokenType::MODULO:
         case TokenType::MODULO_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             // Note: cannot use modulus % on double
             // use instead fmod function for modulus between double
-            return std::make_shared<LukObject>( std::fmod(left->getNumber(),  right->getNumber()) );
+            return std::make_shared<LukObject>( *left %  *right);
+ 
+        case TokenType::GREATER:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left > *right);
+            // return (double)left > (double)right;
         
+        case TokenType::GREATER_EQUAL:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left >= *right);
+
+         case TokenType::LESS:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left < *right);
+
+         case TokenType::LESS_EQUAL:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left <= *right);
+            
+   
+         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(!isEqual(left, right));
+         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
+
+       
         default: break;
     }
 
@@ -411,11 +426,11 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         
         case TokenType::MINUS:
             checkNumberOperand(expr.m_op, right);
-            return std::make_shared<LukObject>(-right->getNumber());
+            return std::make_shared<LukObject>(-*right);
 
         case TokenType::PLUS:
             checkNumberOperand(expr.m_op, right);
-            return std::make_shared<LukObject>(right->getNumber());
+            return std::make_shared<LukObject>(*right);
 
         default: break;
     }
@@ -444,6 +459,7 @@ ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
 bool Interpreter::isTruthy(ObjPtr& obj) {
     if (obj->isNil()) return false;
     if (obj->isBool()) return obj->getBool();
+    if (obj->isInt() && obj->getInt() == 0) return false;
     if (obj->isNumber() && obj->getNumber() == 0) return false;
     if (obj->isString() && obj->getString() == "") return false;
     
@@ -643,17 +659,10 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
 }
 
-std::string Interpreter::multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op) {
-    auto nb = num->getNumber();
-    const std::string cstItem = item->toString();
-    auto result = cstItem;
-    // TODO: it will better to detect whether is double or int
-    std::cerr << "voici : " << nb << std::endl;
-    if (std::fmod(nb, 1) != 0) throw new RuntimeError(op,
-            "String multiplier must be an integer");
-    if (nb <0) nb =0;
-    for (int i=1; i < nb; i++) {
-        result += cstItem;
+std::string Interpreter::multiplyString(const std::string& str, const int num) {
+    std::string result = "";
+    for (int i=0; i < num; i++) {
+        result += str;
     }
 
     return result;
