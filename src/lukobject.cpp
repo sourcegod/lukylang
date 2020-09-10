@@ -130,29 +130,27 @@ void LukObject::fromToken(Token& tok) {
             m_bool = false; 
             break;
 
-        /*
         case TokenType::INT: 
-            m_type = LukType::INT;
+            m_type = LukType::Int;
             m_int = std::stoi(tok.literal); 
             break;
-        */
 
-        /*
         case TokenType::DOUBLE: 
             m_type = LukType::Double;
             m_double = std::stod(tok.literal); 
             break;
-        */
 
         case TokenType::NUMBER: 
             m_type = LukType::Double;
             m_double = std::stod(tok.literal); 
             break;
+
         case TokenType::STRING: 
             m_type = LukType::String;
             m_string = tok.literal;
             // p_string = std::make_shared<std::string>(tok.literal);
             break;
+
         default:
             std::runtime_error("Invalid Luky object.");
     }
@@ -334,7 +332,7 @@ std::string LukObject::_toString() const {
     }
     throw std::runtime_error("Cannot convert object to string.");
 
-    return "";
+    return "''";
 }
 // casting to the right type
 void LukObject::cast(LukType tp) {
