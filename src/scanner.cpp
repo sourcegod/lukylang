@@ -155,11 +155,11 @@ void Scanner::number() {
             advance();
     }
     const size_t numLen = m_current - m_start;
-    const std::string numberLiteral = m_source.substr(m_start, numLen);
+    const std::string numLiteral = m_source.substr(m_start, numLen);
     if (not isDecimal) 
-        addToken(TokenType::INT, numberLiteral);
+        addToken(TokenType::INT, numLiteral);
     else
-        addToken(TokenType::DOUBLE, numberLiteral);
+        addToken(TokenType::DOUBLE, numLiteral);
 }
 
 void Scanner::string() {

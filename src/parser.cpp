@@ -396,9 +396,10 @@ ExprPtr Parser::primary() {
     if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
-                TokenType::NUMBER, TokenType::STRING})) {
-        logMsg("\nIn primary Parser, before literalExpr");
+                TokenType::NUMBER, TokenType::STRING, 
+                TokenType::INT, TokenType::DOUBLE})) {
         ObjPtr objP = std::make_shared<LukObject>( previous() );
+        logMsg("\nIn primary Parser, before literalExpr: ", objP);
         return std::make_shared<LiteralExpr>( objP );
         // return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
