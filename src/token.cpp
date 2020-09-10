@@ -17,7 +17,9 @@ Token::Token(const TokenType _type, const std::string& _lexeme,
 std::string Token::toString() const {
     // for string and number literals, use actual value
     if (type == TokenType::STRING || 
-        type == TokenType::NUMBER) {
+        type == TokenType::NUMBER || 
+        type == TokenType::INT || 
+        type == TokenType::DOUBLE) { 
         return literal;
     }
 
@@ -30,6 +32,8 @@ std::string Token::stringType() const {
         case TokenType::IDENTIFIER: return "Ident";
         case TokenType::NUMBER: return "Number";
         case TokenType::STRING: return "String";
+        case TokenType::INT: return "Int";
+        case TokenType::DOUBLE: return "Double";
         default: return "";
     }
 
