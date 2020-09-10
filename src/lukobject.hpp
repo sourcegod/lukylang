@@ -158,7 +158,11 @@ public:
     int getInt() const noexcept { return m_int; }
     double getDouble() const noexcept { return m_double; }
     // TODO: should be returned int or double
-    double getNumber() const noexcept { return m_double; }
+    double getNumber() const noexcept { 
+        if (isInt()) return double(m_int); 
+        return m_double;
+    }
+
     std::string getString() const noexcept { return m_string; }
     std::shared_ptr<std::string> getPtrString() const noexcept { return p_string; }
     std::shared_ptr<LukCallable> getCallable() const noexcept { return p_callable; }

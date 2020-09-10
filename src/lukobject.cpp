@@ -254,7 +254,7 @@ int LukObject::_toInt() const {
         case LukType::Nil: return 0;
         case LukType::Bool: return m_bool ? 1 : 0;
         case LukType::Int: return m_int;
-        case LukType::Double: return (int)m_double;
+        case LukType::Double: return int(m_double);
         case LukType::String: {
             int i;
             try {
@@ -289,7 +289,7 @@ double LukObject::_toDouble() const {
     switch(m_type) {
         case LukType::Nil: return 0.;
         case LukType::Bool: return m_bool ? 1.0 : 0.0;
-        case LukType::Int: return (double)m_int;
+        case LukType::Int: return double(m_int);
         case LukType::Double: return m_double;
         case LukType::String: {
             double d;
@@ -341,10 +341,10 @@ void LukObject::cast(LukType tp) {
     if (m_type == tp) return;
     switch(tp) {
         case LukType::Nil: break;
-        case LukType::Bool: m_bool = (bool)(*this); break;
-        case LukType::Int: m_int = (int)(*this); break;
-        case LukType::Double: m_double = (double)(*this); break;
-        case LukType::String: m_string = (std::string)(*this); break;
+        case LukType::Bool: m_bool = bool(*this); break;
+        case LukType::Int: m_int = int(*this); break;
+        case LukType::Double: m_double = double(*this); break;
+        case LukType::String: m_string = std::string(*this); break;
         case LukType::Callable: 
         case LukType::Instance: 
             break;
@@ -660,10 +660,10 @@ bool operator==(const LukObject& a, const LukObject& b) {
     if (a.m_type > b.m_type) return b == a;
     if (a.m_type == LukType::Nil || b.m_type == LukType::Nil) return false;
     switch(a.m_type) {
-        case LukType::Bool: return a.m_bool == (bool)b;
-        case LukType::Int: return a.m_int == (int)b;
-        case LukType::Double: return a.m_double == (double)b;
-        case LukType::String: return a.m_string == (std::string)b;
+        case LukType::Bool: return a.m_bool == bool(b);
+        case LukType::Int: return a.m_int == int(b);
+        case LukType::Double: return a.m_double == double(b);
+        case LukType::String: return a.m_string == std::string(b);
         default:
             throw std::runtime_error("Cannot compare objects for equality.");
     }
