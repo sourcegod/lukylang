@@ -49,6 +49,7 @@ LukObject::LukObject(double val)
 
 LukObject::LukObject(const std::string& val) 
         : id(++next_id), m_string(val) {
+          if (m_string == "") m_string = "''";
     logMsg("\nLukObject constructor string,  id: ", id, "val: ", val);
     m_type = LukType::String; 
 }
