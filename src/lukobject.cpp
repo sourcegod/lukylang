@@ -601,11 +601,11 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
     
     if (m_type < obj.m_type) {
         cast(obj.m_type);
-        return (*this) /= obj;
+        return (*this) %= obj;
     } else {
         auto ob = obj;
         ob.cast(m_type);
-        return (*this) /= ob;
+        return (*this) %= ob;
     }
 
 }

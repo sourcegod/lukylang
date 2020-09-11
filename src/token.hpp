@@ -14,7 +14,7 @@ enum class TokenType {
     COMMA, DOT, 
     MINUS, PLUS, SEMICOLON, 
     SLASH, STAR,
-    MODULO, QUESTION, COLON, 
+    QUESTION, COLON, 
 
     // One or two character tokens.
     BANG, BANG_EQUAL,
@@ -23,7 +23,7 @@ enum class TokenType {
     LESS, LESS_EQUAL,
     PLUS_EQUAL, MINUS_EQUAL, 
     STAR_EQUAL, SLASH_EQUAL, 
-    MODULO_EQUAL,
+    MOD, MOD_EQUAL,
 
     // Literals.
     IDENTIFIER, STRING, NUMBER, 

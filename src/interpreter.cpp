@@ -232,8 +232,8 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
 
        
         
-        case TokenType::MODULO:
-        case TokenType::MODULO_EQUAL:
+        case TokenType::MOD:
+        case TokenType::MOD_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             // Note: cannot use modulus % on double
             // use instead fmod function for modulus between double
@@ -684,12 +684,13 @@ std::string Interpreter::format(ObjPtr& obj) {
 std::string Interpreter::stringify(ObjPtr& obj) { 
     logMsg("\nIn stringify, obj id: ", obj->getId(), ", val: ", obj->toString());
     // if (obj->isNil() || obj->isBool()) return obj->toString();
-    if (obj->isNumber()) {
+    if (obj->isDouble()) {
         std::string text = obj->toString(); 
         std::string end = ".000000";
         // extract decimal part if ending by .0
         if (endsWith(text, end)) 
-            return text.substr(0, text.size() - end.size());
+            // adding ".0" at the end of a double 
+            return text.substr(0, text.size() - end.size() +2);
         return text;
     } 
     

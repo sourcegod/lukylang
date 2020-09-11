@@ -79,7 +79,7 @@ void Scanner::scanToken() {
             }
             break;
 
-        case '%': addToken(match('=') ? TokenType::MODULO_EQUAL : TokenType::MODULO); break;
+        case '%': addToken(match('=') ? TokenType::MOD_EQUAL : TokenType::MOD); break;
         case '"': string(); break;
         case ' ':
         case '\r':
