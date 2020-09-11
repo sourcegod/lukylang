@@ -248,19 +248,18 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left >= *right);
 
-         case TokenType::LESS:
+         case TokenType::LESSER:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left < *right);
 
-         case TokenType::LESS_EQUAL:
+         case TokenType::LESSER_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left <= *right);
             
    
-         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(!isEqual(left, right));
-         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
+         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(*left != *right);
+         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(*left == *right);
 
-       
         default: break;
     }
 
@@ -471,7 +470,7 @@ bool Interpreter::isEqual(ObjPtr& a, ObjPtr& b) {
     if (a->isNil() && b->isNil()) return true;
     if (a->isNil()) return false;
 
-    return a == b;
+    return *a == *b;
 }
 
 void Interpreter::checkNumberOperand(TokPtr& op, ObjPtr& operand) {

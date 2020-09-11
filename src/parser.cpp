@@ -167,7 +167,7 @@ StmtPtr Parser::varDeclaration() {
 StmtPtr Parser::classDeclaration() {
     TokPtr name = consume(TokenType::IDENTIFIER, "Expect class name.");
     std::shared_ptr<VariableExpr> superclass = nullptr;
-    if (match({TokenType::LESS})) {
+    if (match({TokenType::LESSER})) {
       consume(TokenType::IDENTIFIER, "Expect superclass name.");
       superclass = std::make_shared<VariableExpr>(previous());
     }
@@ -316,8 +316,8 @@ ExprPtr Parser::equality() {
 ExprPtr Parser::comparison() {
     ExprPtr left = addition();
     while (
-        match({TokenType::GREATER, TokenType::LESS, 
-            TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
+        match({TokenType::GREATER, TokenType::LESSER, 
+            TokenType::LESSER_EQUAL, TokenType::GREATER_EQUAL})) {
         TokPtr op = previous();
         ExprPtr right = addition();
         left = std::make_shared<BinaryExpr>(left, op, right);

@@ -8,11 +8,12 @@
 #include "lukcallable.hpp"
 #include "lukfunction.hpp"
 #include "lukinstance.hpp"
-
+#include "runtimeerror.hpp"
 #include <iostream> // cout and cerr
 #include <sstream> // ostringstream
 #include <stdexcept> // exception
 #include <cmath> // for fmod
+
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
 
@@ -652,19 +653,22 @@ bool operator==(const LukObject& a, const LukObject& b) {
             case LukType::Double: return a.m_double == b.m_double;
             case LukType::String: return a.m_string == b.m_string;
             default: 
-                throw std::runtime_error("Cannot compare objects for equality.");
+                throw RuntimeError("Cannot compare objects for equality.");
         }
     }
 
     if (a.m_type > b.m_type) return b == a;
     if (a.m_type == LukType::Nil || b.m_type == LukType::Nil) return false;
+    
+    // whether a.m_type < b.m_type
     switch(a.m_type) {
         case LukType::Bool: return a.m_bool == bool(b);
-        case LukType::Int: return a.m_int == int(b);
-        case LukType::Double: return a.m_double == double(b);
-        case LukType::String: return a.m_string == std::string(b);
+        case LukType::Int: 
+              if (b.isDouble()) return a.m_int == b.m_double;
+        case LukType::Double: return false;
+        case LukType::String: return false;
         default:
-            throw std::runtime_error("Cannot compare objects for equality.");
+            throw RuntimeError("Cannot compare objects for equality.");
     }
     
     return false;
