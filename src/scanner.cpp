@@ -88,6 +88,9 @@ void Scanner::scanToken() {
             break;
 
         case '%': addToken(match('=') ? TokenType::MOD_EQUAL : TokenType::MOD); break;
+        case ':': addToken(TokenType::COLON); break;
+        case '?': addToken(TokenType::QUESTION); break;
+      
         case '"': string(); break;
         case ' ':
         case '\r':
