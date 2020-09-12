@@ -24,6 +24,7 @@ enum class TokenType {
     PLUS_EQUAL, MINUS_EQUAL, 
     STAR_EQUAL, SLASH_EQUAL, 
     MOD, MOD_EQUAL,
+    EXP, EXP_EQUAL,
 
     // Literals.
     IDENTIFIER, STRING, NUMBER, 

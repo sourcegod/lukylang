@@ -238,7 +238,17 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             // Note: cannot use modulus % on double
             // use instead fmod function for modulus between double
             return std::make_shared<LukObject>( *left %  *right);
- 
+
+        case TokenType::EXP:
+        case TokenType::EXP_EQUAL:
+            checkNumberOperands(expr.m_op, left, right);
+            // Note: pow function returns double
+            // so, you must convert it to Int ingegral operands
+            if ( left->isInt() && right->isInt() &&
+                    right->getInt() >= 0 )
+                return std::make_shared<LukObject>( int(std::pow( left->getNumber(), right->getNumber()) ));
+            return std::make_shared<LukObject>(std::pow( left->getNumber(), right->getNumber() ));
+  
         case TokenType::GREATER:
             // checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left > *right);

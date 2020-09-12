@@ -259,7 +259,7 @@ ExprPtr Parser::assignment() {
     // adding: compound assignment
     if (match({TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
           TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
-          TokenType::MOD_EQUAL})) {
+          TokenType::MOD_EQUAL, TokenType::EXP_EQUAL})) {
       TokPtr op = previous();
       return compoundAssignment(left, op);
     }
@@ -339,7 +339,8 @@ ExprPtr Parser::addition() {
 
 ExprPtr Parser::multiplication() {
     ExprPtr left = unary();
-    while (match({TokenType::SLASH, TokenType::STAR, TokenType::MOD})) {
+    while (match({TokenType::SLASH, TokenType::STAR, 
+          TokenType::MOD, TokenType::EXP})) {
         // Note: cannot use "operator" as variable name, cause it's a reserved keyword in C++
         TokPtr op = previous();
         ExprPtr right = unary();
