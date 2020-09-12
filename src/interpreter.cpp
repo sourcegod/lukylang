@@ -416,6 +416,11 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
   return nilptr;
 }
 
+ObjPtr Interpreter::visitTernaryExpr(TernaryExpr& expr) {
+
+  return nilptr;
+}
+
 
 ObjPtr Interpreter::visitThisExpr(ThisExpr& expr) {
   logMsg("\nIn visitThis");

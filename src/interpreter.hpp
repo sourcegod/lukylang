@@ -40,6 +40,7 @@ public:
     ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
     ObjPtr visitSetExpr(SetExpr& expr);
     ObjPtr visitSuperExpr(SuperExpr& expr);
+    ObjPtr visitTernaryExpr(TernaryExpr& expr);
     ObjPtr visitThisExpr(ThisExpr& expr);
     ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
     ObjPtr visitVariableExpr(VariableExpr& expr) override;
