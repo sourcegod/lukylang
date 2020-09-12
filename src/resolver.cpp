@@ -164,10 +164,11 @@ ObjPtr Resolver::visitSuperExpr(SuperExpr& expr) {
 }
 
 ObjPtr Resolver::visitTernaryExpr(TernaryExpr& expr) {
-  // resolve(expr.m_);
-  // resolve(expr.m_right);
+    resolve(expr.m_condition);
+    resolve(expr.m_thenBranch);
+    resolve(expr.m_elseBranch);
   
-  return nilptr;
+    return nilptr;
 }
 
 
