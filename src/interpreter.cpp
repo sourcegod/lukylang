@@ -417,8 +417,12 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
 }
 
 ObjPtr Interpreter::visitTernaryExpr(TernaryExpr& expr) {
-
-  return nilptr;
+    auto val = evaluate(expr.m_condition);
+    if (isTruthy(val)) {
+      return evaluate(expr.m_thenBranch);
+    }
+    
+    return evaluate(expr.m_elseBranch);
 }
 
 
