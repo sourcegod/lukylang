@@ -249,11 +249,11 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             return std::make_shared<LukObject>(*left >= *right);
 
          case TokenType::LESSER:
-            checkNumberOperands(expr.m_op, left, right);
+            // checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left < *right);
 
          case TokenType::LESSER_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
+            // checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left <= *right);
             
    

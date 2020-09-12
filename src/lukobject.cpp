@@ -665,6 +665,7 @@ bool operator==(const LukObject& a, const LukObject& b) {
         case LukType::Bool: return a.m_bool == bool(b);
         case LukType::Int: 
               if (b.isDouble()) return a.m_int == b.m_double;
+              break;
         case LukType::Double: return false;
         case LukType::String: return false;
         default:
@@ -689,16 +690,21 @@ bool operator<(const LukObject& a, const LukObject& b) {
         switch(a.m_type) {
             case LukType::Nil:
             case LukType::Bool:
-                throw std::runtime_error("Nil and Bool cannot odered.");
+                throw RuntimeError("Nil and Bool cannot odered.");
             case LukType::Int: return a.m_int < b.m_int;
             case LukType::Double: return a.m_double < b.m_double;
             case LukType::String: return a.m_string < b.m_string;
             default: 
-                                  throw std::runtime_error("Objects are cannot ordered.");
+                  throw RuntimeError("Objects cannot ordered.");
         }
     }
+    if (a.isNumber() && b.isNumber()) {
+        if (a.isInt()) return a.m_int < a.m_double;
+        if (a.isDouble()) return a.m_double < a.m_int;
+    }
 
-    throw std::runtime_error("Only objects of the same type can be ordered.");
+
+    throw RuntimeError("Only objects of the same type can be ordered.");
 }
 
 /* 
