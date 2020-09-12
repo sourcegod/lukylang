@@ -279,6 +279,18 @@ ExprPtr Parser::compoundAssignment(ExprPtr left, TokPtr op) {
 
     return left;
 }
+ExprPtr Parser::conditional() {
+      ExprPtr expr = logicOr();
+      if (match({TokenType::QUESTION})) {
+          ExprPtr thenBranch = expression();
+          consume(TokenType::COLON, 
+                  "Expect ':' after then branch of conditional expression.");
+          ExprPtr elseBranch = conditional();
+          // return std::make_shared<TernaryExpr>(expr, thenBranch, elseBranch);
+      }
+
+      return expr;
+}
 
 ExprPtr Parser::logicOr() {
     ExprPtr left = logicAnd();

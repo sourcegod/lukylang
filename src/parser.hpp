@@ -60,6 +60,7 @@ private:
     std::shared_ptr<FunctionExpr> functionBody(const std::string& kind);
     ExprPtr assignment();
     ExprPtr compoundAssignment(ExprPtr left, TokPtr op);
+    ExprPtr conditional();
     ExprPtr logicOr();
     ExprPtr logicAnd();
     
