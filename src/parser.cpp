@@ -241,10 +241,7 @@ ExprPtr Parser::expression() {
 
 ExprPtr Parser::assignment() {
     ExprPtr left = conditional();
-    if (match({TokenType::EQUAL, TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
-            TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
-            TokenType::MOD_EQUAL, TokenType::EXP_EQUAL})) {
-
+    if (match({TokenType::EQUAL})) {
         TokPtr equals = previous();
         ExprPtr value = assignment();
         if ( left->isVariableExpr() ) {
@@ -260,11 +257,18 @@ ExprPtr Parser::assignment() {
     }
 
 
+    // adding: compound assignment
+    if (match({TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
+          TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
+          TokenType::MOD_EQUAL, TokenType::EXP_EQUAL})) {
+      TokPtr op = previous();
+      return compoundAssignment(left, op);
+    }
+
     return left;
 }
 
 ExprPtr Parser::compoundAssignment(ExprPtr left, TokPtr op) {
-  // deprecated: not used
     ExprPtr value = addition();
     if (left->isVariableExpr()) {
         TokPtr name = left->getName();
