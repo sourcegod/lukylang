@@ -677,16 +677,7 @@ std::string Interpreter::multiplyString(const std::string& str, const int num) {
 }
 
 std::string Interpreter::format(ObjPtr& obj) { 
-    if (obj->isNumber()) {
-        std::string text = obj->toString(); 
-        std::string end = ".000000";
-        // extract decimal part if ending by .0
-        if (endsWith(text, end)) 
-            return text.substr(0, text.size() - end.size());
-        return text;
-    } 
-   
-    return obj->toString();
+  return stringify(obj);
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 
