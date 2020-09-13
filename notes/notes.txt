@@ -2,12 +2,12 @@ Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
 Last update: Sat, 12/09/2020
-Last version: v0.30.1
+Last version: v0.30.2
 
 
 
   0. Changelog
-
+# Version 0.30.2: Ternary expression
 # Version 0.30.1: Int and Double support, Exp operator
 # Version 0.30.0: Compound Assign Operators part 1
 # Version 0.29: nested multiline comments
