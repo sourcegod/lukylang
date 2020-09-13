@@ -91,7 +91,12 @@ void Scanner::scanToken() {
         case ':': addToken(TokenType::COLON); break;
         case '?': addToken(TokenType::QUESTION); break;
       
-        case '"': string(); break;
+        // bitwise operators
+        case '&': addToken(match('=') ? TokenType::BIT_AND_EQUAL : TokenType::BIT_AND); break;
+        case '~': addToken(TokenType::BIT_NOT); break;
+        case '|': addToken(match('=') ? TokenType::BIT_OR_EQUAL : TokenType::BIT_OR); break;
+        case '^': addToken(match('=') ? TokenType::BIT_XOR_EQUAL : TokenType::BIT_XOR); break;
+
         case ' ':
         case '\r':
         case '\t':
@@ -101,6 +106,8 @@ void Scanner::scanToken() {
             m_line++;
             m_col =0;
             break;
+
+        case '"': string(); break;
         default: {
             if (isDigit(c)) {
                 number();
