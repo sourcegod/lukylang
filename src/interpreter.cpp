@@ -269,6 +269,42 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(*left != *right);
          case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(*left == *right);
 
+         // /*
+         // Adding: bitwise operators
+         case TokenType::BIT_OR:
+         case TokenType::BIT_OR_EQUAL:
+            // if (left->isInt() && right->isInt() ) {
+                // int val = left->getInt() | right->getInt();
+                return std::make_shared<LukObject>(*left | *right);
+            // }
+            throw RuntimeError(expr.m_op, 
+                "RuntimeError: operands must be bools or integers.");
+         // */
+
+        /*
+         case BIT_AND:
+        case BIT_AND_EQUAL:
+            if (isInteger(left) && isInteger(right)) {
+                Double dLeft = (Double)left;
+                Double dRight = (Double)right;
+                int val = dLeft.intValue() & dRight.intValue();
+                return (double)val;
+            }
+            throw new RuntimeError(expr.operator, "RuntimeError: operands must be integers.");
+
+        case BIT_XOR:
+        case BIT_XOR_EQUAL:
+            if (isInteger(left) && isInteger(right)) {
+                Double dLeft = (Double)left;
+                Double dRight = (Double)right;
+                int val = dLeft.intValue() ^ dRight.intValue();
+                return (double)val;
+            }
+            throw new RuntimeError(expr.operator, "RuntimeError: operands must be integers.");
+         
+        }
+        */
+
         default: break;
     }
 

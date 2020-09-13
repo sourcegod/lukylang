@@ -584,17 +584,17 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
-                throw std::runtime_error("Cannot modulus nil");
+                throw RuntimeError("Cannot modulus nil");
             case LukType::Bool:
-                throw std::runtime_error("Cannot modulus bools");
+                throw RuntimeError("Cannot modulus bools");
             case LukType::Int:
                 m_int %= obj.m_int; break;
             case LukType::Double:
                 m_double = std::fmod(m_double, obj.m_double); break;
             case LukType::String:
-                throw std::runtime_error("Cannot modulus strings.");
+                throw RuntimeError("Cannot modulus strings.");
             default:
-                throw std::runtime_error("Cannot modulus objects.");
+                throw RuntimeError("Cannot modulus objects.");
         }
 
         return (*this);
@@ -610,6 +610,59 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
     }
 
 }
+
+// bitwise operators
+LukObject& LukObject::operator|=(const LukObject& obj) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Bool:
+                m_bool |= obj.m_bool; break;
+            case LukType::Int:
+                m_int |= obj.m_int; break;
+            default:
+                throw RuntimeError("Operands must be bools or integers");
+        }
+
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return (*this) |= obj;
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return (*this) |= ob;
+    }
+
+}
+
+LukObject& LukObject::operator&=(const LukObject& obj) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Bool:
+                m_bool &= obj.m_bool; break;
+            case LukType::Int:
+                m_int &= obj.m_int; break;
+            default:
+                throw RuntimeError("Operands must be bools or integers");
+        }
+
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return (*this) &= obj;
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return (*this) &= ob;
+    }
+
+}
+
+
 
 
 // unary operators

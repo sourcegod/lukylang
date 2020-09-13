@@ -205,6 +205,11 @@ public:
     LukObject& operator/=(const LukObject& obj);
     LukObject& operator%=(const LukObject& obj);
 
+    // bitwise operators
+    LukObject& operator|=(const LukObject& obj);
+    LukObject& operator&=(const LukObject& obj);
+
+
     /*
         Note: these operators are non member functions
         therefore there are declared friends
@@ -257,7 +262,12 @@ inline LukObject& operator-(LukObject a, const LukObject& b) { return a -= b; }
 inline LukObject& operator*(LukObject a, const LukObject& b) { return a *= b; }
 inline LukObject& operator/(LukObject a, const LukObject& b) { return a /= b; }
 inline LukObject& operator%(LukObject a, const LukObject& b) { return a %= b; }
-//
+
+// bitwise operators
+
+inline LukObject& operator|(LukObject a, const LukObject& b) { return a |= b; }
+inline LukObject& operator&(LukObject a, const LukObject& b) { return a &= b; }
+
 /// Note: "==" and "<" operators are implemented in the source filefor better readability
 // equality != operator
 inline bool operator!=(LukObject& a, LukObject& b) { return !(a == b); }
