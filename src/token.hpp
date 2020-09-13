@@ -26,6 +26,11 @@ enum class TokenType {
     MOD, MOD_EQUAL,
     EXP, EXP_EQUAL,
 
+    // bitwise operators
+    BIT_AND, BIT_AND_EQUAL, BIT_NOT,
+    BIT_OR, BIT_OR_EQUAL, 
+    BIT_XOR, BIT_XOR_EQUAL,
+
     // Literals.
     IDENTIFIER, STRING, NUMBER, 
     INT, DOUBLE,
