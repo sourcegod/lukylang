@@ -206,8 +206,10 @@ public:
     LukObject& operator%=(const LukObject& obj);
 
     // bitwise operators
+    LukObject& genBitwiseOp(const LukObject& obj, const std::string& op);
     LukObject& operator|=(const LukObject& obj);
     LukObject& operator&=(const LukObject& obj);
+    LukObject& operator^=(const LukObject& obj);
 
 
     /*
@@ -267,6 +269,7 @@ inline LukObject& operator%(LukObject a, const LukObject& b) { return a %= b; }
 
 inline LukObject& operator|(LukObject a, const LukObject& b) { return a |= b; }
 inline LukObject& operator&(LukObject a, const LukObject& b) { return a &= b; }
+inline LukObject& operator^(LukObject a, const LukObject& b) { return a ^= b; }
 
 /// Note: "==" and "<" operators are implemented in the source filefor better readability
 // equality != operator

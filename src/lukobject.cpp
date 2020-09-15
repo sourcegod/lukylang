@@ -14,6 +14,8 @@
 #include <stdexcept> // exception
 #include <cmath> // for fmod
 
+#define Luk_Add_OP(a, op, b) (a) op (b)
+
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
 
@@ -113,7 +115,7 @@ LukObject::LukObject(TokPtr& tokP)
             // p_string = std::make_shared<std::string>(tokP->literal);
             break;
         default:
-            std::runtime_error("Invalid Luky object.");
+            RuntimeError("Invalid Luky object.");
     }
     */
 
@@ -154,7 +156,7 @@ void LukObject::fromToken(Token& tok) {
             break;
 
         default:
-            std::runtime_error("Invalid Luky object.");
+            RuntimeError("Invalid Luky object.");
     }
 
 }
@@ -244,7 +246,7 @@ bool LukObject::_toBool() const {
             return true;
     }
     
-    throw std::runtime_error("Invalid convertion to bool\n");
+    throw RuntimeError("Invalid convertion to bool\n");
 
     return false;
 }
@@ -279,7 +281,7 @@ int LukObject::_toInt() const {
         break;
         
     }
-    throw std::runtime_error("Cannot convert object to int.");
+    throw RuntimeError("Cannot convert object to int.");
 
     return 0;
 }
@@ -315,7 +317,7 @@ double LukObject::_toDouble() const {
         break;
         
     }
-    throw std::runtime_error("Cannot convert object to double.");
+    throw RuntimeError("Cannot convert object to double.");
 
     return 0.;
 }
@@ -332,7 +334,7 @@ std::string LukObject::_toString() const {
           return m_string;
           // return *p_string;
     }
-    throw std::runtime_error("Cannot convert object to string.");
+    throw RuntimeError("Cannot convert object to string.");
 
     return "''";
 }
@@ -454,9 +456,9 @@ LukObject& LukObject::operator+=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
-                throw std::runtime_error("Cannot add nil");
+                throw RuntimeError("Cannot add nil");
             case LukType::Bool:
-                throw std::runtime_error("Cannot add bools");
+                throw RuntimeError("Cannot add bools");
             case LukType::Int:
                 m_int += obj.m_int; break;
             case LukType::Double:
@@ -466,7 +468,7 @@ LukObject& LukObject::operator+=(const LukObject& obj) {
                 // oss << m_string << obj.m_string;
                 break;
             default:
-                throw std::runtime_error("Cannot add objects.");
+                throw RuntimeError("Cannot add objects.");
         }
 
         return (*this);
@@ -488,17 +490,17 @@ LukObject& LukObject::operator-=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
-                throw std::runtime_error("Cannot substract nil");
+                throw RuntimeError("Cannot substract nil");
             case LukType::Bool:
-                throw std::runtime_error("Cannot substract bools");
+                throw RuntimeError("Cannot substract bools");
             case LukType::Int:
                 m_int -= obj.m_int; break;
             case LukType::Double:
                 m_double -= obj.m_double; break;
             case LukType::String:
-                throw std::runtime_error("Cannot substract strings.");
+                throw RuntimeError("Cannot substract strings.");
             default:
-                throw std::runtime_error("Cannot substract objects.");
+                throw RuntimeError("Cannot substract objects.");
         }
 
         return (*this);
@@ -521,17 +523,17 @@ LukObject& LukObject::operator*=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
-                throw std::runtime_error("Cannot multiply nil");
+                throw RuntimeError("Cannot multiply nil");
             case LukType::Bool:
-                throw std::runtime_error("Cannot multiply bools");
+                throw RuntimeError("Cannot multiply bools");
             case LukType::Int:
                 m_int *= obj.m_int; break;
             case LukType::Double:
                 m_double *= obj.m_double; break;
             case LukType::String:
-                throw std::runtime_error("Cannot multiply strings.");
+                throw RuntimeError("Cannot multiply strings.");
             default:
-                throw std::runtime_error("Cannot multiply objects.");
+                throw RuntimeError("Cannot multiply objects.");
         }
 
         return (*this);
@@ -553,17 +555,17 @@ LukObject& LukObject::operator/=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
-                throw std::runtime_error("Cannot divide nil");
+                throw RuntimeError("Cannot divide nil");
             case LukType::Bool:
-                throw std::runtime_error("Cannot divide bools");
+                throw RuntimeError("Cannot divide bools");
             case LukType::Int:
                 m_int /= obj.m_int; break;
             case LukType::Double:
                 m_double /= obj.m_double; break;
             case LukType::String:
-                throw std::runtime_error("Cannot divide strings.");
+                throw RuntimeError("Cannot divide strings.");
             default:
-                throw std::runtime_error("Cannot divide objects.");
+                throw RuntimeError("Cannot divide objects.");
         }
 
         return (*this);
@@ -612,6 +614,32 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
 }
 
 // bitwise operators
+LukObject& LukObject::genBitwiseOp(const LukObject& obj, const std::string& /*op*/) {
+     if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Bool:
+                Luk_Add_OP(m_bool, +=, obj.m_bool); break;
+            case LukType::Int:
+                Luk_Add_OP(m_int, +=, obj.m_int); break;
+            default:
+                throw RuntimeError("Operands must be bools or integers");
+        }
+
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return Luk_Add_OP((*this), +=, obj);
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return Luk_Add_OP((*this), +=, ob);
+    }
+
+}
+
+
 LukObject& LukObject::operator|=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
@@ -662,7 +690,30 @@ LukObject& LukObject::operator&=(const LukObject& obj) {
 
 }
 
+LukObject& LukObject::operator^=(const LukObject& obj) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Bool:
+                m_bool ^= obj.m_bool; break;
+            case LukType::Int:
+                m_int ^= obj.m_int; break;
+            default:
+                throw RuntimeError("Operands must be bools or integers");
+        }
 
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return (*this) ^= obj;
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return (*this) ^= ob;
+    }
+
+}
 
 
 // unary operators
@@ -673,7 +724,7 @@ LukObject operator-(LukObject a) {
         case LukType::Int: a.m_int = -a.m_int; break;
         case LukType::Double: a.m_double = -a.m_double; break;
         default: 
-            throw std::runtime_error("Unary minus cannot apply for this type.");
+            throw RuntimeError("Unary minus cannot apply for this type.");
     }
 
     return a;
@@ -688,7 +739,7 @@ LukObject operator!(LukObject a) {
         case LukType::Double: a.m_bool = a.m_double == 0.; break;
         case LukType::String: a.m_bool = a.m_string == ""; break;
         default:
-            throw std::runtime_error("cannot negate object.");
+            throw RuntimeError("cannot negate object.");
     }
 
     a.m_type = LukType::Bool;
