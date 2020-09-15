@@ -476,6 +476,12 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         case TokenType::PLUS:
             checkNumberOperand(expr.m_op, right);
             return std::make_shared<LukObject>(*right);
+        
+        // bitwise NOT operator
+        case TokenType::BIT_NOT:
+            checkNumberOperand(expr.m_op, right);
+            return std::make_shared<LukObject>(~*right);
+
 
         default: break;
     }
@@ -520,8 +526,8 @@ bool Interpreter::isEqual(ObjPtr& a, ObjPtr& b) {
 }
 
 void Interpreter::checkNumberOperand(TokPtr& op, ObjPtr& operand) {
-    if (operand->isNumber()) return;
-    throw RuntimeError(op, "Operand must be number.");
+    if (operand->isBool() || operand->isNumber()) return;
+    throw RuntimeError(op, "Operand must be bool or number.");
 }
 
 void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
