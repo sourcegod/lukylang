@@ -132,6 +132,7 @@ public:
     bool isNil() const { return m_type == LukType::Nil; }
     bool isBool() const { return m_type == LukType::Bool; }
     bool isInt() const { return m_type == LukType::Int; }
+    bool isBoolInt() const { return m_type == LukType::Bool || m_type == LukType::Int; }
     bool isDouble() const { return m_type == LukType::Double; }
     bool isNumber() const { return m_type == LukType::Int || m_type == LukType::Double; }
     bool isString() const { return m_type == LukType::String; }

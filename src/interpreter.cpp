@@ -269,17 +269,13 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(*left != *right);
          case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(*left == *right);
 
-         // /*
          // Adding: bitwise operators
          case TokenType::BIT_OR:
          case TokenType::BIT_OR_EQUAL:
-            // if (left->isInt() && right->isInt() ) {
-                // int val = left->getInt() | right->getInt();
+            if (left->isInt() && right->isInt() )
                 return std::make_shared<LukObject>(*left | *right);
-            // }
             throw RuntimeError(expr.m_op, 
-                "RuntimeError: operands must be bools or integers.");
-         // */
+                "operands must be bools or integers.");
 
         /*
          case BIT_AND:
