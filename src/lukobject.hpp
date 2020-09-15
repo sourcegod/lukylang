@@ -210,6 +210,7 @@ public:
     LukObject& operator|=(const LukObject& obj);
     LukObject& operator&=(const LukObject& obj);
     LukObject& operator^=(const LukObject& obj);
+    // Note: bitwise NOT operator is friend function
     LukObject& operator<<=(const LukObject& obj);
     LukObject& operator>>=(const LukObject& obj);
 
@@ -228,21 +229,29 @@ public:
     // Unary operators
     friend LukObject operator-(LukObject a);
     friend LukObject operator!(LukObject a);
-
-    // Binary operators
+    
+    // Binary friend functions
     friend inline LukObject& operator+(LukObject a, const LukObject& b);
     friend inline LukObject& operator-(LukObject a, const LukObject& b); 
     friend inline LukObject& operator*(LukObject a, const LukObject& b); 
     friend inline LukObject& operator/(LukObject a, const LukObject& b); 
     friend inline LukObject& operator%(LukObject a, const LukObject& b); 
 
-    // comparison operators
+    // bitwise friend functions
+    friend LukObject& operator|(LukObject a, const LukObject& b);
+    friend LukObject& operator&(LukObject a, const LukObject& b);
+    friend LukObject& operator^(LukObject a, const LukObject& b);
+    friend LukObject operator~(LukObject a);
+    friend LukObject& operator<<(LukObject a, const LukObject& b);
+    friend LukObject& operator>>(LukObject a, const LukObject& b);
+    
+    // comparison friend functions
      friend bool operator<(const LukObject& a, const LukObject& b);
     friend inline bool operator<=(const LukObject& a, const LukObject& b);
     friend inline bool operator>(const LukObject& a, const LukObject& b);
     friend inline bool operator>=(const LukObject& a, const LukObject& b);
 
-    // Output operators
+    // Output friend functions
     // friend declaration cause ostream accept only one argument 
     friend inline std::ostream& operator<<(std::ostream& ost, LukObject& obj);
     friend inline std::ostream& operator<<(std::ostream& ost, ObjPtr& obj);
@@ -268,10 +277,11 @@ inline LukObject& operator/(LukObject a, const LukObject& b) { return a /= b; }
 inline LukObject& operator%(LukObject a, const LukObject& b) { return a %= b; }
 
 // bitwise operators
-
 inline LukObject& operator|(LukObject a, const LukObject& b) { return a |= b; }
 inline LukObject& operator&(LukObject a, const LukObject& b) { return a &= b; }
 inline LukObject& operator^(LukObject a, const LukObject& b) { return a ^= b; }
+inline LukObject& operator<<(LukObject a, const LukObject& b) { return a <<= b; }
+inline LukObject& operator>>(LukObject a, const LukObject& b) { return a >>= b; }
 
 /// Note: "==" and "<" operators are implemented in the source filefor better readability
 // equality != operator
