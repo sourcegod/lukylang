@@ -210,6 +210,8 @@ public:
     LukObject& operator|=(const LukObject& obj);
     LukObject& operator&=(const LukObject& obj);
     LukObject& operator^=(const LukObject& obj);
+    LukObject& operator<<=(const LukObject& obj);
+    LukObject& operator>>=(const LukObject& obj);
 
 
     /*

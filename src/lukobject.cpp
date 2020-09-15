@@ -697,10 +697,8 @@ LukObject& LukObject::operator&=(const LukObject& obj) {
 LukObject& LukObject::operator^=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
-            case LukType::Bool:
-                m_bool ^= obj.m_bool; break;
-            case LukType::Int:
-                m_int ^= obj.m_int; break;
+            case LukType::Bool: m_bool ^= obj.m_bool; break;
+            case LukType::Int: m_int ^= obj.m_int; break;
             default:
                 throw RuntimeError("Operands must be bools or integers");
         }
@@ -728,12 +726,61 @@ LukObject operator~(LukObject a) {
             a.m_type = LukType::Int; break;
         case LukType::Int: a.m_int = ~a.m_int; break;
         default:
-            throw RuntimeError("cannot tilde object.");
+            throw RuntimeError("cannot bitwise NOT object.");
     }
 
     return a;
 }
 
+// bitwise shift left operator
+LukObject& LukObject::operator<<=(const LukObject& obj) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Bool: m_int <<= obj.m_bool; 
+                m_type = LukType::Int; break;
+            case LukType::Int: m_int <<= obj.m_int; break;
+            default:
+                throw RuntimeError("Operands must be bools or integers");
+        }
+
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return (*this) <<= obj;
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return (*this) <<= ob;
+    }
+
+}
+
+// bitwise shift right operator
+LukObject& LukObject::operator>>=(const LukObject& obj) {
+    if (m_type == obj.m_type)  {
+        switch(m_type) {
+            case LukType::Bool: m_int >>= obj.m_bool; 
+                m_type = LukType::Int; break;
+            case LukType::Int: m_int >>= obj.m_int; break;
+            default:
+                throw RuntimeError("Operands must be bools or integers");
+        }
+
+        return (*this);
+    }
+    
+    if (m_type < obj.m_type) {
+        cast(obj.m_type);
+        return (*this) >>= obj;
+    } else {
+        auto ob = obj;
+        ob.cast(m_type);
+        return (*this) >>= ob;
+    }
+
+}
 
 
 // unary operators
