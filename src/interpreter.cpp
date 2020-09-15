@@ -287,7 +287,6 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left ^ *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
-        /*
          case TokenType::BIT_LEFT:
          case TokenType::BIT_LEFT_EQUAL:
             if (left->isBoolInt() && right->isBoolInt() )
@@ -299,7 +298,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left >> *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
-        */
+
          default: break;
     }
 
