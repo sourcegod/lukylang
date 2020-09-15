@@ -70,11 +70,6 @@ void Scanner::scanToken() {
             else addToken(TokenType::STAR);
             break; 
 
-        case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
-        case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
-        case '<': addToken(match('=') ? TokenType::LESSER_EQUAL : TokenType::LESSER); break;
-        case '>': addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER); break;
-
         case '/':
             if (match('/')) {
                 // a comment goes until the end of the m_line.
@@ -88,13 +83,36 @@ void Scanner::scanToken() {
             break;
 
         case '%': addToken(match('=') ? TokenType::MOD_EQUAL : TokenType::MOD); break;
+
+        case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
+        case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
+
+        // Adding: bitwise shift operators
+        case '<': 
+          if (match('=')) addToken(TokenType::LESSER_EQUAL);
+          else if (match('<')) {
+              if (match('=')) addToken(TokenType::BIT_LEFT_EQUAL);
+              else addToken(TokenType::BIT_LEFT);
+          }
+          else addToken(TokenType::LESSER); 
+          break; 
+
+        case '>': 
+          if (match('=')) addToken(TokenType::GREATER_EQUAL);
+          else if (match('>')) {
+              if (match('=')) addToken(TokenType::BIT_RIGHT_EQUAL);
+              else addToken(TokenType::BIT_RIGHT);
+          }
+          else addToken(TokenType::GREATER); 
+          break; 
+
         case ':': addToken(TokenType::COLON); break;
         case '?': addToken(TokenType::QUESTION); break;
       
         // bitwise operators
         case '&': addToken(match('=') ? TokenType::BIT_AND_EQUAL : TokenType::BIT_AND); break;
-        case '~': addToken(TokenType::BIT_NOT); break;
         case '|': addToken(match('=') ? TokenType::BIT_OR_EQUAL : TokenType::BIT_OR); break;
+        case '~': addToken(TokenType::BIT_NOT); break;
         case '^': addToken(match('=') ? TokenType::BIT_XOR_EQUAL : TokenType::BIT_XOR); break;
 
         case ' ':
