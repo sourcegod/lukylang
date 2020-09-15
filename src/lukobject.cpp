@@ -615,6 +615,7 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
 
 // bitwise operators
 LukObject& LukObject::genBitwiseOp(const LukObject& obj, const std::string& /*op*/) {
+  // Not used yet
      if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Bool:
@@ -640,6 +641,7 @@ LukObject& LukObject::genBitwiseOp(const LukObject& obj, const std::string& /*op
 }
 
 
+// bitwise OR operator
 LukObject& LukObject::operator|=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
@@ -665,6 +667,7 @@ LukObject& LukObject::operator|=(const LukObject& obj) {
 
 }
 
+// bitwise AND operator
 LukObject& LukObject::operator&=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
@@ -690,6 +693,7 @@ LukObject& LukObject::operator&=(const LukObject& obj) {
 
 }
 
+// bitwise XOR operator
 LukObject& LukObject::operator^=(const LukObject& obj) {
     if (m_type == obj.m_type)  {
         switch(m_type) {
@@ -714,6 +718,22 @@ LukObject& LukObject::operator^=(const LukObject& obj) {
     }
 
 }
+
+// bitwise NOT operator
+LukObject operator~(LukObject a) {
+    switch(a.m_type) {
+        // Note: for ~ operator, bool value returns -1 or -2, 
+        // so it's an integer
+      case LukType::Bool:  a.m_int = a.m_bool == 0 ? -1 : -2;
+            a.m_type = LukType::Int; break;
+        case LukType::Int: a.m_int = ~a.m_int; break;
+        default:
+            throw RuntimeError("cannot tilde object.");
+    }
+
+    return a;
+}
+
 
 
 // unary operators
