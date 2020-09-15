@@ -30,6 +30,8 @@ enum class TokenType {
     BIT_AND, BIT_AND_EQUAL, BIT_NOT,
     BIT_OR, BIT_OR_EQUAL, 
     BIT_XOR, BIT_XOR_EQUAL,
+    BIT_LEFT, BIT_LEFT_EQUAL,
+    BIT_RIGHT, BIT_RIGHT_EQUAL,
 
     // Literals.
     IDENTIFIER, STRING, NUMBER, 
