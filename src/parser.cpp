@@ -262,7 +262,9 @@ ExprPtr Parser::assignment() {
           TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
           TokenType::MOD_EQUAL, TokenType::EXP_EQUAL,
           TokenType::BIT_AND_EQUAL, TokenType::BIT_OR_EQUAL, 
-          TokenType::BIT_XOR_EQUAL})) {
+          TokenType::BIT_XOR_EQUAL,
+          TokenType::BIT_LEFT_EQUAL,
+          TokenType::BIT_RIGHT_EQUAL})) {
       TokPtr op = previous();
       return compoundAssignment(left, op);
     }
@@ -357,7 +359,8 @@ ExprPtr Parser::multiplication() {
     while (match({TokenType::SLASH, TokenType::STAR, 
           TokenType::MOD, TokenType::EXP,
           TokenType::BIT_AND, TokenType::BIT_OR, 
-          TokenType::BIT_XOR})) {
+          TokenType::BIT_XOR,
+          TokenType::BIT_LEFT, TokenType::BIT_RIGHT})) {
         // Note: cannot use "operator" as variable name, cause it's a reserved keyword in C++
         TokPtr op = previous();
         ExprPtr right = unary();
