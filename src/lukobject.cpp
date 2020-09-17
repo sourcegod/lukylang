@@ -614,13 +614,20 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
 }
 
 // bitwise operators
-LukObject& LukObject::genBitwiseOp(const LukObject& obj, const std::string& /*op*/) {
+template <class T0, class T1, class T2>
+T0 genFunc(T0 func, T1 a, T2 b) {
+    return func(a, b);
+
+}
+
+LukObject& LukObject::genBitwiseOp(const LukObject& obj, std::function<void(int)> func) {
   // Not used yet
      if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Bool:
                 Luk_Add_OP(m_bool, +=, obj.m_bool); break;
             case LukType::Int:
+                func(m_int);
                 Luk_Add_OP(m_int, +=, obj.m_int); break;
             default:
                 throw RuntimeError("Operands must be bools or integers");

@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <functional>
 
 // Note: best practice:
 // to avoid circular dependencies files,
@@ -207,7 +208,7 @@ public:
     LukObject& operator%=(const LukObject& obj);
 
     // bitwise operators
-    LukObject& genBitwiseOp(const LukObject& obj, const std::string& op);
+    LukObject& genBitwiseOp(const LukObject& obj, std::function<void(int)> func);
     LukObject& operator|=(const LukObject& obj);
     LukObject& operator&=(const LukObject& obj);
     LukObject& operator^=(const LukObject& obj);
