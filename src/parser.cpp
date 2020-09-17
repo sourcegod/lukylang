@@ -375,14 +375,15 @@ ExprPtr Parser::unary() {
           TokenType::PLUS, TokenType::BIT_NOT})) {
         TokPtr op = previous();
         ExprPtr right = unary();
-        return std::make_shared<UnaryExpr>(op, right);
+
+        return std::make_shared<UnaryExpr>(op, right, false);
     }
 
-    return call();
+    return exponentiation();
 }
 
 ExprPtr Parser::exponentiation() {
-    ExprPtr left = call(); // prefix();
+    ExprPtr left = prefix();
     while (match({TokenType::EXP})) {
         TokPtr op = previous();
         ExprPtr right = unary();
@@ -393,14 +394,14 @@ ExprPtr Parser::exponentiation() {
 }
 
 ExprPtr Parser::prefix() {
-  if (match({TokenType::MINUS_MINUS, TokenType::PLUS_PLUS})) {
-    TokPtr op = previous();
-    ExprPtr right = primary();
+    if (match({TokenType::MINUS_MINUS, TokenType::PLUS_PLUS})) {
+        TokPtr op = previous();
+        ExprPtr right = primary();
     
-    return std::make_shared<UnaryExpr>(op, right); // , false);
-  }
+        return std::make_shared<UnaryExpr>(op, right, false);
+    }
 
-  return call(); // postfix();
+    return postfix();
 }
 
 ExprPtr Parser::postfix() {
@@ -410,7 +411,7 @@ ExprPtr Parser::postfix() {
         ExprPtr left = primary();
         advance();
         
-        return std::make_shared<UnaryExpr>(op, left); // ,true);
+        return std::make_shared<UnaryExpr>(op, left, true);
     }
 
     return call();
