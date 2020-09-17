@@ -401,7 +401,19 @@ ExprPtr Parser::prefix() {
   }
 
   return call(); // postfix();
+}
 
+ExprPtr Parser::postfix() {
+    if (matchNext({TokenType::MINUS_MINUS, TokenType::PLUS_PLUS})) {
+        TokPtr op = peek();
+        m_current--;
+        ExprPtr left = primary();
+        advance();
+        
+        return std::make_shared<UnaryExpr>(op, left); // ,true);
+    }
+
+    return call();
 }
 
 ExprPtr Parser::call() {
