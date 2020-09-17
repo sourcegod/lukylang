@@ -381,6 +381,17 @@ ExprPtr Parser::unary() {
     return call();
 }
 
+ExprPtr Parser::exponentiation() {
+    ExprPtr left = call(); // prefix();
+    while (match({TokenType::EXP})) {
+        TokPtr op = previous();
+        ExprPtr right = unary();
+        left = std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
 ExprPtr Parser::call() {
     ExprPtr expr = primary();
     while (true) {

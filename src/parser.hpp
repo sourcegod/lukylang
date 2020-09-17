@@ -69,6 +69,7 @@ private:
     ExprPtr addition();
     ExprPtr multiplication();
     ExprPtr unary();
+    ExprPtr exponentiation();
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
     ExprPtr primary();
