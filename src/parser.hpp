@@ -70,6 +70,7 @@ private:
     ExprPtr multiplication();
     ExprPtr unary();
     ExprPtr exponentiation();
+    ExprPtr prefix();
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
     ExprPtr primary();

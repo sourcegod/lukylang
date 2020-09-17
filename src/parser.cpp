@@ -392,6 +392,18 @@ ExprPtr Parser::exponentiation() {
     return left;
 }
 
+ExprPtr Parser::prefix() {
+  if (match({TokenType::MINUS_MINUS, TokenType::PLUS_PLUS})) {
+    TokPtr op = previous();
+    ExprPtr right = primary();
+    
+    return std::make_shared<UnaryExpr>(op, right); // , false);
+  }
+
+  return call(); // postfix();
+
+}
+
 ExprPtr Parser::call() {
     ExprPtr expr = primary();
     while (true) {
