@@ -288,10 +288,10 @@ public:
 
 class UnaryExpr : public Expr {
 public:
-    UnaryExpr(TokPtr& op, ExprPtr& right) :
+    UnaryExpr(TokPtr& op, ExprPtr& right, bool isPostfix) :
         m_op(op),
-        m_right(std::move(right))
-    {}
+        m_right(std::move(right)),
+        m_isPostfix(isPostfix) {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitUnaryExpr(*this); 
@@ -299,6 +299,7 @@ public:
 
     TokPtr m_op;
     ExprPtr m_right;
+    bool m_isPostfix;
 };
 
 class VariableExpr : public Expr {
