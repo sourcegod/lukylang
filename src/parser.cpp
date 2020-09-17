@@ -486,6 +486,18 @@ bool Parser::match(const std::vector<TokenType>& types) {
             return true;
         }
     }
+
+    return false;
+}
+
+bool Parser::matchNext(const std::vector<TokenType>& types) {
+    for (auto type : types) {
+        if (checkNext(type)) {
+            advance();
+            return true;
+        }
+    }
+    
     return false;
 }
 

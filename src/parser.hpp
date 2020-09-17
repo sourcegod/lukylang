@@ -75,6 +75,7 @@ private:
 
     TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);
+    bool matchNext(const std::vector<TokenType>& types);
     TokPtr& previous();
     TokPtr& advance();
     TokPtr& peek();
