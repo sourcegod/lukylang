@@ -4,8 +4,6 @@ Author: Coolbrother
 Last update: Sat, 12/09/2020
 Last version: v0.30.3
 
-
-
   0. Changelog
 # Version 0.30.3: Bitwise operators
 # Version 0.30.2: Ternary expression
