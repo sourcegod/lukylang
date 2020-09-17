@@ -477,8 +477,39 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 
         case TokenType::PLUS:
             checkNumberOperand(expr.m_op, right);
-            return std::make_shared<LukObject>(*right);
+            return right; // std::make_shared<LukObject>(*right);
         
+        // prefix, postfix operators
+        /// Note: prefix operator assign the new value to the variable, and returning it after.
+        /// but postfix operator, returns the variable, and assign the new value after.
+        case TokenType::MINUS_MINUS:
+            if (expr.m_right->isVariableExpr()) {
+                checkNumberOperand(expr.m_op, right);
+                /// Note: creating an object with value 1, to be able to make operations between objects
+                auto objVal = LukObject(1);
+                auto var = expr.m_right;
+                auto name = var->getName(); 
+                auto objP = std::make_shared<LukObject>(*right - objVal);
+                m_env->assign(name, objP);
+                if (expr.m_isPostfix) return right;
+                else return std::make_shared<LukObject>(*right - objVal);
+            }
+            throw RuntimeError(expr.m_op,
+                "Operand of a decrement operator must be a variable.");
+        case TokenType::PLUS_PLUS:
+            if (expr.m_right->isVariableExpr()) {
+                checkNumberOperand(expr.m_op, right);
+                auto objVal = LukObject(1);
+                auto var = expr.m_right;
+                auto name = var->getName(); 
+                auto objP = std::make_shared<LukObject>(*right + objVal);
+                m_env->assign(name, objP);
+                if (expr.m_isPostfix) return right;
+                else return std::make_shared<LukObject>(*right + objVal);
+            }
+            throw RuntimeError(expr.m_op,
+                "Operand of a increment operator must be a variable.");
+          
         // bitwise NOT operator
         case TokenType::BIT_NOT:
             checkNumberOperand(expr.m_op, right);
