@@ -342,6 +342,17 @@ ExprPtr Parser::bitwiseXor() {
     return left;
 }
 
+ExprPtr Parser::bitwiseAnd() {
+    ExprPtr left = equality();
+    while (match({TokenType::BIT_AND})) {
+        TokPtr op = previous();
+        ExprPtr right = equality();
+        left =  std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
 
 ExprPtr Parser::equality() {
     ExprPtr left = comparison();
