@@ -365,12 +365,12 @@ ExprPtr Parser::equality() {
 }
 
 ExprPtr Parser::comparison() {
-    ExprPtr left = addition(); // bitwiseShift();
+    ExprPtr left = bitwiseShift();
     while (
         match({TokenType::GREATER, TokenType::LESSER, 
             TokenType::LESSER_EQUAL, TokenType::GREATER_EQUAL})) {
         TokPtr op = previous();
-        ExprPtr right = addition(); // bitwiseShift();
+        ExprPtr right = bitwiseShift();
         left = std::make_shared<BinaryExpr>(left, op, right);
     }
     
