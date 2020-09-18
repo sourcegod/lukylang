@@ -136,6 +136,7 @@ public:
     bool isBoolInt() const { return m_type == LukType::Bool || m_type == LukType::Int; }
     bool isDouble() const { return m_type == LukType::Double; }
     bool isNumber() const { return m_type == LukType::Int || m_type == LukType::Double; }
+    bool isNumeric() const { return m_type == LukType::Bool || m_type == LukType::Int || m_type == LukType::Double; }
     bool isString() const { return m_type == LukType::String; }
     bool isCallable() const { return m_type == LukType::Callable; }
     bool isInstance() const { return m_type == LukType::Instance; }

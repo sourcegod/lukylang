@@ -304,7 +304,6 @@ public:
 
 class VariableExpr : public Expr {
 public:
-    // VariableExpr();
     VariableExpr(TokPtr& name) :
         m_name(name)
     {}
