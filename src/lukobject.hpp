@@ -209,7 +209,6 @@ public:
     LukObject& operator%=(const LukObject& obj);
 
     // bitwise operators
-    LukObject& genBitwiseOp(const LukObject& obj, std::function<void(int)> func);
     LukObject& operator|=(const LukObject& obj);
     LukObject& operator&=(const LukObject& obj);
     LukObject& operator^=(const LukObject& obj);

@@ -14,7 +14,6 @@
 #include <stdexcept> // exception
 #include <cmath> // for fmod
 
-#define Luk_Add_OP(a, op, b) (a) op (b)
 
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
@@ -614,40 +613,6 @@ LukObject& LukObject::operator%=(const LukObject& obj) {
 }
 
 // bitwise operators
-template <class T0, class T1, class T2>
-T0 genFunc(T0 func, T1 a, T2 b) {
-    return func(a, b);
-
-}
-
-LukObject& LukObject::genBitwiseOp(const LukObject& obj, std::function<void(int)> func) {
-  // Not used yet
-     if (m_type == obj.m_type)  {
-        switch(m_type) {
-            case LukType::Bool:
-                Luk_Add_OP(m_bool, +=, obj.m_bool); break;
-            case LukType::Int:
-                func(m_int);
-                Luk_Add_OP(m_int, +=, obj.m_int); break;
-            default:
-                throw RuntimeError("Operands must be bools or integers");
-        }
-
-        return (*this);
-    }
-    
-    if (m_type < obj.m_type) {
-        cast(obj.m_type);
-        return Luk_Add_OP((*this), +=, obj);
-    } else {
-        auto ob = obj;
-        ob.cast(m_type);
-        return Luk_Add_OP((*this), +=, ob);
-    }
-
-}
-
-
 // bitwise OR operator
 LukObject& LukObject::operator|=(const LukObject& obj) {
     if (m_type == obj.m_type)  {

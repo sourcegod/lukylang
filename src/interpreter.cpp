@@ -161,10 +161,6 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 }
 
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
-#ifdef LUK_GET_NUM
-#undef LUK_GET_NUM
-#endif
-#define LUK_GET_NUM(x) (x)->isInt() ? (x)->getInt() : (x)->getDouble()
     // Note: the method .get allow to convert smart pointer to raw pointer
     logMsg("\nIn visitBinary: "); 
     ObjPtr left = evaluate(expr.m_left);
@@ -182,10 +178,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             if ( (left->isString() && right->isString())  ||
                 (left->isString() && right->isNumeric()) || 
                 (left->isNumeric() && right->isString()) )
-                // Adding each string to ostringstream
-                // return std::make_shared<LukObject>(left->getString() + right->getString());
                 return std::make_shared<LukObject>( format(left) + format(right) );
-            std::cerr << "Passe ici: \n" << left->getType() << ", " << right->getType();
             throw RuntimeError(expr.m_op, 
                     "Operands must be string and number.");
         
@@ -301,7 +294,6 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          default: break;
     }
 
-#undef LUK_GET_NUM
 
     // unrichable
     return nilptr;
