@@ -66,6 +66,7 @@ private:
     ExprPtr bitwiseOr();
     ExprPtr bitwiseXor();
     ExprPtr bitwiseAnd();
+    ExprPtr bitwiseShift();
     
     ExprPtr equality();
     ExprPtr comparison();

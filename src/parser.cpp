@@ -357,7 +357,7 @@ ExprPtr Parser::equality() {
     ExprPtr left = comparison();
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         TokPtr op = previous();
-        ExprPtr right    = comparison();
+        ExprPtr right = comparison();
         left = std::make_shared<BinaryExpr>(left, op, right);
     }
     
@@ -365,10 +365,21 @@ ExprPtr Parser::equality() {
 }
 
 ExprPtr Parser::comparison() {
-    ExprPtr left = addition();
+    ExprPtr left = addition(); // bitwiseShift();
     while (
         match({TokenType::GREATER, TokenType::LESSER, 
             TokenType::LESSER_EQUAL, TokenType::GREATER_EQUAL})) {
+        TokPtr op = previous();
+        ExprPtr right = addition(); // bitwiseShift();
+        left = std::make_shared<BinaryExpr>(left, op, right);
+    }
+    
+    return left;
+}
+
+ExprPtr Parser::bitwiseShift() {
+    ExprPtr left = addition();
+    while ( match({TokenType::BIT_LEFT, TokenType::BIT_RIGHT}) ) {
         TokPtr op = previous();
         ExprPtr right = addition();
         left = std::make_shared<BinaryExpr>(left, op, right);
@@ -376,6 +387,7 @@ ExprPtr Parser::comparison() {
     
     return left;
 }
+
 
 ExprPtr Parser::addition() {
     ExprPtr left = multiplication();
