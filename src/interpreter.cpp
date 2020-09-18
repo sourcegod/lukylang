@@ -175,21 +175,20 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         case TokenType::PLUS:
         case TokenType::PLUS_EQUAL:
             if (left->isNumber() && right->isNumber()) {
-              // auto obj = (*left) + (*right);
-              // auto lnum = LUK_GET_NUM(left);
-              // auto rnum = LUK_GET_NUM(right);
-                // return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
                 return std::make_shared<LukObject>( *left + *right );
             }
             
             // Note: temporary can concatenate string with number before having number to string convertion function
-            if ( (left->isString() && right->isNumber()) || 
-                (left->isNumber() && right->isString()) )
+            if ( (left->isString() && right->isString())  ||
+                (left->isString() && right->isNumeric()) || 
+                (left->isNumeric() && right->isString()) )
                 // Adding each string to ostringstream
                 // return std::make_shared<LukObject>(left->getString() + right->getString());
                 return std::make_shared<LukObject>( format(left) + format(right) );
+            std::cerr << "Passe ici: \n" << left->getType() << ", " << right->getType();
             throw RuntimeError(expr.m_op, 
                     "Operands must be string and number.");
+        
         case TokenType::MINUS:
         case TokenType::MINUS_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
