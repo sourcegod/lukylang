@@ -284,6 +284,7 @@ ExprPtr Parser::compoundAssignment(ExprPtr left, TokPtr op) {
 
     return left;
 }
+
 ExprPtr Parser::conditional() {
       ExprPtr expr = logicOr();
       if (match({TokenType::QUESTION})) {
@@ -318,6 +319,18 @@ ExprPtr Parser::logicAnd() {
 
     return left;
 }
+
+ExprPtr Parser::bitwiseOr() {
+    ExprPtr left = equality();
+    while (match({TokenType::OR})) {
+        TokPtr op = previous();
+        ExprPtr right = equality();
+        left =  std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
 
 ExprPtr Parser::equality() {
     ExprPtr left = comparison();

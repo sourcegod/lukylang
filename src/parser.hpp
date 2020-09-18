@@ -63,6 +63,7 @@ private:
     ExprPtr conditional();
     ExprPtr logicOr();
     ExprPtr logicAnd();
+    ExprPtr bitwiseOr();
     
     ExprPtr equality();
     ExprPtr comparison();
