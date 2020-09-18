@@ -1,0 +1,17 @@
+var a=42;
+print "Postfix operators";
+print "a: " + a;
+print "a++: " + a++;
+print "a: " + a;
+
+print "a--: " + a--;
+print "a: " + a;
+print "";
+
+print "Prefix operators";
+print "a: " + a;
+print "++a: " + ++a;
+print "a: " + a;
+print "--a: " + --a;
+print "a: " + a;
+
