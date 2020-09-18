@@ -310,10 +310,10 @@ ExprPtr Parser::logicOr() {
 }
 
 ExprPtr Parser::logicAnd() {
-    ExprPtr left = equality();
+    ExprPtr left = bitwiseOr();
     while (match({TokenType::AND})) {
         TokPtr op = previous();
-        ExprPtr right = equality();
+        ExprPtr right = bitwiseOr();
         left =  std::make_shared<LogicalExpr>(left, op, right);
     }
 
@@ -321,10 +321,10 @@ ExprPtr Parser::logicAnd() {
 }
 
 ExprPtr Parser::bitwiseOr() {
-    ExprPtr left = equality();
+    ExprPtr left = bitwiseXor();
     while (match({TokenType::BIT_OR})) {
         TokPtr op = previous();
-        ExprPtr right = equality();
+        ExprPtr right = bitwiseXor();
         left =  std::make_shared<BinaryExpr>(left, op, right);
     }
 
@@ -332,10 +332,10 @@ ExprPtr Parser::bitwiseOr() {
 }
 
 ExprPtr Parser::bitwiseXor() {
-    ExprPtr left = equality();
+    ExprPtr left = bitwiseAnd();
     while (match({TokenType::BIT_XOR})) {
         TokPtr op = previous();
-        ExprPtr right = equality();
+        ExprPtr right = bitwiseAnd();
         left =  std::make_shared<BinaryExpr>(left, op, right);
     }
 
@@ -352,7 +352,6 @@ ExprPtr Parser::bitwiseAnd() {
 
     return left;
 }
-
 
 ExprPtr Parser::equality() {
     ExprPtr left = comparison();
