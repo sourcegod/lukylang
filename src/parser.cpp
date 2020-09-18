@@ -241,13 +241,21 @@ ExprPtr Parser::expression() {
 
 ExprPtr Parser::assignment() {
     ExprPtr left = conditional();
-    if (match({TokenType::EQUAL})) {
+    if (match({TokenType::EQUAL, // })) {
+          TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
+          TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
+          TokenType::MOD_EQUAL, TokenType::EXP_EQUAL,
+          TokenType::BIT_AND_EQUAL, TokenType::BIT_OR_EQUAL, 
+          TokenType::BIT_XOR_EQUAL,
+          TokenType::BIT_LEFT_EQUAL,
+          TokenType::BIT_RIGHT_EQUAL})) {
+
         TokPtr equals = previous();
         ExprPtr value = assignment();
         if ( left->isVariableExpr() ) {
             // TokPtr name = static_cast<VariableExpr*>( left.get() )->name;
             TokPtr name = left->getName();
-            return  std::make_shared<AssignExpr>(name, value);
+            return  std::make_shared<AssignExpr>(name, equals, value);
         } else if (left->isGetExpr()) {
           return std::make_shared<SetExpr>(left->getObject(),
                 left->getName(), value );
@@ -256,9 +264,10 @@ ExprPtr Parser::assignment() {
         error(equals, "Invalid assignment target.");
     }
 
-
+    /*
     // adding: compound assignment
-    if (match({TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
+    if (match({
+    TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
           TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
           TokenType::MOD_EQUAL, TokenType::EXP_EQUAL,
           TokenType::BIT_AND_EQUAL, TokenType::BIT_OR_EQUAL, 
@@ -268,6 +277,7 @@ ExprPtr Parser::assignment() {
       TokPtr op = previous();
       return compoundAssignment(left, op);
     }
+    */
 
     return left;
 }
