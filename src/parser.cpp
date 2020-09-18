@@ -322,7 +322,18 @@ ExprPtr Parser::logicAnd() {
 
 ExprPtr Parser::bitwiseOr() {
     ExprPtr left = equality();
-    while (match({TokenType::OR})) {
+    while (match({TokenType::BIT_OR})) {
+        TokPtr op = previous();
+        ExprPtr right = equality();
+        left =  std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
+ExprPtr Parser::bitwiseXor() {
+    ExprPtr left = equality();
+    while (match({TokenType::BIT_XOR})) {
         TokPtr op = previous();
         ExprPtr right = equality();
         left =  std::make_shared<BinaryExpr>(left, op, right);
