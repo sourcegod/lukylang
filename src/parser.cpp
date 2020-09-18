@@ -388,7 +388,6 @@ ExprPtr Parser::bitwiseShift() {
     return left;
 }
 
-
 ExprPtr Parser::addition() {
     ExprPtr left = multiplication();
     while (match({TokenType::MINUS, TokenType::PLUS})) {
@@ -402,11 +401,7 @@ ExprPtr Parser::addition() {
 
 ExprPtr Parser::multiplication() {
     ExprPtr left = unary();
-    while (match({TokenType::SLASH, TokenType::STAR, 
-          TokenType::MOD, TokenType::EXP,
-          TokenType::BIT_AND, TokenType::BIT_OR, 
-          TokenType::BIT_XOR,
-          TokenType::BIT_LEFT, TokenType::BIT_RIGHT})) {
+    while (match({TokenType::SLASH, TokenType::STAR, TokenType::MOD})) {
         // Note: cannot use "operator" as variable name, cause it's a reserved keyword in C++
         TokPtr op = previous();
         ExprPtr right = unary();
