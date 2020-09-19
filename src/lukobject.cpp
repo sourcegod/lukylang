@@ -551,6 +551,7 @@ LukObject& LukObject::operator*=(const LukObject& obj) {
 
 // /= operator
 LukObject& LukObject::operator/=(const LukObject& obj) {
+    double num;
     if (m_type == obj.m_type)  {
         switch(m_type) {
             case LukType::Nil:
@@ -558,7 +559,13 @@ LukObject& LukObject::operator/=(const LukObject& obj) {
             case LukType::Bool:
                 throw RuntimeError("Cannot divide bools");
             case LukType::Int:
-                m_int /= obj.m_int; break;
+                num = double(m_int) / obj.m_int;
+                if ( std::fmod(num, 1) == 0) m_int = int(num); 
+                else {
+                    m_double = num;
+                    m_type = LukType::Double;
+                }
+                break;
             case LukType::Double:
                 m_double /= obj.m_double; break;
             case LukType::String:
