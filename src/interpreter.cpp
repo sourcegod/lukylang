@@ -161,8 +161,8 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
               (value->isString() && cur->isNumeric()) || 
               (value->isNumeric() && cur->isString()) ) {
               // Note: temporary can concatenate string with number before having number to string convertion function
-              // *value = format(cur) + format(value);
-              *value = *cur + *value;
+              *value = format(cur) + format(value);
+              // *value = *cur + *value;
           }
           else throw RuntimeError(op, 
                   "Operands must be string and number.");
