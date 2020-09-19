@@ -264,25 +264,12 @@ ExprPtr Parser::assignment() {
         error(equals, "Invalid assignment target.");
     }
 
-    /*
-    // adding: compound assignment
-    if (match({
-    TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
-          TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
-          TokenType::MOD_EQUAL, TokenType::EXP_EQUAL,
-          TokenType::BIT_AND_EQUAL, TokenType::BIT_OR_EQUAL, 
-          TokenType::BIT_XOR_EQUAL,
-          TokenType::BIT_LEFT_EQUAL,
-          TokenType::BIT_RIGHT_EQUAL})) {
-      TokPtr op = previous();
-      return compoundAssignment(left, op);
-    }
-    */
-
     return left;
 }
 
 ExprPtr Parser::compoundAssignment(ExprPtr left, TokPtr op) {
+  // deprecated function, not used yet
+
     ExprPtr value = addition();
     if (left->isVariableExpr()) {
         TokPtr name = left->getName();
