@@ -149,6 +149,109 @@ void Interpreter::execute(StmtPtr& stmt) {
 ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
     logMsg("\nIn visitAssignExpr Interpreter, name:  ", expr.m_name);
     ObjPtr value = evaluate(expr.m_value);
+    ObjPtr cur = m_env->get(expr.m_name);
+    // std::cerr << "cur: " << cur << ", value: " << value << "\n";
+    auto op = expr.m_equals;
+    switch(expr.m_equals->type) {
+      case TokenType::EQUAL: break;
+      case TokenType::PLUS_EQUAL:
+          if (cur->isNumber() && value->isNumber()) {
+              *value = *cur + *value;
+          } else if ( (value->isString() && cur->isString())  ||
+              (value->isString() && cur->isNumeric()) || 
+              (value->isNumeric() && cur->isString()) ) {
+              // Note: temporary can concatenate string with number before having number to string convertion function
+              // *value = format(cur) + format(value);
+              *value = *cur + *value;
+          }
+          else throw RuntimeError(op, 
+                  "Operands must be string and number.");
+          break;
+      
+      case TokenType::MINUS_EQUAL:
+          checkNumberOperands(op, cur, value);
+          *value = *cur - *value;
+          break;
+
+      case TokenType::STAR_EQUAL:
+          if ( (cur->isNumber()) && (value->isNumber()) ) {
+              *value *= *cur;
+          } else if ( cur->isString() && value->isNumber() ) { 
+              // Note: can multiply string by number
+              if ( not value->isInt()) {
+                  throw RuntimeError(op, "String multiplier must be an integer");
+              }
+              auto str = cur->getString();
+              auto num = value->getNumber();
+               
+              *value = multiplyString(str, num);
+          } else if ( cur->isNumber() && value->isString() ) { 
+              if ( not cur->isInt()) {
+                  throw RuntimeError(op, "String multiplier must be an integer");
+              }
+              auto str = value->getString();
+              auto num = cur->getNumber();
+              
+              *value = multiplyString(str, num);
+          }
+          else throw RuntimeError(op, "Operands must be strings or numbers.");
+          break;
+
+      case TokenType::SLASH_EQUAL:
+          checkNumberOperands(op, cur, value);
+          *value = *cur / *value;
+          break;
+
+      case TokenType::MOD_EQUAL:
+          checkNumberOperands(op, cur, value);
+          *value = *cur % *value;
+          break;
+
+      case TokenType::EXP_EQUAL:
+          // Note: pow function returns double
+          // so, you must convert it to Int ingegral operands
+          checkNumberOperands(op, cur, value);
+          if ( cur->isInt() && value->isInt() &&
+                  value->getInt() >= 0 ) {
+              *value = int( std::pow( cur->getNumber(), value->getNumber()) );
+          } 
+          else *value = std::pow( cur->getNumber(), value->getNumber() );
+          break;
+
+       // bitwise operators compound assignment
+       case TokenType::BIT_OR_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur | *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_AND_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur & *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_XOR_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur ^ *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_LEFT_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur << *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_RIGHT_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur >> *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+      default: break;
+    }
+
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
@@ -214,16 +317,13 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
                 return std::make_shared<LukObject>( multiplyString(str, num) );
             }
             
-            throw RuntimeError(expr.m_op, 
-                    "Operands must be string and number.");
+            throw RuntimeError(expr.m_op, "Operands must be strings or numbers.");
 
          case TokenType::SLASH:
         case TokenType::SLASH_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left / *right);
-
        
-        
         case TokenType::MOD:
         case TokenType::MOD_EQUAL:
             checkNumberOperands(expr.m_op, left, right);
@@ -470,6 +570,11 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
             checkNumberOperand(expr.m_op, right);
             return right; // std::make_shared<LukObject>(*right);
         
+        // bitwise NOT operator
+        case TokenType::BIT_NOT:
+            checkNumberOperand(expr.m_op, right);
+            return std::make_shared<LukObject>(~*right);
+
         // prefix, postfix operators
         /// Note: prefix operator assign the new value to the variable, and returning it after.
         /// but postfix operator, returns the variable, and assign the new value after.
@@ -487,6 +592,7 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
             }
             throw RuntimeError(expr.m_op,
                 "Operand of a decrement operator must be a variable.");
+
         case TokenType::PLUS_PLUS:
             if (expr.m_right->isVariableExpr()) {
                 checkNumberOperand(expr.m_op, right);
@@ -501,11 +607,6 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
             throw RuntimeError(expr.m_op,
                 "Operand of a increment operator must be a variable.");
           
-        // bitwise NOT operator
-        case TokenType::BIT_NOT:
-            checkNumberOperand(expr.m_op, right);
-            return std::make_shared<LukObject>(~*right);
-
 
         default: break;
     }

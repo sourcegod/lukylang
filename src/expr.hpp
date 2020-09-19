@@ -77,8 +77,9 @@ private:
 
 class AssignExpr : public Expr {
 public:
-    AssignExpr(TokPtr& name, ExprPtr value) : 
+    AssignExpr(TokPtr& name, TokPtr& equals, ExprPtr value) : 
         m_name(name),
+        m_equals(equals),
         m_value(std::move(value))
         {}
     
@@ -87,6 +88,7 @@ public:
     }
 
     TokPtr m_name;
+    TokPtr m_equals;
     ExprPtr m_value;
 };
 

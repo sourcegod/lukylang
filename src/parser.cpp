@@ -287,7 +287,7 @@ ExprPtr Parser::compoundAssignment(ExprPtr left, TokPtr op) {
     if (left->isVariableExpr()) {
         TokPtr name = left->getName();
         ExprPtr val = std::make_shared<BinaryExpr>(left, op, value);
-        return std::make_shared<AssignExpr>(name, val);
+        return std::make_shared<AssignExpr>(name, op, val);
     }
 
     error(op, "Invalid compound assignment target.");
