@@ -842,14 +842,15 @@ std::string Interpreter::stringify(ObjPtr& obj) {
     logMsg("\nIn stringify, obj id: ", obj->getId(), ", val: ", obj->toString());
     // if (obj->isNil() || obj->isBool()) return obj->toString();
     if (obj->isDouble()) {
-        std::string text = obj->toString(); 
-        std::string end = ".000000";
-        // extract decimal part if ending by .0
-        if (endsWith(text, end)) 
-            // adding ".0" at the end of a double 
-            return text.substr(0, text.size() - end.size() +2);
-        return text;
-    } 
+        std::string str = obj->toString(); 
+        // erasing trailing zeros
+        auto pos = str.find_last_not_of('0');
+        // keeping the first zero whether they are only zeros after the dot
+        if (str[pos] == '.') str.erase(pos +2, std::string::npos);
+        else str.erase(pos +1, std::string::npos);
+        
+        return str;
+     } 
     
    
     logMsg("\nExit out stringify \n");
