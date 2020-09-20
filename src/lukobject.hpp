@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <functional>
 
 // Note: best practice:
 // to avoid circular dependencies files,
@@ -28,10 +29,9 @@ class LukInstance;
 #define nilptr LukObject::getStatNilPtr()
 
 enum class LukType { 
-    Nil=0, Bool=1, Number=2, String=3,
-    Callable =4, Instance=5
+    Nil=0, Bool=1, Int=2, Double=3, String=4,
+    Callable =5, Instance=6
 };
-
 class LukObject {
 protected:
     static int next_id;
@@ -43,7 +43,8 @@ public:
     int id;
     LukType m_type;
     bool m_bool = false;
-    double m_number =0;
+    int m_int =0;
+    double m_double =0.;
     std::string m_string = "";
     std::shared_ptr<std::string> p_string;
     std::shared_ptr<LukCallable> p_callable;
@@ -73,7 +74,8 @@ public:
         logMsg("\n~LukObject destructor,  id: ", id, ", val: ", toString());
     }
     
-
+    // get current object
+    LukObject& getObj() { return *this; }
     // get the type id
     LukType getType() { return m_type; }
 
@@ -90,9 +92,11 @@ public:
 
     // convertions
     bool toBool();
-    double toNumber();
+    int toInt();
+    double toDouble();
     std::string toString();
     std::string value();
+    
 
     // convert string to number  
     // Note: template function must be defining in the header file, not in the implementation file.
@@ -100,7 +104,7 @@ public:
     // Note: usage:
     // double number = stringToNumber<double>("0.6");
     template<typename T>
-        T stringToNumber(const std::string& stg) {
+    T stringToNumber(const std::string& stg) {
         T tValue;
         std::stringstream stream(stg);
         stream >> tValue;
@@ -111,9 +115,10 @@ public:
 
         return tValue;
     }
- 
-    // Note: make dynamic casting to convert base object to derived one.
-    // Note: template function must be defining in the header file, not in the implementation file.
+    
+
+    /// Note: make dynamic casting to convert base object to derived one.
+    /// Note: template function must be defining in the header file, not in the implementation file.
     template <typename T>
     std::shared_ptr<T> getDynCast()  {
       if (p_callable == nullptr) {
@@ -127,8 +132,11 @@ public:
     // test type state
     bool isNil() const { return m_type == LukType::Nil; }
     bool isBool() const { return m_type == LukType::Bool; }
-    bool isNumber() const { return m_type == LukType::Number; }
-    bool isDouble() const { return m_type == LukType::Number; }
+    bool isInt() const { return m_type == LukType::Int; }
+    bool isBoolInt() const { return m_type == LukType::Bool || m_type == LukType::Int; }
+    bool isDouble() const { return m_type == LukType::Double; }
+    bool isNumber() const { return m_type == LukType::Int || m_type == LukType::Double; }
+    bool isNumeric() const { return m_type == LukType::Bool || m_type == LukType::Int || m_type == LukType::Double; }
     bool isString() const { return m_type == LukType::String; }
     bool isCallable() const { return m_type == LukType::Callable; }
     bool isInstance() const { return m_type == LukType::Instance; }
@@ -150,7 +158,14 @@ public:
     static ObjPtr& getStatNilPtr() { return stat_nilPtr; }
 
     bool getBool() const noexcept { return m_bool; }
-    double getNumber() const noexcept { return m_number; }
+    int getInt() const noexcept { return m_int; }
+    double getDouble() const noexcept { return m_double; }
+    // TODO: should be returned int or double
+    double getNumber() const noexcept { 
+        if (isInt()) return double(m_int); 
+        return m_double;
+    }
+
     std::string getString() const noexcept { return m_string; }
     std::shared_ptr<std::string> getPtrString() const noexcept { return p_string; }
     std::shared_ptr<LukCallable> getCallable() const noexcept { return p_callable; }
@@ -163,7 +178,8 @@ public:
 
     // convertion operators to cast the LukObject type
     operator bool() const { return _toBool(); }
-    operator double() const { return _toNumber(); }
+    operator int() const { return _toInt(); }
+    operator double() const { return _toDouble(); }
     operator std::string() const { return _toString(); }
 
     // assignment operators 
@@ -190,6 +206,16 @@ public:
     LukObject& operator-=(const LukObject& obj);
     LukObject& operator*=(const LukObject& obj);
     LukObject& operator/=(const LukObject& obj);
+    LukObject& operator%=(const LukObject& obj);
+
+    // bitwise operators
+    LukObject& operator|=(const LukObject& obj);
+    LukObject& operator&=(const LukObject& obj);
+    LukObject& operator^=(const LukObject& obj);
+    // Note: bitwise NOT operator is friend function
+    LukObject& operator<<=(const LukObject& obj);
+    LukObject& operator>>=(const LukObject& obj);
+
 
     /*
         Note: these operators are non member functions
@@ -205,20 +231,29 @@ public:
     // Unary operators
     friend LukObject operator-(LukObject a);
     friend LukObject operator!(LukObject a);
-
-    // Binary operators
+    
+    // Binary friend functions
     friend inline LukObject& operator+(LukObject a, const LukObject& b);
     friend inline LukObject& operator-(LukObject a, const LukObject& b); 
     friend inline LukObject& operator*(LukObject a, const LukObject& b); 
     friend inline LukObject& operator/(LukObject a, const LukObject& b); 
+    friend inline LukObject& operator%(LukObject a, const LukObject& b); 
 
-    // comparison operators
+    // bitwise friend functions
+    friend LukObject& operator|(LukObject a, const LukObject& b);
+    friend LukObject& operator&(LukObject a, const LukObject& b);
+    friend LukObject& operator^(LukObject a, const LukObject& b);
+    friend LukObject operator~(LukObject a);
+    friend LukObject& operator<<(LukObject a, const LukObject& b);
+    friend LukObject& operator>>(LukObject a, const LukObject& b);
+    
+    // comparison friend functions
      friend bool operator<(const LukObject& a, const LukObject& b);
     friend inline bool operator<=(const LukObject& a, const LukObject& b);
     friend inline bool operator>(const LukObject& a, const LukObject& b);
     friend inline bool operator>=(const LukObject& a, const LukObject& b);
 
-    // Output operators
+    // Output friend functions
     // friend declaration cause ostream accept only one argument 
     friend inline std::ostream& operator<<(std::ostream& ost, LukObject& obj);
     friend inline std::ostream& operator<<(std::ostream& ost, ObjPtr& obj);
@@ -227,17 +262,29 @@ public:
 private:
     // methods
     bool _toBool() const;
-    double _toNumber() const;
+    int _toInt() const;
+    double _toDouble() const;
     std::string _toString() const;
+    void fromToken(Token& tok);
     
 
 };
+
 
 // binary operators 
 inline LukObject& operator+(LukObject a, const LukObject & b) { return a += b; }
 inline LukObject& operator-(LukObject a, const LukObject& b) { return a -= b; }
 inline LukObject& operator*(LukObject a, const LukObject& b) { return a *= b; }
 inline LukObject& operator/(LukObject a, const LukObject& b) { return a /= b; }
+inline LukObject& operator%(LukObject a, const LukObject& b) { return a %= b; }
+
+// bitwise operators
+inline LukObject& operator|(LukObject a, const LukObject& b) { return a |= b; }
+inline LukObject& operator&(LukObject a, const LukObject& b) { return a &= b; }
+inline LukObject& operator^(LukObject a, const LukObject& b) { return a ^= b; }
+inline LukObject& operator<<(LukObject a, const LukObject& b) { return a <<= b; }
+inline LukObject& operator>>(LukObject a, const LukObject& b) { return a >>= b; }
+
 /// Note: "==" and "<" operators are implemented in the source filefor better readability
 // equality != operator
 inline bool operator!=(LukObject& a, LukObject& b) { return !(a == b); }
@@ -248,9 +295,6 @@ inline bool operator<=(const LukObject& a, const LukObject& b) { return a< b || 
 inline bool operator>(const LukObject& a, const LukObject& b) { return !(a <= b); }
 inline bool operator>=(const LukObject& a, const LukObject& b) { return !(a < b); }
 
-
-
-// /*
 // comparison operators for LukType object
 bool operator<(LukType a, LukType b);
 bool operator>(LukType a, LukType b);
@@ -268,7 +312,8 @@ inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
     switch(tp) {
         case Type::Nil: return ost << "<Nil>";
         case Type::Bool: return ost << "<Bool>";
-        case Type::Number: return ost << "<Number>";
+        case Type::Int: return ost << "<Int>";
+        case Type::Double: return ost << "<Double>";
         case Type::String: return ost << "<String>";
         case Type::Callable: return ost << "<Callable>";
         case Type::Instance: return ost << "<Instance>";

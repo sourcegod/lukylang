@@ -34,7 +34,9 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
     auto lexeme = literal;
     if (type != TokenType::IDENTIFIER ||
             type != TokenType::NUMBER ||
-            type != TokenType::STRING) {
+            type != TokenType::STRING ||
+            type != TokenType::INT ||
+            type != TokenType::DOUBLE) {
         lexeme = m_source.substr(m_start, lexLen);
     }
     
@@ -56,14 +58,27 @@ void Scanner::scanToken() {
         case '}': addToken(TokenType::RIGHT_BRACE); break;
         case ',': addToken(TokenType::COMMA); break;
         case '.': addToken(TokenType::DOT); break;
-        case '-': addToken(match('=') ? TokenType::MINUS_EQUAL : TokenType::MINUS); break;
-        case '+': addToken(match('=') ? TokenType::PLUS_EQUAL : TokenType::PLUS); break;
         case ';': addToken(TokenType::SEMICOLON); break;
-        case '*': addToken(match('=') ? TokenType::STAR_EQUAL : TokenType::STAR); break; break;
-        case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
-        case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
-        case '<': addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS); break;
-        case '>': addToken(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER); break;
+
+        // Adding: prefix and postfix operators  
+        case '-': 
+            if (match('=')) addToken(TokenType::MINUS_EQUAL);
+            else addToken(match('-') ? TokenType::MINUS_MINUS : TokenType::MINUS);
+            break;
+      
+        case '+': 
+            if (match('=')) addToken(TokenType::PLUS_EQUAL);
+            else addToken(match('+') ? TokenType::PLUS_PLUS : TokenType::PLUS);
+            break;
+                
+        case '*': 
+            if (match('=')) addToken(TokenType::STAR_EQUAL);
+            else if (match('*')) {
+                if (match('=')) addToken(TokenType::EXP_EQUAL);
+                else addToken(TokenType::EXP);
+            }
+            else addToken(TokenType::STAR);
+            break; 
 
         case '/':
             if (match('/')) {
@@ -77,8 +92,39 @@ void Scanner::scanToken() {
             }
             break;
 
-        case '%': addToken(match('=') ? TokenType::MODULO_EQUAL : TokenType::MODULO); break;
-        case '"': string(); break;
+        case '%': addToken(match('=') ? TokenType::MOD_EQUAL : TokenType::MOD); break;
+
+        case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
+        case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
+
+        // Adding: bitwise shift operators
+        case '<': 
+          if (match('=')) addToken(TokenType::LESSER_EQUAL);
+          else if (match('<')) {
+              if (match('=')) addToken(TokenType::BIT_LEFT_EQUAL);
+              else addToken(TokenType::BIT_LEFT);
+          }
+          else addToken(TokenType::LESSER); 
+          break; 
+
+        case '>': 
+          if (match('=')) addToken(TokenType::GREATER_EQUAL);
+          else if (match('>')) {
+              if (match('=')) addToken(TokenType::BIT_RIGHT_EQUAL);
+              else addToken(TokenType::BIT_RIGHT);
+          }
+          else addToken(TokenType::GREATER); 
+          break; 
+
+        case ':': addToken(TokenType::COLON); break;
+        case '?': addToken(TokenType::QUESTION); break;
+      
+        // bitwise operators
+        case '&': addToken(match('=') ? TokenType::BIT_AND_EQUAL : TokenType::BIT_AND); break;
+        case '|': addToken(match('=') ? TokenType::BIT_OR_EQUAL : TokenType::BIT_OR); break;
+        case '~': addToken(TokenType::BIT_NOT); break;
+        case '^': addToken(match('=') ? TokenType::BIT_XOR_EQUAL : TokenType::BIT_XOR); break;
+
         case ' ':
         case '\r':
         case '\t':
@@ -88,6 +134,8 @@ void Scanner::scanToken() {
             m_line++;
             m_col =0;
             break;
+
+        case '"': string(); break;
         default: {
             if (isDigit(c)) {
                 number();
@@ -141,18 +189,23 @@ void Scanner::identifier() {
 }
 
 void Scanner::number() {
+  bool isDecimal = false;
     while (isDigit(peek()))
         advance();
     // look for fractional part
     if (peek() == '.' && isDigit(peekNext())) {
+      isDecimal = true;
         // consume the "."
         advance();
         while (isDigit(peek()))
             advance();
     }
     const size_t numLen = m_current - m_start;
-    const std::string numberLiteral = m_source.substr(m_start, numLen);
-    addToken(TokenType::NUMBER, numberLiteral);
+    const std::string numLiteral = m_source.substr(m_start, numLen);
+    if (not isDecimal) 
+        addToken(TokenType::INT, numLiteral);
+    else
+        addToken(TokenType::DOUBLE, numLiteral);
 }
 
 void Scanner::string() {

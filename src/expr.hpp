@@ -17,6 +17,7 @@ class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
 class SuperExpr;
+class TernaryExpr;
 class ThisExpr;
 class UnaryExpr;
 class VariableExpr;
@@ -37,6 +38,7 @@ class ExprVisitor {
         virtual ObjPtr visitLogicalExpr(LogicalExpr&) =0;
         virtual ObjPtr visitSetExpr(SetExpr&) =0;
         virtual ObjPtr visitSuperExpr(SuperExpr&) =0;
+        virtual ObjPtr visitTernaryExpr(TernaryExpr&) =0;
         virtual ObjPtr visitThisExpr(ThisExpr&) =0;
         virtual ObjPtr visitUnaryExpr(UnaryExpr&) =0;
         virtual ObjPtr visitVariableExpr(VariableExpr&) =0;
@@ -75,8 +77,9 @@ private:
 
 class AssignExpr : public Expr {
 public:
-    AssignExpr(TokPtr& name, ExprPtr value) : 
+    AssignExpr(TokPtr& name, TokPtr& equals, ExprPtr value) : 
         m_name(name),
+        m_equals(equals),
         m_value(std::move(value))
         {}
     
@@ -85,6 +88,7 @@ public:
     }
 
     TokPtr m_name;
+    TokPtr m_equals;
     ExprPtr m_value;
 };
 
@@ -253,6 +257,24 @@ public:
     TokPtr m_method;
 };
 
+class TernaryExpr : public Expr {
+public:
+    TernaryExpr(ExprPtr& condition, ExprPtr& thenBranch, ExprPtr& elseBranch) :
+        m_condition(std::move(condition)),
+        m_thenBranch(std::move(thenBranch)),
+        m_elseBranch(std::move(elseBranch))
+    {}
+    
+    ObjPtr accept(ExprVisitor& v) override {
+        return v.visitTernaryExpr(*this); 
+    }
+
+    ExprPtr m_condition;
+    ExprPtr m_thenBranch;
+    ExprPtr m_elseBranch;
+
+};
+
 class ThisExpr : public Expr {
 public:
     ThisExpr(TokPtr& keyword) :
@@ -268,10 +290,10 @@ public:
 
 class UnaryExpr : public Expr {
 public:
-    UnaryExpr(TokPtr& op, ExprPtr& right) :
+    UnaryExpr(TokPtr& op, ExprPtr& right, bool isPostfix) :
         m_op(op),
-        m_right(std::move(right))
-    {}
+        m_right(std::move(right)),
+        m_isPostfix(isPostfix) {}
     
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitUnaryExpr(*this); 
@@ -279,11 +301,11 @@ public:
 
     TokPtr m_op;
     ExprPtr m_right;
+    bool m_isPostfix;
 };
 
 class VariableExpr : public Expr {
 public:
-    VariableExpr();
     VariableExpr(TokPtr& name) :
         m_name(name)
     {}

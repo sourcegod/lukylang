@@ -1,0 +1,8 @@
+var a;
+var b;
+var c;
+print "a=5, b=a+5, c=a+b: ";
+print a=5, b=a+5, c=a+b;
+print "a **=2, b *=a: ";
+print a**=2, b *=a;
+

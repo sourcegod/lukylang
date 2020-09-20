@@ -14,19 +14,29 @@ enum class TokenType {
     COMMA, DOT, 
     MINUS, PLUS, SEMICOLON, 
     SLASH, STAR,
-    MODULO, QUESTION, COLON, 
+    QUESTION, COLON, 
 
     // One or two character tokens.
     BANG, BANG_EQUAL,
     EQUAL, EQUAL_EQUAL,
     GREATER, GREATER_EQUAL,
-    LESS, LESS_EQUAL,
+    LESSER, LESSER_EQUAL,
     PLUS_EQUAL, MINUS_EQUAL, 
+    PLUS_PLUS, MINUS_MINUS,
     STAR_EQUAL, SLASH_EQUAL, 
-    MODULO_EQUAL,
+    MOD, MOD_EQUAL,
+    EXP, EXP_EQUAL,
+
+    // bitwise operators
+    BIT_AND, BIT_AND_EQUAL, BIT_NOT,
+    BIT_OR, BIT_OR_EQUAL, 
+    BIT_XOR, BIT_XOR_EQUAL,
+    BIT_LEFT, BIT_LEFT_EQUAL,
+    BIT_RIGHT, BIT_RIGHT_EQUAL,
 
     // Literals.
-    IDENTIFIER, STRING, NUMBER,
+    IDENTIFIER, STRING, NUMBER, 
+    INT, DOUBLE,
 
     // Reserved Keywords.
     AND, BREAK, 

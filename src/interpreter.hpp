@@ -5,6 +5,7 @@
 #include "expr.hpp"
 #include "stmt.hpp"
 #include "environment.hpp"
+#include "lukerror.hpp"
 
 #include <string>
 #include <vector>
@@ -13,8 +14,9 @@
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     EnvPtr m_globals;
+    LukError& m_lukErr;
 
-    Interpreter();
+    Interpreter(LukError& lukErr);
     ~Interpreter() { 
       logMsg("\n~Interpreter destructor\n");
     }
@@ -38,6 +40,7 @@ public:
     ObjPtr visitLogicalExpr(LogicalExpr& expr) override;
     ObjPtr visitSetExpr(SetExpr& expr);
     ObjPtr visitSuperExpr(SuperExpr& expr);
+    ObjPtr visitTernaryExpr(TernaryExpr& expr);
     ObjPtr visitThisExpr(ThisExpr& expr);
     ObjPtr visitUnaryExpr(UnaryExpr& expr) override;
     ObjPtr visitVariableExpr(VariableExpr& expr) override;
@@ -82,7 +85,7 @@ private:
 
     
     std::string format(ObjPtr& obj);
-    std::string multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op);
+    std::string multiplyString(const std::string& str, const int num);
     std::string stringify(ObjPtr& obj);
 
 };

@@ -58,7 +58,7 @@ static void run(const std::string& source) {
     auto stmts = parser.parse();
     // if found error during parsing, report
     if (m_lukErr.hadError)  return;
-    static Interpreter  interp;
+    static Interpreter  interp(m_lukErr);
     Resolver resol(interp, m_lukErr);
     resol.resolve((stmts));
     

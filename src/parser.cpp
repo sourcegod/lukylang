@@ -167,7 +167,7 @@ StmtPtr Parser::varDeclaration() {
 StmtPtr Parser::classDeclaration() {
     TokPtr name = consume(TokenType::IDENTIFIER, "Expect class name.");
     std::shared_ptr<VariableExpr> superclass = nullptr;
-    if (match({TokenType::LESS})) {
+    if (match({TokenType::LESSER})) {
       consume(TokenType::IDENTIFIER, "Expect superclass name.");
       superclass = std::make_shared<VariableExpr>(previous());
     }
@@ -236,18 +236,38 @@ std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
 }
 
 ExprPtr Parser::expression() {
-    return assignment();
+    return comma();
 }
 
+ExprPtr Parser::comma() {
+    ExprPtr left = assignment();
+    while (match({TokenType::COMMA})) {
+        TokPtr op = previous();
+        ExprPtr right = assignment();
+        left = std::make_shared<BinaryExpr>(left, op, right);
+    }
+    
+    return left;
+}
+
+
 ExprPtr Parser::assignment() {
-    ExprPtr left = logicOr();
-    if (match({TokenType::EQUAL})) {
+    ExprPtr left = conditional();
+    if (match({TokenType::EQUAL, // })) {
+          TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
+          TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
+          TokenType::MOD_EQUAL, TokenType::EXP_EQUAL,
+          TokenType::BIT_AND_EQUAL, TokenType::BIT_OR_EQUAL, 
+          TokenType::BIT_XOR_EQUAL,
+          TokenType::BIT_LEFT_EQUAL,
+          TokenType::BIT_RIGHT_EQUAL})) {
+
         TokPtr equals = previous();
         ExprPtr value = assignment();
         if ( left->isVariableExpr() ) {
             // TokPtr name = static_cast<VariableExpr*>( left.get() )->name;
             TokPtr name = left->getName();
-            return  std::make_shared<AssignExpr>(name, value);
+            return  std::make_shared<AssignExpr>(name, equals, value);
         } else if (left->isGetExpr()) {
           return std::make_shared<SetExpr>(left->getObject(),
                 left->getName(), value );
@@ -256,28 +276,35 @@ ExprPtr Parser::assignment() {
         error(equals, "Invalid assignment target.");
     }
 
-    // adding: compound assignment
-    if (match({TokenType::PLUS_EQUAL, TokenType::MINUS_EQUAL, 
-          TokenType::STAR_EQUAL, TokenType::SLASH_EQUAL, 
-          TokenType::MODULO_EQUAL})) {
-      TokPtr op = previous();
-      return compoundAssignment(left, op);
-    }
-
     return left;
 }
 
 ExprPtr Parser::compoundAssignment(ExprPtr left, TokPtr op) {
+  // deprecated function, not used yet
+
     ExprPtr value = addition();
     if (left->isVariableExpr()) {
         TokPtr name = left->getName();
         ExprPtr val = std::make_shared<BinaryExpr>(left, op, value);
-        return std::make_shared<AssignExpr>(name, val);
+        return std::make_shared<AssignExpr>(name, op, val);
     }
 
     error(op, "Invalid compound assignment target.");
 
     return left;
+}
+
+ExprPtr Parser::conditional() {
+      ExprPtr expr = logicOr();
+      if (match({TokenType::QUESTION})) {
+          ExprPtr thenBranch = expression();
+          consume(TokenType::COLON, 
+                  "Expect ':' after then branch of conditional expression.");
+          ExprPtr elseBranch = conditional();
+          return std::make_shared<TernaryExpr>(expr, thenBranch, elseBranch);
+      }
+
+      return expr;
 }
 
 ExprPtr Parser::logicOr() {
@@ -292,11 +319,44 @@ ExprPtr Parser::logicOr() {
 }
 
 ExprPtr Parser::logicAnd() {
-    ExprPtr left = equality();
+    ExprPtr left = bitwiseOr();
     while (match({TokenType::AND})) {
         TokPtr op = previous();
-        ExprPtr right = equality();
+        ExprPtr right = bitwiseOr();
         left =  std::make_shared<LogicalExpr>(left, op, right);
+    }
+
+    return left;
+}
+
+ExprPtr Parser::bitwiseOr() {
+    ExprPtr left = bitwiseXor();
+    while (match({TokenType::BIT_OR})) {
+        TokPtr op = previous();
+        ExprPtr right = bitwiseXor();
+        left =  std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
+ExprPtr Parser::bitwiseXor() {
+    ExprPtr left = bitwiseAnd();
+    while (match({TokenType::BIT_XOR})) {
+        TokPtr op = previous();
+        ExprPtr right = bitwiseAnd();
+        left =  std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
+ExprPtr Parser::bitwiseAnd() {
+    ExprPtr left = equality();
+    while (match({TokenType::BIT_AND})) {
+        TokPtr op = previous();
+        ExprPtr right = equality();
+        left =  std::make_shared<BinaryExpr>(left, op, right);
     }
 
     return left;
@@ -306,7 +366,7 @@ ExprPtr Parser::equality() {
     ExprPtr left = comparison();
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         TokPtr op = previous();
-        ExprPtr right    = comparison();
+        ExprPtr right = comparison();
         left = std::make_shared<BinaryExpr>(left, op, right);
     }
     
@@ -314,10 +374,21 @@ ExprPtr Parser::equality() {
 }
 
 ExprPtr Parser::comparison() {
-    ExprPtr left = addition();
+    ExprPtr left = bitwiseShift();
     while (
-        match({TokenType::GREATER, TokenType::LESS, 
-            TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
+        match({TokenType::GREATER, TokenType::LESSER, 
+            TokenType::LESSER_EQUAL, TokenType::GREATER_EQUAL})) {
+        TokPtr op = previous();
+        ExprPtr right = bitwiseShift();
+        left = std::make_shared<BinaryExpr>(left, op, right);
+    }
+    
+    return left;
+}
+
+ExprPtr Parser::bitwiseShift() {
+    ExprPtr left = addition();
+    while ( match({TokenType::BIT_LEFT, TokenType::BIT_RIGHT}) ) {
         TokPtr op = previous();
         ExprPtr right = addition();
         left = std::make_shared<BinaryExpr>(left, op, right);
@@ -339,8 +410,8 @@ ExprPtr Parser::addition() {
 
 ExprPtr Parser::multiplication() {
     ExprPtr left = unary();
-    while (match({TokenType::SLASH, TokenType::STAR, TokenType::MODULO})) {
-        // Note: cannot use operator as variable name, cause it's a reserved keyword in C++
+    while (match({TokenType::SLASH, TokenType::STAR, TokenType::MOD})) {
+        // Note: cannot use "operator" as variable name, cause it's a reserved keyword in C++
         TokPtr op = previous();
         ExprPtr right = unary();
         left = std::make_shared<BinaryExpr>(left, op, right);
@@ -350,10 +421,47 @@ ExprPtr Parser::multiplication() {
 }
 
 ExprPtr Parser::unary() {
-    if (match({TokenType::BANG, TokenType::MINUS, TokenType::PLUS})) {
+    if (match({TokenType::BANG, TokenType::MINUS, 
+          TokenType::PLUS, TokenType::BIT_NOT})) {
         TokPtr op = previous();
         ExprPtr right = unary();
-        return std::make_shared<UnaryExpr>(op, right);
+
+        return std::make_shared<UnaryExpr>(op, right, false);
+    }
+
+    return exponentiation();
+}
+
+ExprPtr Parser::exponentiation() {
+    ExprPtr left = prefix();
+    while (match({TokenType::EXP})) {
+        TokPtr op = previous();
+        ExprPtr right = unary();
+        left = std::make_shared<BinaryExpr>(left, op, right);
+    }
+
+    return left;
+}
+
+ExprPtr Parser::prefix() {
+    if (match({TokenType::MINUS_MINUS, TokenType::PLUS_PLUS})) {
+        TokPtr op = previous();
+        ExprPtr right = primary();
+    
+        return std::make_shared<UnaryExpr>(op, right, false);
+    }
+
+    return postfix();
+}
+
+ExprPtr Parser::postfix() {
+    if (matchNext({TokenType::MINUS_MINUS, TokenType::PLUS_PLUS})) {
+        TokPtr op = peek();
+        m_current--;
+        ExprPtr left = primary();
+        advance();
+        
+        return std::make_shared<UnaryExpr>(op, left, true);
     }
 
     return call();
@@ -396,9 +504,10 @@ ExprPtr Parser::primary() {
     if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
-                TokenType::NUMBER, TokenType::STRING})) {
-        logMsg("\nIn primary Parser, before literalExpr");
+                TokenType::NUMBER, TokenType::STRING, 
+                TokenType::INT, TokenType::DOUBLE})) {
         ObjPtr objP = std::make_shared<LukObject>( previous() );
+        logMsg("\nIn primary Parser, before literalExpr: ", objP);
         return std::make_shared<LiteralExpr>( objP );
         // return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
@@ -463,6 +572,18 @@ bool Parser::match(const std::vector<TokenType>& types) {
             return true;
         }
     }
+
+    return false;
+}
+
+bool Parser::matchNext(const std::vector<TokenType>& types) {
+    for (auto type : types) {
+        if (checkNext(type)) {
+            advance();
+            return true;
+        }
+    }
+    
     return false;
 }
 

@@ -1,0 +1,10 @@
+var a=25;
+var b=33;
+print "a: " + a;
+print "b: " + b;
+print "a+=5: "; 
+print a+=5;
+print "b*=2: "; 
+print b*=2;
+print "Looping for 0 to 9 with +=1: ";
+for (var i=0; i < 10; i+=1) print i;

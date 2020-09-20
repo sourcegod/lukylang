@@ -1,4 +1,5 @@
 #include "interpreter.hpp"
+#include "lukerror.hpp"
 #include "runtimeerror.hpp"
 #include "jump.hpp"
 #include "lukcallable.hpp"
@@ -14,7 +15,7 @@
 #include <typeinfo> // type name
 #include <sstream> // for stringstream
 #include <cmath> // for fmod
-Interpreter::Interpreter() {
+Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     logMsg("\nIn Interpreter constructor");
     LogConf.headers = true;
     LogConf.level = log_DEBUG;
@@ -132,6 +133,10 @@ void Interpreter::logTest() {
 ObjPtr Interpreter::evaluate(ExprPtr expr) { 
     logMsg("\nIn evaluate, expr: ", typeid(*expr).name());
      auto obj = expr->accept(*this);
+     if (obj == nullptr) {
+       std::cerr << "Evaluated expr " << expr->typeName() << " to nullptr \n";
+     }
+
     logMsg("Evaluating obj result after accept: ", obj->toString());
     return obj;
 }
@@ -144,6 +149,111 @@ void Interpreter::execute(StmtPtr& stmt) {
 ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
     logMsg("\nIn visitAssignExpr Interpreter, name:  ", expr.m_name);
     ObjPtr value = evaluate(expr.m_value);
+    ObjPtr cur = m_env->get(expr.m_name);
+    // std::cerr << "cur: " << cur << ", value: " << value << "\n";
+    auto op = expr.m_equals;
+    /// Note: In C++, switch statement is fallthrough by default, so, you should put a
+    /// [break] keyword to indicate that statement not fallthrough.
+    switch(expr.m_equals->type) {
+      case TokenType::EQUAL: break;
+      case TokenType::PLUS_EQUAL:
+          if (cur->isNumber() && value->isNumber()) {
+              *value = *cur + *value;
+          } else if ( (value->isString() && cur->isString())  ||
+              (value->isString() && cur->isNumeric()) || 
+              (value->isNumeric() && cur->isString()) ) {
+              // Note: temporary can concatenate string with number before having number to string convertion function
+              *value = format(cur) + format(value);
+              // *value = *cur + *value;
+          }
+          else throw RuntimeError(op, 
+                  "Operands must be string and number.");
+          break;
+      
+      case TokenType::MINUS_EQUAL:
+          checkNumberOperands(op, cur, value);
+          *value = *cur - *value;
+          break;
+
+      case TokenType::STAR_EQUAL:
+          if ( (cur->isNumber()) && (value->isNumber()) ) {
+              *value *= *cur;
+          } else if ( cur->isString() && value->isNumber() ) { 
+              // Note: can multiply string by number
+              if ( not value->isInt()) {
+                  throw RuntimeError(op, "String multiplier must be an integer");
+              }
+              auto str = cur->getString();
+              auto num = value->getNumber();
+               
+              *value = multiplyString(str, num);
+          } else if ( cur->isNumber() && value->isString() ) { 
+              if ( not cur->isInt()) {
+                  throw RuntimeError(op, "String multiplier must be an integer");
+              }
+              auto str = value->getString();
+              auto num = cur->getNumber();
+              
+              *value = multiplyString(str, num);
+          }
+          else throw RuntimeError(op, "Operands must be strings or numbers.");
+          break;
+
+      case TokenType::SLASH_EQUAL:
+          checkNumberOperands(op, cur, value);
+          *value = *cur / *value;
+          break;
+
+      case TokenType::MOD_EQUAL:
+          checkNumberOperands(op, cur, value);
+          *value = *cur % *value;
+          break;
+
+      case TokenType::EXP_EQUAL:
+          // Note: pow function returns double
+          // so, you must convert it to Int ingegral operands
+          checkNumberOperands(op, cur, value);
+          if ( cur->isInt() && value->isInt() &&
+                  value->getInt() >= 0 ) {
+              *value = int( std::pow( cur->getNumber(), value->getNumber()) );
+          } 
+          else *value = std::pow( cur->getNumber(), value->getNumber() );
+          break;
+
+       // bitwise operators compound assignment
+       case TokenType::BIT_OR_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur | *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_AND_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur & *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_XOR_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur ^ *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_LEFT_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur << *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+       case TokenType::BIT_RIGHT_EQUAL:
+            if (cur->isBoolInt() && value->isBoolInt() )
+                *value = *cur >> *value;
+            else throw RuntimeError(op, "operands must be bools or integers.");
+            break;
+
+      default: break;
+    }
+
     // search the variable in locals map, if not, search in the globals map.
     auto iter = m_locals.find(expr.id());
     if (iter != m_locals.end()) {
@@ -156,83 +266,130 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 }
 
 ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
-    // Note: method get allow to convert smart pointer to raw pointer
-    logMsg("\nIn visitBinary: ");  
+    // Note: the method .get allow to convert smart pointer to raw pointer
+    logMsg("\nIn visitBinary: "); 
     ObjPtr left = evaluate(expr.m_left);
     ObjPtr right = evaluate(expr.m_right);
     logMsg("left: ", left->toString(), ", operator: ", expr.m_op->lexeme, ", right: ", right->toString());
     switch(expr.m_op->type) {
-        case TokenType::GREATER:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() > right->getNumber());
-            // return (double)left > (double)right;
-        
-        case TokenType::GREATER_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() >= right->getNumber());
-
-         case TokenType::LESS:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() < right->getNumber());
-
-         case TokenType::LESS_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() <= right->getNumber());
-            
-   
-         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(!isEqual(left, right));
-         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(isEqual(left, right));
-
-        case TokenType::MINUS:
-        case TokenType::MINUS_EQUAL:
-            checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() - right->getNumber());
-            
-        
         case TokenType::PLUS:
-        case TokenType::PLUS_EQUAL:
-            if (left->isNumber() && right->isNumber())
-              return std::make_shared<LukObject>(left->getNumber() + right->getNumber());
+            if (left->isNumber() && right->isNumber()) {
+                return std::make_shared<LukObject>( *left + *right );
+            }
+            
             // Note: temporary can concatenate string with number before having number to string convertion function
-            if ( (left->isString() && right->isNumber()) || 
-                (left->isNumber() && right->isString()) )
-                // Adding each string to ostringstream
-                // return std::make_shared<LukObject>(left->getString() + right->getString());
+            if ( (left->isString() && right->isString())  ||
+                (left->isString() && right->isNumeric()) || 
+                (left->isNumeric() && right->isString()) )
                 return std::make_shared<LukObject>( format(left) + format(right) );
             throw RuntimeError(expr.m_op, 
                     "Operands must be string and number.");
-
-        case TokenType::SLASH:
-        case TokenType::SLASH_EQUAL:
+        
+        case TokenType::MINUS:
             checkNumberOperands(expr.m_op, left, right);
-            return std::make_shared<LukObject>(left->getNumber() / right->getNumber());
-
+            return std::make_shared<LukObject>(*left - *right);
+ 
         case TokenType::STAR:
-        case TokenType::STAR_EQUAL:
             if (left->isNumber() && right->isNumber())
-              return std::make_shared<LukObject>(left->getNumber() * right->getNumber());
+              return std::make_shared<LukObject>(*left * *right);
 
             // Note: can multiply string by number
-            if ( left->isString() && right->isNumber() ) 
-                return std::make_shared<LukObject>( multiplyString(left, right, expr.m_op) );
-            if ( left->isNumber() && right->isString() ) 
-                return std::make_shared<LukObject>( multiplyString(right, left, expr.m_op) );
+            if ( left->isString() && right->isNumber() ) { 
+                if ( not right->isInt()) {
+                    // if (std::fmod(nb, 1) != 0) 
+                    throw RuntimeError(expr.m_op,
+                        "String multiplier must be an integer");
+                }
+                auto str = left->getString();
+                auto num = right->getNumber();
+                 
+                return std::make_shared<LukObject>( multiplyString(str, num) );
+            } else if ( left->isNumber() && right->isString() ) { 
+                if ( not left->isInt()) {
+                    throw RuntimeError(expr.m_op,
+                        "String multiplier must be an integer");
+                }
+                auto str = right->getString();
+                auto num = left->getNumber();
+                
+                return std::make_shared<LukObject>( multiplyString(str, num) );
+            }
             
-            throw RuntimeError(expr.m_op, 
-                    "Operands must be string and number.");
+            throw RuntimeError(expr.m_op, "Operands must be strings or numbers.");
 
-
-        
-        
-        case TokenType::MODULO:
-        case TokenType::MODULO_EQUAL:
+        case TokenType::SLASH:
+            checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left / *right);
+       
+        case TokenType::MOD:
             checkNumberOperands(expr.m_op, left, right);
             // Note: cannot use modulus % on double
             // use instead fmod function for modulus between double
-            return std::make_shared<LukObject>( std::fmod(left->getNumber(),  right->getNumber()) );
+            return std::make_shared<LukObject>( *left %  *right);
+
+        case TokenType::EXP:
+            checkNumberOperands(expr.m_op, left, right);
+            // Note: pow function returns double
+            // so, you must convert it to Int ingegral operands
+            if ( left->isInt() && right->isInt() &&
+                    right->getInt() >= 0 )
+                return std::make_shared<LukObject>( int(std::pow( left->getNumber(), right->getNumber()) ));
+            return std::make_shared<LukObject>(std::pow( left->getNumber(), right->getNumber() ));
+  
+        case TokenType::GREATER:
+            // checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left > *right);
         
+        case TokenType::GREATER_EQUAL:
+            // checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left >= *right);
+
+        case TokenType::LESSER:
+            // checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left < *right);
+
+        case TokenType::LESSER_EQUAL:
+            // checkNumberOperands(expr.m_op, left, right);
+            return std::make_shared<LukObject>(*left <= *right);
+            
+   
+        case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(*left != *right);
+        case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(*left == *right);
+
+         // Adding: bitwise operators
+        case TokenType::BIT_OR:
+            if (left->isBoolInt() && right->isBoolInt() )
+                return std::make_shared<LukObject>(*left | *right);
+            throw RuntimeError(expr.m_op, "operands must be bools or integers.");
+
+        case TokenType::BIT_AND:
+            if (left->isBoolInt() && right->isBoolInt() )
+                return std::make_shared<LukObject>(*left & *right);
+            throw RuntimeError(expr.m_op, "operands must be bools or integers.");
+
+        case TokenType::BIT_XOR:
+            if (left->isBoolInt() && right->isBoolInt() )
+                return std::make_shared<LukObject>(*left ^ *right);
+            throw RuntimeError(expr.m_op, "operands must be bools or integers.");
+
+        case TokenType::BIT_LEFT:
+            if (left->isBoolInt() && right->isBoolInt() )
+                return std::make_shared<LukObject>(*left << *right);
+            throw RuntimeError(expr.m_op, "operands must be bools or integers.");
+
+        case TokenType::BIT_RIGHT:
+            if (left->isBoolInt() && right->isBoolInt() )
+                return std::make_shared<LukObject>(*left >> *right);
+            throw RuntimeError(expr.m_op, "operands must be bools or integers.");
+         
+        // comma operator
+        case TokenType::COMMA:
+            return right;
+
         default: break;
     }
+
+
     // unrichable
     return nilptr;
 }
@@ -375,6 +532,15 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
   return nilptr;
 }
 
+ObjPtr Interpreter::visitTernaryExpr(TernaryExpr& expr) {
+    auto val = evaluate(expr.m_condition);
+    if (isTruthy(val)) {
+      return evaluate(expr.m_thenBranch);
+    }
+    
+    return evaluate(expr.m_elseBranch);
+}
+
 
 ObjPtr Interpreter::visitThisExpr(ThisExpr& expr) {
   logMsg("\nIn visitThis");
@@ -393,11 +559,49 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         
         case TokenType::MINUS:
             checkNumberOperand(expr.m_op, right);
-            return std::make_shared<LukObject>(-right->getNumber());
+            return std::make_shared<LukObject>(-*right);
 
         case TokenType::PLUS:
             checkNumberOperand(expr.m_op, right);
-            return std::make_shared<LukObject>(right->getNumber());
+            return right; // std::make_shared<LukObject>(*right);
+        
+        // bitwise NOT operator
+        case TokenType::BIT_NOT:
+            checkNumberOperand(expr.m_op, right);
+            return std::make_shared<LukObject>(~*right);
+
+        // prefix, postfix operators
+        /// Note: prefix operator assign the new value to the variable, and returning it after.
+        /// but postfix operator, returns the variable, and assign the new value after.
+        case TokenType::MINUS_MINUS:
+            if (expr.m_right->isVariableExpr()) {
+                checkNumberOperand(expr.m_op, right);
+                /// Note: creating an object with value 1, to be able to make operations between objects
+                auto objVal = LukObject(1);
+                auto var = expr.m_right;
+                auto name = var->getName(); 
+                auto objP = std::make_shared<LukObject>(*right - objVal);
+                m_env->assign(name, objP);
+                if (expr.m_isPostfix) return right;
+                else return std::make_shared<LukObject>(*right - objVal);
+            }
+            throw RuntimeError(expr.m_op,
+                "Operand of a decrement operator must be a variable.");
+
+        case TokenType::PLUS_PLUS:
+            if (expr.m_right->isVariableExpr()) {
+                checkNumberOperand(expr.m_op, right);
+                auto objVal = LukObject(1);
+                auto var = expr.m_right;
+                auto name = var->getName(); 
+                auto objP = std::make_shared<LukObject>(*right + objVal);
+                m_env->assign(name, objP);
+                if (expr.m_isPostfix) return right;
+                else return std::make_shared<LukObject>(*right + objVal);
+            }
+            throw RuntimeError(expr.m_op,
+                "Operand of a increment operator must be a variable.");
+          
 
         default: break;
     }
@@ -426,6 +630,7 @@ ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
 bool Interpreter::isTruthy(ObjPtr& obj) {
     if (obj->isNil()) return false;
     if (obj->isBool()) return obj->getBool();
+    if (obj->isInt() && obj->getInt() == 0) return false;
     if (obj->isNumber() && obj->getNumber() == 0) return false;
     if (obj->isString() && obj->getString() == "") return false;
     
@@ -437,12 +642,12 @@ bool Interpreter::isEqual(ObjPtr& a, ObjPtr& b) {
     if (a->isNil() && b->isNil()) return true;
     if (a->isNil()) return false;
 
-    return a == b;
+    return *a == *b;
 }
 
 void Interpreter::checkNumberOperand(TokPtr& op, ObjPtr& operand) {
-    if (operand->isNumber()) return;
-    throw RuntimeError(op, "Operand must be number.");
+    if (operand->isBool() || operand->isNumber()) return;
+    throw RuntimeError(op, "Operand must be bool or number.");
 }
 
 void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
@@ -625,45 +830,32 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
 
 }
 
-std::string Interpreter::multiplyString(ObjPtr& item, ObjPtr& num, TokPtr& op) {
-    auto nb = int(num->toNumber());
-    const std::string cstItem = item->toString();
-    auto result = cstItem;
-    // TODO: it will better to detect whether is double or int
-    if (nb % 1 != 0) throw new RuntimeError(op,
-            "String multiplier must be an integer");
-    if (nb <0) nb =0;
-    for (int i=1; i < nb; i++) {
-        result += cstItem;
+std::string Interpreter::multiplyString(const std::string& str, const int num) {
+    std::string result = "";
+    for (int i=0; i < num; i++) {
+        result += str;
     }
 
     return result;
 }
 
 std::string Interpreter::format(ObjPtr& obj) { 
-    if (obj->isNumber()) {
-        std::string text = obj->toString(); 
-        std::string end = ".000000";
-        // extract decimal part if ending by .0
-        if (endsWith(text, end)) 
-            return text.substr(0, text.size() - end.size());
-        return text;
-    } 
-   
-    return obj->toString();
+  return stringify(obj);
 }
 
 std::string Interpreter::stringify(ObjPtr& obj) { 
     logMsg("\nIn stringify, obj id: ", obj->getId(), ", val: ", obj->toString());
     // if (obj->isNil() || obj->isBool()) return obj->toString();
-    if (obj->isNumber()) {
-        std::string text = obj->toString(); 
-        std::string end = ".000000";
-        // extract decimal part if ending by .0
-        if (endsWith(text, end)) 
-            return text.substr(0, text.size() - end.size());
-        return text;
-    } 
+    if (obj->isDouble()) {
+        std::string str = obj->toString(); 
+        // erasing trailing zeros
+        auto pos = str.find_last_not_of('0');
+        // keeping the first zero whether they are only zeros after the dot
+        if (str[pos] == '.') str.erase(pos +2, std::string::npos);
+        else str.erase(pos +1, std::string::npos);
+        
+        return str;
+     } 
     
    
     logMsg("\nExit out stringify \n");

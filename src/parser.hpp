@@ -56,24 +56,33 @@ private:
     StmtPtr varDeclaration();
     StmtPtr whileStatement();
     
-    ExprPtr expression();
     std::shared_ptr<FunctionExpr> functionBody(const std::string& kind);
+    ExprPtr expression();
+    ExprPtr comma();
     ExprPtr assignment();
     ExprPtr compoundAssignment(ExprPtr left, TokPtr op);
+    ExprPtr conditional();
     ExprPtr logicOr();
     ExprPtr logicAnd();
-    
+    ExprPtr bitwiseOr();
+    ExprPtr bitwiseXor();
+    ExprPtr bitwiseAnd();
     ExprPtr equality();
     ExprPtr comparison();
+    ExprPtr bitwiseShift();
     ExprPtr addition();
     ExprPtr multiplication();
     ExprPtr unary();
+    ExprPtr exponentiation();
+    ExprPtr prefix();
+    ExprPtr postfix();
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
     ExprPtr primary();
 
     TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);
+    bool matchNext(const std::vector<TokenType>& types);
     TokPtr& previous();
     TokPtr& advance();
     TokPtr& peek();

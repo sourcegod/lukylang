@@ -1,13 +1,15 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Tue, 01/09/2020
-Last version: v0.30.0
-
-
+Last update: Sun, 20/09/2020
+Last version: v0.30.5
 
   0. Changelog
-
+# Version 0.30.5: Comma operator
+# Version 0.30.4: Prefix and Postfix operators
+# Version 0.30.3: Bitwise operators
+# Version 0.30.2: Ternary expression
+# Version 0.30.1: Int and Double support, Exp operator
 # Version 0.30.0: Compound Assign Operators part 1
 # Version 0.29: nested multiline comments
 # Version 0.28: Lambda Function
@@ -99,6 +101,11 @@ void test(int a, int /*b*/) {}
 -- Or you can make a macro or function template with empty body.
 Exemple:
 template <typename...T> void inused(T&&...) {}
+
+4.8 Switch statement
+-- In C++, switch statement is fallthrough by default, so, you should put a
+[break] keyword to indicate that statement not fallthrough.
+Note: C++17, introduce the keyword fallthrough to document this behaviour.
 
 #--------------------------------------------------------------------------------
 
