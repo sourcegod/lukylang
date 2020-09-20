@@ -236,8 +236,20 @@ std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
 }
 
 ExprPtr Parser::expression() {
-    return assignment();
+    return comma();
 }
+
+ExprPtr Parser::comma() {
+    ExprPtr left = assignment();
+    while (match({TokenType::COMMA})) {
+        TokPtr op = previous();
+        ExprPtr right = assignment();
+        left = std::make_shared<BinaryExpr>(left, op, right);
+    }
+    
+    return left;
+}
+
 
 ExprPtr Parser::assignment() {
     ExprPtr left = conditional();

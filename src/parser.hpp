@@ -56,8 +56,9 @@ private:
     StmtPtr varDeclaration();
     StmtPtr whileStatement();
     
-    ExprPtr expression();
     std::shared_ptr<FunctionExpr> functionBody(const std::string& kind);
+    ExprPtr expression();
+    ExprPtr comma();
     ExprPtr assignment();
     ExprPtr compoundAssignment(ExprPtr left, TokPtr op);
     ExprPtr conditional();
