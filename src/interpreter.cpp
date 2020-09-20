@@ -270,7 +270,6 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     ObjPtr right = evaluate(expr.m_right);
     logMsg("left: ", left->toString(), ", operator: ", expr.m_op->lexeme, ", right: ", right->toString());
     switch(expr.m_op->type) {
-       
         case TokenType::PLUS:
             if (left->isNumber() && right->isNumber()) {
                 return std::make_shared<LukObject>( *left + *right );
@@ -316,7 +315,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             
             throw RuntimeError(expr.m_op, "Operands must be strings or numbers.");
 
-         case TokenType::SLASH:
+        case TokenType::SLASH:
             checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left / *right);
        
@@ -343,45 +342,49 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             // checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left >= *right);
 
-         case TokenType::LESSER:
+        case TokenType::LESSER:
             // checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left < *right);
 
-         case TokenType::LESSER_EQUAL:
+        case TokenType::LESSER_EQUAL:
             // checkNumberOperands(expr.m_op, left, right);
             return std::make_shared<LukObject>(*left <= *right);
             
    
-         case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(*left != *right);
-         case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(*left == *right);
+        case TokenType::BANG_EQUAL: return std::make_shared<LukObject>(*left != *right);
+        case TokenType::EQUAL_EQUAL: return std::make_shared<LukObject>(*left == *right);
 
          // Adding: bitwise operators
-         case TokenType::BIT_OR:
+        case TokenType::BIT_OR:
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left | *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
 
-         case TokenType::BIT_AND:
+        case TokenType::BIT_AND:
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left & *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
 
-         case TokenType::BIT_XOR:
+        case TokenType::BIT_XOR:
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left ^ *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
 
-         case TokenType::BIT_LEFT:
+        case TokenType::BIT_LEFT:
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left << *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
 
-         case TokenType::BIT_RIGHT:
+        case TokenType::BIT_RIGHT:
             if (left->isBoolInt() && right->isBoolInt() )
                 return std::make_shared<LukObject>(*left >> *right);
             throw RuntimeError(expr.m_op, "operands must be bools or integers.");
+         
+        // comma operator
+        case TokenType::COMMA:
+            return right;
 
-         default: break;
+        default: break;
     }
 
 
