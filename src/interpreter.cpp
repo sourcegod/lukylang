@@ -152,6 +152,8 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
     ObjPtr cur = m_env->get(expr.m_name);
     // std::cerr << "cur: " << cur << ", value: " << value << "\n";
     auto op = expr.m_equals;
+    /// Note: In C++, switch statement is fallthrough by default, so, you should put a
+    /// [break] keyword to indicate that statement not fallthrough.
     switch(expr.m_equals->type) {
       case TokenType::EQUAL: break;
       case TokenType::PLUS_EQUAL:
