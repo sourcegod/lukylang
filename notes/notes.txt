@@ -1,10 +1,15 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Sun, 20/09/2020
-Last version: v0.30.5
+Last update: Mon, 21/09/2020
+Last version: v0.31.1
 
   0. Changelog
+# Version 0.31.1: Escape sequences
+-- Adding escape sequences characters for string type.
+-- Adding simple and double quotes support for  string type.
+
+# Version 0.31.0: All operators
 # Version 0.30.5: Comma operator
 # Version 0.30.4: Prefix and Postfix operators
 # Version 0.30.3: Bitwise operators
@@ -106,6 +111,10 @@ template <typename...T> void inused(T&&...) {}
 -- In C++, switch statement is fallthrough by default, so, you should put a
 [break] keyword to indicate that statement not fallthrough.
 Note: C++17, introduce the keyword fallthrough to document this behaviour.
+
+4.9 Concatenate multiple char* to std::string:
+-- The first char* must be in a std::string like:
+std::string("hello") + "every" + "body";
 
 #--------------------------------------------------------------------------------
 
