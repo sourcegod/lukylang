@@ -50,8 +50,8 @@ void Scanner::addToken(const TokenType _tokenType) {
 
 
 void Scanner::scanToken() {
-    const char c = advance();
-    switch (c) {
+    const char ch = advance();
+    switch (ch) {
         case '(': addToken(TokenType::LEFT_PAREN); break;
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
@@ -134,16 +134,18 @@ void Scanner::scanToken() {
             m_line++;
             m_col =0;
             break;
+        // support simple and double quotes string
+        case '"': string(ch); break;
+        case '\'': string(ch); break;
 
-        case '"': string(); break;
         default: {
-            if (isDigit(c)) {
+            if (isDigit(ch)) {
                 number();
-            } else if (isAlpha(c)) {
+            } else if (isAlpha(ch)) {
                 identifier();
             } else {
                 std::string errMessage = "Unexpected character: ";
-                errMessage += c;
+                errMessage += ch;
                 m_lukErr.error(m_errTitle, m_line, m_col, errMessage);
                 break;
             }
@@ -220,6 +222,7 @@ std::string Scanner::unescape(const std::string& escaped) {
                 case 'r': strChar.push_back('\r'); break;
                 case '\\': strChar.push_back('\\'); break;
                 case '"': strChar.push_back('\"'); break;
+                case '\'': strChar.push_back('\''); break;
                 case 't': strChar.push_back('\t'); break;
                 case 'b': strChar.push_back('\b');
                     break;
@@ -240,19 +243,20 @@ std::string Scanner::unescape(const std::string& escaped) {
     return  strChar;
 }
 
-void Scanner::string() {
-    while (peek() != '"' && !isAtEnd()) {
+void Scanner::string(char ch) {
+    // the ch argument is to indicate whether it's simple or double quotes
+    while (peek() != ch && !isAtEnd()) {
         if (peek() == '\n') {
             m_line++;
             m_col=0;
         }
-        if (peek() == '\\' && peekNext()  == '"') advance();
+        if (peek() == '\\' && peekNext()  == ch) advance();
         advance();
     }
 
     // unterminated string
     if (isAtEnd()) {
-        m_lukErr.error(m_errTitle, m_line, m_col, "Unterminated string.");
+        m_lukErr.error(m_errTitle, m_line, m_col, std::string("Unterminated string: '") + ch + "'.");
         return;
     }
     

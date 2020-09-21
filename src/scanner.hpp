@@ -40,7 +40,7 @@ public:
     void identifier();
     void number();
     std::string unescape(const std::string& escaped);
-    void string();
+    void string(char ch='"');
     bool match(char);
     char peek() const;
     char peekNext() const;
