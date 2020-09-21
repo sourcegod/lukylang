@@ -39,6 +39,7 @@ public:
     bool isAtEnd() const;
     void identifier();
     void number();
+    std::string unescape(const std::string& escaped);
     void string();
     bool match(char);
     char peek() const;

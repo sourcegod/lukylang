@@ -208,25 +208,61 @@ void Scanner::number() {
         addToken(TokenType::DOUBLE, numLiteral);
 }
 
+std::string Scanner::unescape(const std::string& escaped) {
+    // escape sequence character
+    std::string strChar;
+    
+    for (size_t i=0; i < escaped.size(); i++) {
+        if (escaped[i] == '\\') {
+            i++;
+            switch (escaped[i]) {
+                case 'n': strChar.push_back('\n'); break;
+                case 'r': strChar.push_back('\r'); break;
+                case '\\': strChar.push_back('\\'); break;
+                case '"': strChar.push_back('\"'); break;
+                case 't': strChar.push_back('\t'); break;
+                case 'b': strChar.push_back('\b');
+                    break;
+                default:
+                    /// Note: best way to construct string with const char* 
+                    /// is to create first char* in a std::string
+                    m_lukErr.error(m_errTitle, m_line, m_col, 
+                          std::string("Unrecognized escape sequence : '\\") +
+                          escaped[i] + "'."); 
+            } 
+        
+        } else {
+            strChar.push_back(escaped[i]);
+        }
+    
+    }
+        
+    return  strChar;
+}
+
 void Scanner::string() {
     while (peek() != '"' && !isAtEnd()) {
         if (peek() == '\n') {
             m_line++;
             m_col=0;
         }
+        if (peek() == '\\' && peekNext()  == '"') advance();
         advance();
     }
+
     // unterminated string
     if (isAtEnd()) {
         m_lukErr.error(m_errTitle, m_line, m_col, "Unterminated string.");
         return;
     }
-    // closing "
+    
+    // the closing "
     advance();
-    const size_t stringLen = m_current - m_start;
+    const size_t strLen = m_current - m_start;
+    // Handle escapes sequences
     // trim the surrounding quotes
-    const std::string stringLiteral = m_source.substr(m_start + 1, stringLen - 2);
-    addToken(TokenType::STRING, stringLiteral);
+    const std::string strLiteral = unescape(m_source.substr(m_start +1, strLen -2));
+    addToken(TokenType::STRING, strLiteral);
 }
 
 bool Scanner::match(const char expected) {
