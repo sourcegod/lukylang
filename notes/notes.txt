@@ -1,10 +1,14 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Mon, 21/09/2020
-Last version: v0.31.1
+Last update: Wen, 23/09/2020
+Last version: v0.31.2
 
   0. Changelog
+# Version 0.31.2: Automatic Semicolon Insertion
+-- Adding automatic semicolon insertion in Scanner and Parser class.
+-- Adding files: misc_no_semicolon.luk in examples and tests directories.
+
 # Version 0.31.1: Escape sequences
 -- Adding escape sequences characters for string type.
 -- Adding simple and double quotes support for  string type.
