@@ -127,7 +127,10 @@ StmtPtr Parser::ifStatement() {
 
 StmtPtr Parser::printStatement() {
     ExprPtr value = expression();
-    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    // consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    // No require semicolon
+    // checking whether not end line for automatic semicolon insertion
+    checkEndLine("Expect ';' after value.");
 
     return std::make_shared<PrintStmt>(value);
 }
@@ -159,7 +162,9 @@ StmtPtr Parser::varDeclaration() {
     if (match({TokenType::EQUAL})) {
         initializer = expression();
     }
-    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+    // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+    // checking whether not end line for automatic semicolon insertion
+    checkEndLine("Expect ';' after variable declaration.");
     
     return std::make_shared<VarStmt>(name, initializer);
 }
@@ -204,7 +209,10 @@ StmtPtr Parser::declaration() {
 
 StmtPtr Parser::expressionStatement() {
     ExprPtr expr = expression();
-    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    // consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    // checking whether not end line for automatic semicolon insertion
+    checkEndLine("Expect ';' after expression.");
+
     return std::make_shared<ExpressionStmt>(expr);
 }
 
