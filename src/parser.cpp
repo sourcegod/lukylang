@@ -547,6 +547,13 @@ ExprPtr Parser::primary() {
     return nullptr;
 }
 
+bool Parser::checkEndLine(const std::string& msg) {
+    if (isAtEnd()) return false;
+    if (match({TokenType::SEMICOLON})) return true;
+
+    throw error(peek(), msg);
+}
+
 TokPtr& Parser::consume(TokenType type, std::string message) {
     if (check(type))
         return advance();
