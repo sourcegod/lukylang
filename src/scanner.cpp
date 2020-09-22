@@ -55,7 +55,17 @@ void Scanner::scanToken() {
         case '(': addToken(TokenType::LEFT_PAREN); break;
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
-        case '}': addToken(TokenType::RIGHT_BRACE); break;
+        
+        // Automatic semicolon insertion
+        case '}': 
+            lastToken = m_tokens.back();
+            if (lastToken->type != TokenType::LEFT_BRACE &&
+                    lastToken->type != TokenType::RIGHT_BRACE && 
+                    lastToken->type != TokenType::SEMICOLON) {
+                addToken(TokenType::SEMICOLON);
+            }
+            addToken(TokenType::RIGHT_BRACE); 
+            break;
         case ',': addToken(TokenType::COMMA); break;
         case '.': addToken(TokenType::DOT); break;
         case ';': addToken(TokenType::SEMICOLON); break;
@@ -133,7 +143,22 @@ void Scanner::scanToken() {
         case '\n':
             m_line++;
             m_col =0;
+            // Automatic semicolon insertion
+            if (m_tokens.size() == 0) break;
+            lastToken = m_tokens.back();
+            // No insert semicolon 
+            if (lastToken->type == TokenType::RIGHT_PAREN && 
+                    searchPrintable() == '{' ) {
+                break;
+            } else if (lastToken->type !=  TokenType::SEMICOLON &&
+                    lastToken->type != TokenType::LEFT_BRACE &&
+                    lastToken->type != TokenType::RIGHT_BRACE ) {
+                addToken(TokenType::SEMICOLON);
+            }
             break;
+
+            break;
+
         // support simple and double quotes string
         case '"': string(ch); break;
         case '\'': string(ch); break;

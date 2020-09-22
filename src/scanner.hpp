@@ -25,6 +25,7 @@ public:
     size_t m_col;
     std::string m_source;
     std::vector<TokPtr> m_tokens;
+    TokPtr lastToken;
     LukError& m_lukErr;
     const std::string m_errTitle = "ScanError: ";
     // Reserved keywords
