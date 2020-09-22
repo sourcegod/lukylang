@@ -49,6 +49,7 @@ public:
     bool isAlNum(char) const;
     void skipComments();
     void skipMultilineComments();
+    bool isPrintable(char ch);
    
 };
 

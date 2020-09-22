@@ -328,4 +328,10 @@ void Scanner::skipMultilineComments() {
 
 }
 
+bool Scanner::isPrintable(char ch) {
+    return (ch != ' ' && 
+        ch != '\n' && 
+        ch != '\r' && 
+        ch != '\t' );
+}
 
