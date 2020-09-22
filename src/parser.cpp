@@ -32,6 +32,9 @@ std::vector<StmtPtr> Parser::parse() {
 }
 
 StmtPtr Parser::statement() {
+    // manage semicolon with empty statement
+    if (match({TokenType::SEMICOLON})) return expressionStatement();
+     
     if (match({TokenType::BREAK, TokenType::CONTINUE})) 
         return breakStatement();
 
