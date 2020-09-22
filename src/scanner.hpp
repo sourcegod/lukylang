@@ -50,6 +50,7 @@ public:
     void skipComments();
     void skipMultilineComments();
     bool isPrintable(char ch);
+    char searchPrintable();
    
 };
 

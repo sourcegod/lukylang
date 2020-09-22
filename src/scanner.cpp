@@ -335,3 +335,16 @@ bool Scanner::isPrintable(char ch) {
         ch != '\t' );
 }
 
+char Scanner::searchPrintable() {
+    if (isAtEnd()) return '\0';
+    size_t cur = m_current;
+    char ch;
+    while (cur < m_source.size()) {
+        ch = m_source[cur];
+        if (isPrintable(ch)) return ch;
+        cur++;
+    }
+
+    return '\0';
+}
+
