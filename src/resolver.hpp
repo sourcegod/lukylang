@@ -21,6 +21,8 @@ class CTracer;
 
 class Resolver : public ExprVisitor,  public StmtVisitor {
 public:
+
+
   explicit Resolver(Interpreter& interp, LukError& lukErr);
 
   ~Resolver() {
@@ -58,8 +60,22 @@ public:
     void visitWhileStmt(WhileStmt& stmt) override;
 
 private:
-    // Note: using enum class as scoped enumeration
-    // instead standard enumeration to avoid conflict between two enumerations.
+    /// Note: using enum class as scoped enumeration
+    /// instead standard enumeration to avoid conflict between two enumerations.
+    enum class VariableState {
+      DECLARED, DEFINED, READ
+    };
+    
+    class Variable {
+      public:
+        Variable(TokPtr name, VariableState state) : 
+          m_name(name), m_state(state) {}
+      
+        TokPtr m_name;
+        VariableState m_state;
+    };
+
+
     enum class FunctionType {
       None, Function, Initializer, Method
     };
