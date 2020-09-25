@@ -13,7 +13,7 @@ class PrintlnFunc : public LukCallable {
 public:
     PrintlnFunc() {}
     
-    virtual size_t arity() override { return 0; }
+    virtual size_t arity() override { return 1; }
     virtual ObjPtr  call(Interpreter& /*interp*/, 
            std::vector<ObjPtr>& v_args) override {
       if (v_args.size() >= 1)

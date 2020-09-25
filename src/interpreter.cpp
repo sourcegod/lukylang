@@ -35,6 +35,12 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     auto func = std::make_shared<ClockFunc>();
     ObjPtr objP = std::make_shared<LukObject>(func);
     m_globals->define("clock", objP);
+
+    auto println_func = std::make_shared<PrintlnFunc>();
+    ObjPtr objPrintln = std::make_shared<LukObject>(println_func);
+    m_globals->define("println", objPrintln);
+
+
     logMsg("\nExit out Interpreter constructor");
 
 }
