@@ -62,17 +62,18 @@ public:
 private:
     /// Note: using enum class as scoped enumeration
     /// instead standard enumeration to avoid conflict between two enumerations.
-    enum class VariableState {
+    enum class VarState {
       DECLARED, DEFINED, READ
     };
     
     class Variable {
       public:
-        Variable(TokPtr name, VariableState state) : 
+        Variable() {}
+        Variable(TokPtr& name, VarState state) : 
           m_name(name), m_state(state) {}
       
         TokPtr m_name;
-        VariableState m_state;
+        VarState m_state;
     };
 
 
@@ -88,12 +89,12 @@ private:
     const std::string errTitle = "ResolverError: ";
   Interpreter& m_interp;
   LukError& m_lukErr;
-  std::vector< std::unordered_map<std::string, bool> > m_scopes;
+  std::vector< std::unordered_map<std::string, Variable> > m_scopes;
   FunctionType m_curFunction = FunctionType::None;
 
   // resolve expression
   void resolve(ExprPtr expr);
-  void resolveLocal(Expr* expr, TokPtr& name);
+  void resolveLocal(Expr* expr, TokPtr& name, bool isRead);
   
   // resolve statements
   void resolve(StmtPtr& stmt);
