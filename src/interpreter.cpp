@@ -3,7 +3,6 @@
 #include "runtimeerror.hpp"
 #include "jump.hpp"
 #include "lukcallable.hpp"
-// #include "clock_func.hpp"
 #include "builtin_func.hpp"
 #include "lukfunction.hpp"
 #include "return.hpp"
@@ -32,13 +31,14 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
 
     // TRACE_ALL;
     // TRACE_MSG("Env globals tracer: ");
-    auto func = std::make_shared<ClockFunc>();
-    ObjPtr objP = std::make_shared<LukObject>(func);
-    m_globals->define("clock", objP);
+    
+    // native clock function
+    auto clock_func = std::make_shared<ClockFunc>();
+    m_globals->define("clock", std::make_shared<LukObject>(clock_func));
 
+    // native println function
     auto println_func = std::make_shared<PrintlnFunc>();
-    ObjPtr objPrintln = std::make_shared<LukObject>(println_func);
-    m_globals->define("println", objPrintln);
+    m_globals->define("println", std::make_shared<LukObject>(println_func));
 
 
     logMsg("\nExit out Interpreter constructor");

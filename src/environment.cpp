@@ -43,7 +43,7 @@ void Environment::assign(TokPtr& name, std::shared_ptr<LukCallable> callable) {
 
 }
 
-void Environment::define(const std::string& name, ObjPtr& val) {
+void Environment::define(const std::string& name, ObjPtr val) {
     m_values[name] =  val;
 }
 
