@@ -416,7 +416,8 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     }
     const auto& func = callee->getCallable();
     
-    if (v_args.size() != func->arity()) {
+    /// Note: 255 arguments means variadic function
+    if (func->arity() != 255 && v_args.size() != func->arity()) {
         std::ostringstream msg;
         msg << "Expected " << func->arity() 
            << " arguments but got " 
