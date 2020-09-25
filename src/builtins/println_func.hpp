@@ -12,16 +12,21 @@ class Interpreter;
 class PrintlnFunc : public LukCallable {
 public:
     PrintlnFunc() {}
-    
-    virtual size_t arity() override { return 1; }
+    /// Note: 255 arguments means variadic function
+    virtual size_t arity() override { return 255; }
     virtual ObjPtr  call(Interpreter& /*interp*/, 
            std::vector<ObjPtr>& v_args) override {
-      if (v_args.size() >= 1)
-        std::cout << v_args[0] << "\n";
-      else
+      if (v_args.size() >= 1) {
+        for (auto& it: v_args) {
+          std::cout << it << " ";
+        }
         std::cout << "\n";
 
-        return nilptr;
+      } else {
+        std::cout << "\n";
+      }
+
+      return nilptr;
    }
    
    virtual std::string toString() const override { return "<Native Function: println(...)>"; }
