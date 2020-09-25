@@ -1,6 +1,6 @@
 #ifndef CLOCK_FUNC_HPP
 #define CLOCK_FUNC_HPP
-#include "lukobject.hpp"
+#include "../lukobject.hpp"
 #include <string>
 #include <chrono>
 #include <vector>
