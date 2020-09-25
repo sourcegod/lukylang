@@ -1,0 +1,3 @@
+print "before welcome, start time = " + clock();
+print "welcome everybody.";
+print "After welcome: end time = " + clock();
