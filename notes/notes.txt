@@ -1,10 +1,23 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Fri, 25/09/2020
-Last version: v0.31.3
+Last update: Sat, 26/09/2020
+Last version: v0.31.4
 
   0. Changelog
+# Version 0.31.4: Native println
+-- Adding native println function.
+-- Adding src/builtin_func header file src/builtins directory to regroup
+native functions.
+
+-- Adding support for variadic function, inInterpreter::visitCallExpr function.
+-- Fixed bug in Parser::finishCall function, calling the assignment
+function rather the expression, to avoid the comma operator.
+
+-- Adding files: native_clock.luk, native_println.luk in examples and tests
+directories.
+
+
 # Version 0.31.3: Variable inused
 -- Adding support to detect variable inused in the Resolver class.
 -- Adding Variable class and VarState enumeration, in the Resolver class.
