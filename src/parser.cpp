@@ -499,10 +499,12 @@ ExprPtr Parser::finishCall(ExprPtr callee) {
     std::vector<ExprPtr> args;
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
-            if (args.size() >= 8) {
-                error(peek(), "Cannot have more than 8 arguments.");
+            if (args.size() >= 32) {
+                error(peek(), "Cannot have more than 32 arguments.");
             }
-            args.emplace_back(expression());
+            
+            /// Note: calling assignment function rather than expression to avoid the comma operator
+            args.emplace_back(assignment());
         } while (match({TokenType::COMMA}));
     }
 
