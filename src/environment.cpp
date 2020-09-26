@@ -52,8 +52,7 @@ ObjPtr Environment::getAt(int distance, const std::string& name) {
   auto iter = values.find(name);
   if (iter == values.end()) {
     std::ostringstream msg;
-    msg << "Undefined variable '" << name << "' at distance: " << distance
-      << " at depth: ";
+    msg << "Undefined variable '" << name << "' at distance: " << distance;
     throw RuntimeError(msg.str());
   }
   return iter->second;
