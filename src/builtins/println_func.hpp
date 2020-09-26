@@ -1,11 +1,9 @@
 #ifndef PRINTLN_FUNC_HPP
 #define PRINTLN_FUNC_HPP
-#include "../lukobject.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
 
-class LukObject;
 class LukCallable;
 class Interpreter;
 
