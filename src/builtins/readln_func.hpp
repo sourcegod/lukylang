@@ -13,16 +13,21 @@ public:
     virtual size_t arity() override { return 1; }
     virtual ObjPtr  call(Interpreter& /*interp*/, 
            std::vector<ObjPtr>& v_args) override {
+      std::string line;
       if (v_args.size() >= 1) {
-
-      } else {
-        std::cout << "\n";
+        std::cout << v_args[0] << " ";
+      }
+      
+      while (1) {
+        if (!getline(std::cin, line)) break;
+        if (line.empty()) continue;
+        else break;
       }
 
-      return nilptr;
+      return std::make_shared<LukObject>(line);
    }
    
-   virtual std::string toString() const override { return "<Native Function: println(...)>"; }
+   virtual std::string toString() const override { return "<Native Function: readln)arg)>"; }
 
 };
 
