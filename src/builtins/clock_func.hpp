@@ -5,7 +5,6 @@
 #include <chrono>
 #include <vector>
 
-class LukObject;
 class LukCallable;
 class Interpreter;
 
