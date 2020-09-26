@@ -15,7 +15,7 @@ public:
            std::vector<ObjPtr>& v_args) override {
       std::string line;
       if (v_args.size() >= 1) {
-        std::cout << v_args[0] << " ";
+        std::cout << v_args[0];
       }
       
       while (1) {
