@@ -78,22 +78,33 @@ void Resolver::resolve(ExprPtr expr) {
 }
 
 void Resolver::resolveLocal(Expr* expr, TokPtr& name, bool isRead) {
+  logMsg("In resolveLocal, expr id: ", expr->id(), ", name: ", name->lexeme);
   // FIX: why we cannot receive as argument an Expr& instead Expr* ???
   // because expr is a pointer object, and a non const object, 
   // so, we cannot pass as a constant (&) object.
+  logMsg("m_scopes size: ", m_scopes.size());
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
+    logMsg("in loop, taken scope at index: ", i);
     auto iter = scope.find(name->lexeme);
     if (iter != scope.end()) {
-      int val = m_scopes.size() -1 - i;
-      m_interp.resolve(*expr, val);
+      logMsg("find name: ", name->lexeme);
+      int depth = m_scopes.size() -1 - i;
+      logMsg("in loop, taken depth : ", depth);
+      m_interp.resolve(*expr, depth);
+      break;
       // mark variable is used
+      /*
       if (isRead) {
         iter->second.m_state = VarState::READ;
       }
+      */
       
-      return;
+      // return;
+    } else {
+      logMsg("Not found name: ", name->lexeme);
     }
+
   }
   
   // Not found. Assume it is global
