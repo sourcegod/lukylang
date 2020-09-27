@@ -10,6 +10,7 @@ Resolver::Resolver(Interpreter& interp, LukError& lukErr)
 void Resolver::beginScope() {
   std::unordered_map<std::string, Variable> scope;
   m_scopes.push_back(scope);
+  logMsg("\in beginScope, adding scope, m_scopes size: ", m_scopes.size());
 }
 
 void Resolver::endScope() {
@@ -20,6 +21,10 @@ void Resolver::endScope() {
         m_lukErr.error(errTitle, iter.second.m_name, "Local variable is not used.");
     }
   }
+  /// Note: pop_back function does not returns any value
+  /// but remove the item from the vector
+  m_scopes.pop_back();
+  logMsg("\nin endScope, remove scope, m_scopes size: ", m_scopes.size());
   
 }
 
@@ -92,15 +97,14 @@ void Resolver::resolveLocal(Expr* expr, TokPtr& name, bool isRead) {
       int depth = m_scopes.size() -1 - i;
       logMsg("in loop, taken depth : ", depth);
       m_interp.resolve(*expr, depth);
-      break;
       // mark variable is used
-      /*
+      // /*
       if (isRead) {
         iter->second.m_state = VarState::READ;
       }
-      */
+      // */
       
-      // return;
+      return;
     } else {
       logMsg("Not found name: ", name->lexeme);
     }
