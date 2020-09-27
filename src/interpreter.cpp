@@ -627,15 +627,17 @@ ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
 }
 
 ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
-  logMsg("\nIn lookUpVariable name: ", name->lexeme);
+  logMsg("\nIn lookUpVariable name: ", name->lexeme, ", expr id: ", expr.id());
   // searching the depth in locals map
   // whether not, get the variable in globals map
   auto iter = m_locals.find(expr.id());
   if (iter != m_locals.end()) {
     // iter->second is the depth
+    logMsg("Find in m_loclas depth: ", iter->second);
     return m_env->getAt(iter->second, name->lexeme);
   }
 
+    logMsg("Not found in m_locals, search in m_globals, name: ", name->lexeme);
   return m_globals->get(name);
 }
 
