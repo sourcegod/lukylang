@@ -1,8 +1,9 @@
 var i=0;
 while (i<6) {
   print i;
-  if (i >= 2 ) continue;
   i = i +1;
+  if (i < 4 ) continue;
+  print "Not continue";
 }
 
-print "I continue after the while loop.";
+print "I'm after the while loop.";
