@@ -1,10 +1,22 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Sat, 26/09/2020
-Last version: v0.31.4
+Last update: Mon, 28/09/2020
+Last version: v0.31.5
 
   0. Changelog
+# Version 0.31.5: Native readln
+-- Adding native readln  function.
+-- Fixed bug in Resolver::endScope function, to remove scope properly in the
+m_scopes vector.
+
+-- Adding script utils/run_test.sh for running test files.
+-- Added file: src/builtins/readln_func.hpp for ReadlnFunc class,
+native_readln.luk in examples and tests directories,
+perf_fibonacci.luk in tests directory,
+run_test.sh in utils directory.
+
+
 # Version 0.31.4: Native println
 -- Adding native println function.
 -- Adding src/builtin_func header file src/builtins directory to regroup
@@ -144,6 +156,10 @@ Note: C++17, introduce the keyword fallthrough to document this behaviour.
 4.9 Concatenate multiple char* to std::string:
 -- The first char* must be in a std::string like:
 std::string("hello") + "every" + "body";
+
+4.10 Vector
+-- Pop_back function does not returns any value
+but remove the item from the vector
 
 #--------------------------------------------------------------------------------
 
