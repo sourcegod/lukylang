@@ -670,6 +670,7 @@ void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
 
 void Interpreter::resolve(Expr& expr, int depth) {
   logMsg("\nIn Resolve expr, Interpreter");
+  logMsg("assign to m_locals, expr id: ", expr.id(), "depth: ", depth);
   // Note: FIX: abstract class Expr cannot be in map
   // so, we store its uniq id in the map
   m_locals[expr.id()] = depth;

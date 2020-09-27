@@ -8,36 +8,34 @@ Resolver::Resolver(Interpreter& interp, LukError& lukErr)
 }
 
 void Resolver::beginScope() {
-  std::unordered_map<std::string, Variable> scope;
+  std::unordered_map<std::string, bool> scope;
   m_scopes.push_back(scope);
+  logMsg("\in beginScope, adding scope, m_scopes size: ", m_scopes.size());
 }
 
 void Resolver::endScope() {
-  // FIXE: variables inused
-  auto& scope = m_scopes.back();
-  for (auto& iter: scope) {
-    if (iter.second.m_state == VarState::DEFINED) {
-        m_lukErr.error(errTitle, iter.second.m_name, "Local variable is not used.");
-    }
-  }
-  
+  m_scopes.pop_back();
+  logMsg("\in endScope, remove scope, m_scopes size: ", m_scopes.size());
 }
 
 void Resolver::declare(TokPtr& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back();
+  logMsg("\nIn Resolver::declare, search name: ", name->lexeme);
   auto iter = scope.find(name->lexeme);
   if (iter != scope.end()) {
     m_lukErr.error(errTitle, name, "This Variable is allready declared in this scope.");
   }
-  scope[name->lexeme] = Variable(name, VarState::DECLARED);
+  logMsg("In declare: Adding false to name: ", name->lexeme);
+  scope[name->lexeme] = false;
 
 }
 
 void Resolver::define(TokPtr& name) {
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
-  scope.at(name->lexeme).m_state = VarState::DEFINED;
+  logMsg("In Resolver::define: Adding true to name: ", name->lexeme);
+  scope.at(name->lexeme) = true;
 }
 
 // resolve vector
@@ -77,23 +75,25 @@ void Resolver::resolve(ExprPtr expr) {
   expr->accept(*this);
 }
 
-void Resolver::resolveLocal(Expr* expr, TokPtr& name, bool isRead) {
+void Resolver::resolveLocal(Expr* expr, TokPtr& name) {
+  logMsg("In resolveLocal, Adding name: ", name->lexeme);
   // FIX: why we cannot receive as argument an Expr& instead Expr* ???
   // because expr is a pointer object, and a non const object, 
   // so, we cannot pass as a constant (&) object.
+  logMsg("m_scopes size: ", m_scopes.size());
   for (int i = m_scopes.size() -1; i >=0; --i) {
     auto& scope = m_scopes.at(i);
+    logMsg("in loop, taken scope at index: ", i);
     auto iter = scope.find(name->lexeme);
     if (iter != scope.end()) {
+      logMsg("find name: ", name->lexeme);
       int val = m_scopes.size() -1 - i;
+      logMsg("in loop, taken val : ", val);
       m_interp.resolve(*expr, val);
-      // mark variable is used
-      if (isRead) {
-        iter->second.m_state = VarState::READ;
-      }
-      
-      return;
+    } else {
+      logMsg("Not found name: ", name->lexeme);
     }
+
   }
   
   // Not found. Assume it is global
@@ -103,8 +103,7 @@ void Resolver::resolveLocal(Expr* expr, TokPtr& name, bool isRead) {
 ObjPtr Resolver::visitAssignExpr(AssignExpr& expr) {
     logMsg("\nIn visitAssignExpr, Resolver, name:  ", expr.m_name);
     resolve(expr.m_value);
-    // variable is not read yet
-    resolveLocal(&expr, expr.m_name, false);
+    resolveLocal(&expr, expr.m_name);
   
   return nilptr;
 }
@@ -171,8 +170,8 @@ ObjPtr Resolver::visitSuperExpr(SuperExpr& expr) {
       m_lukErr.error(errTitle, expr.m_keyword,
           "Cannot use 'super' in a class with no superclass.");
     }
-  // mark variable is used
-  resolveLocal(&expr, expr.m_keyword, true);
+
+  resolveLocal(&expr, expr.m_keyword);
   
   return nilptr;
 }
@@ -191,8 +190,8 @@ ObjPtr Resolver::visitThisExpr(ThisExpr& expr) {
       m_lukErr.error(errTitle, expr.m_keyword,
           "Cannot use 'this' outside of a class.");
     }
-  // mark variable is used
-  resolveLocal(&expr, expr.m_keyword, true);
+
+  resolveLocal(&expr, expr.m_keyword);
 
   return nilptr;
 }
@@ -207,14 +206,11 @@ ObjPtr Resolver::visitVariableExpr(VariableExpr& expr) {
   if (m_scopes.size() != 0) {
     auto& scope = m_scopes.back();
     auto iter = scope.find(expr.m_name->lexeme);
-    if (iter != scope.end() && 
-        iter->second.m_state == VarState::DECLARED) {
+    if (iter != scope.end() && iter->second == false) {
       m_lukErr.error(errTitle, expr.m_name, "Cannot read local variable in its own initializer.");
     }
   }
-  
-  // mark variable is used
-  resolveLocal(&expr, expr.m_name, true);
+  resolveLocal(&expr, expr.m_name);
 
   return nilptr;
 }
@@ -254,14 +250,13 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
     beginScope();
     if (m_scopes.size() == 0) return;
     auto& scope = m_scopes.back(); 
-    scope["super"] = Variable(stmt.m_superclass->m_name, VarState::READ);
+    scope["super"] = true;
   }
   
   beginScope();
   if (m_scopes.size() == 0) return;
   auto& scope = m_scopes.back(); 
-  // Using State READ for "this" to not generate an error for variable inused
-  scope["this"] = Variable(stmt.m_name, VarState::READ);
+  scope["this"] = true;
 
   for (auto funcStmt: stmt.m_methods) {
     auto declaration = FunctionType::Method;
