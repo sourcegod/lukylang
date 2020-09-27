@@ -627,15 +627,17 @@ ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
 }
 
 ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
-  logMsg("\nIn lookUpVariable name: ", name->lexeme);
+  logMsg("\nIn lookUpVariable name: ", name->lexeme, ", expr id: ", expr.id());
   // searching the depth in locals map
   // whether not, get the variable in globals map
   auto iter = m_locals.find(expr.id());
   if (iter != m_locals.end()) {
     // iter->second is the depth
+    logMsg("Find in m_locals depth: ", iter->second);
     return m_env->getAt(iter->second, name->lexeme);
   }
 
+    logMsg("Not found in m_locals, search in m_globals, name: ", name->lexeme);
   return m_globals->get(name);
 }
 
@@ -670,6 +672,7 @@ void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
 
 void Interpreter::resolve(Expr& expr, int depth) {
   logMsg("\nIn Resolve expr, Interpreter");
+  logMsg("assign to m_locals, expr id: ", expr.id(), "depth: ", depth);
   // Note: FIX: abstract class Expr cannot be in map
   // so, we store its uniq id in the map
   m_locals[expr.id()] = depth;
