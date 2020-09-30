@@ -6,6 +6,7 @@ Last update: Wed, 30/09/2020
 -- Multi-variable  declarations: 
 var a, b=0, c=1
 
+-- String Interpolation
 -- do...while statement
 -- Function arrow
 -- Lambda arrow
