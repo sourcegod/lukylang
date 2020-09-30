@@ -10,8 +10,11 @@ Including features are:
 - Parser
 - AST printer
 - Interpreter
-- Arithmetic operators
-- Comparison operators
+- Arithmetic operators (+, -, * /)
+- Equality operators (==, !=)
+- Comparison operators (<, <=, >, >=)
+- Logical operators (or, and)
+- Unary operators (!, -)
 - REPL Interactive Interpreter
 - Expressions
 - Statements
@@ -25,6 +28,7 @@ Including features are:
 - Break statement
 - Native clock function
 - Functions
+- Return statement
 - Closures
 - Resolver
 - Classes
@@ -46,7 +50,7 @@ Additional features are supported, mostly based on tasks from book:
 - Exponentiation operator \*\*
 - Ternary operator ?:
 - Postfix and Prefix increment/decrement operators (++, --)
-- Compound assignment operators (+=, -=, *=, /=, %= **=, |=, &=, ^=, <<=, >>=)
+- Compound assignment operators (+=, -=, *=, /=, %=, **=, |=, &=, ^=, <<=, >>=)
 - Lambda function
 - Variables inused
 
