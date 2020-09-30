@@ -1,10 +1,19 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Mon, 28/09/2020
-Last version: v0.31.5
+Last update: Wed, 30/09/2020
+Last version: v0.32.0
 
   0. Changelog
+# Version 0.32.0: println and readln
+-- Added file: notes/todo.txt
+-- Updated file: README.md
+-- Added file: lukman.sh for building, running, debugging, testing, luky
+app. 
+-- Removed file: utils/run_test.sh
+-- Added file: examples/99_bottles_of_beer.luk.
+
+
 # Version 0.31.5: Native readln
 -- Adding native readln  function.
 -- Fixed bug in Resolver::endScope function, to remove scope properly in the
