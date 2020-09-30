@@ -1,17 +1,78 @@
 # Changelog for Luky project
 # Author: Coolbrother
 # Date: samedi, 24/08/2019
+Last update: Wed, 30/09/2020
 
-# Version 0.31.0: Comma operator 
--- Adding: bitwise operators, bitwise assignment, string comparison.
+# Version 0.32.0: println and readln
+Date: Wed, 30/09/2020
+-- Added file: notes/todo.txt
+-- Updated file: README.md
+-- Added file: lukman.sh for building, running, debugging, testing, luky
+app. 
+-- Removed file: utils/run_test.sh
+-- Added file: examples/99_bottles_of_beer.luk.
+
+
+#--------------------------------------------------------------------------------
+
+#  Version 0.31.0: All operators
 Date: dimanche, 20/09/2020
--- dev_0.30.5: Comma operator
+-- Adding: bitwise operators, bitwise assignment, string comparison.
+
+
+## dev_0.31.1: Escape sequences
+-- Adding escape sequences characters for string type.
+-- Adding simple and double quotes support for  string type.
+
+## dev_0.31.2: Automatic Semicolon Insertion
+-- Adding automatic semicolon insertion in Scanner and Parser class.
+-- Adding functions: isPrintable and searchPrintable in Scanner class.
+-- Adding functions: checkEndLine in Parser class.
+-- Adding files: misc_no_semicolon.luk in examples and tests directories.
+
+## dev_0.31.3: Variable inused
+-- Adding support to detect variable inused in the Resolver class.
+-- Adding Variable class and VarState enumeration, in the Resolver class.
+-- Changed signature of resolveLocal function, to take advantage of variable
+state in Resolver class.
+
+-- Adding file: misc_variable_inused.luk in tests directory.
+
+
+## dev_0.31.4: Native println
+-- Adding native println function.
+-- Adding src/builtin_func header file src/builtins directory to regroup
+native functions.
+
+-- Adding support for variadic function, inInterpreter::visitCallExpr function.
+-- Fixed bug in Parser::finishCall function, calling the assignment
+function rather the expression, to avoid the comma operator.
+
+-- Adding files: native_clock.luk, native_println.luk in examples and tests
+directories.
+
+
+## dev_0.31.5: Native readln
+-- Adding native readln  function.
+-- Fixed bug in Resolver::endScope function, to remove scope properly in the
+m_scopes vector.
+
+-- Adding script utils/run_test.sh for running test files.
+-- Added file: src/builtins/readln_func.hpp for ReadlnFunc class,
+native_readln.luk in examples and tests directories,
+perf_fibonacci.luk in tests directory,
+run_test.sh in utils directory.
+
+
+#--------------------------------------------------------------------------------
+
+## dev_0.30.5: Comma operator
 Adding: Comma operator
 Fixed bug in LukObject::Operator/= when the result of division between
 two integers is double.
 Adding files: operator_comma.luk in examples and tests directories.
 
--- dev_0.30.4: prefix and postfix operators
+## dev_0.30.4: prefix and postfix operators
 -- Adding: prefix and postfix operators.
 Added files: operator_prefix_postfix_simple.luk and
 operator_prefix_postfix_loop.luk in examples and tests directories.
@@ -19,7 +80,7 @@ operator_prefix_postfix_loop.luk in examples and tests directories.
 -- Adding: refactoring compound assignment to use only visitassign class.
 -- Adding: multiply and *= operator for string.
 
--- dev_0.30.3: bitwise operators
+## dev_0.30.3: bitwise operators
 Adding: bitwise operators, bitwise assignment, string comparison.
 Adding: modulus, Exponent, bitwise shift operators
 Refactoring precedence order operations.
@@ -33,19 +94,20 @@ and ~ "bitwise not".
 Adding files: is_event.luk and operator_bitwise.luk, in examples and
 tests directories.
 
--- dev_0.30.2: ternary expression
-Adding ternary expression.
-Added files: condition_ternary.luk in examples and tests directories.
+## dev_0.30.2: ternary expression
+-- Adding ternary expression.
+-- Added files: condition_ternary.luk in examples and tests directories.
 
--- dev_0.30.1: exp operator
-Adding exp and exp_equal operators
-Added files: operator_exp.luk in examples and tests directories.
-Added files: compound_assignment.luk in examples and tests directories.
+## dev_0.30.1: exp operator
+-- Adding exp and exp_equal operators
+-- Added files: operator_exp.luk in examples and tests directories.
+-- Added files: compound_assignment.luk in examples and tests directories.
 
--- dev_0.30.1: int and double
-Added support for Int and Double Token type, in LukObject class.
+## dev_0.30.1: int and double
+-- Added support for Int and Double Token type, in LukObject class.
 and manage Integer and Double in the Interpreter.
-Added LukError class in Interpreter constructor.
+
+-- Added LukError class in Interpreter constructor.
 
 #--------------------------------------------------------------------------------
 
