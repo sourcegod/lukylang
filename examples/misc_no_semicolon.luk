@@ -1,0 +1,19 @@
+var x
+
+
+
+print "koukou"
+
+;
+
+x =55;
+
+print "every body."
+print x
+
+fun test() 
+
+   { print "This is  fun testo" 
+   return }
+print ""
+test()

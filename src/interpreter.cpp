@@ -3,7 +3,7 @@
 #include "runtimeerror.hpp"
 #include "jump.hpp"
 #include "lukcallable.hpp"
-#include "clock_func.hpp"
+#include "builtin_func.hpp"
 #include "lukfunction.hpp"
 #include "return.hpp"
 #include "logger.hpp"
@@ -31,9 +31,20 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
 
     // TRACE_ALL;
     // TRACE_MSG("Env globals tracer: ");
-    auto func = std::make_shared<ClockFunc>();
-    ObjPtr objP = std::make_shared<LukObject>(func);
-    m_globals->define("clock", objP);
+    
+    // native clock function
+    auto clock_func = std::make_shared<ClockFunc>();
+    m_globals->define("clock", std::make_shared<LukObject>(clock_func));
+
+    // native println function
+    auto println_func = std::make_shared<PrintlnFunc>();
+    m_globals->define("println", std::make_shared<LukObject>(println_func));
+
+    // native readln function
+    auto readln_func = std::make_shared<ReadlnFunc>();
+    m_globals->define("readln", std::make_shared<LukObject>(readln_func));
+
+
     logMsg("\nExit out Interpreter constructor");
 
 }
@@ -409,7 +420,8 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     }
     const auto& func = callee->getCallable();
     
-    if (v_args.size() != func->arity()) {
+    /// Note: 255 arguments means variadic function
+    if (func->arity() != 255 && v_args.size() != func->arity()) {
         std::ostringstream msg;
         msg << "Expected " << func->arity() 
            << " arguments but got " 
@@ -615,15 +627,17 @@ ObjPtr Interpreter::visitVariableExpr(VariableExpr& expr) {
 }
 
 ObjPtr Interpreter::lookUpVariable(TokPtr& name, Expr& expr) {
-  logMsg("\nIn lookUpVariable name: ", name->lexeme);
+  logMsg("\nIn lookUpVariable name: ", name->lexeme, ", expr id: ", expr.id());
   // searching the depth in locals map
   // whether not, get the variable in globals map
   auto iter = m_locals.find(expr.id());
   if (iter != m_locals.end()) {
     // iter->second is the depth
+    logMsg("Find in m_locals depth: ", iter->second);
     return m_env->getAt(iter->second, name->lexeme);
   }
 
+    logMsg("Not found in m_locals, search in m_globals, name: ", name->lexeme);
   return m_globals->get(name);
 }
 
@@ -658,6 +672,7 @@ void Interpreter::checkNumberOperands(TokPtr& op, ObjPtr& left, ObjPtr& right) {
 
 void Interpreter::resolve(Expr& expr, int depth) {
   logMsg("\nIn Resolve expr, Interpreter");
+  logMsg("assign to m_locals, expr id: ", expr.id(), "depth: ", depth);
   // Note: FIX: abstract class Expr cannot be in map
   // so, we store its uniq id in the map
   m_locals[expr.id()] = depth;

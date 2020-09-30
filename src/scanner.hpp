@@ -25,6 +25,7 @@ public:
     size_t m_col;
     std::string m_source;
     std::vector<TokPtr> m_tokens;
+    TokPtr lastToken;
     LukError& m_lukErr;
     const std::string m_errTitle = "ScanError: ";
     // Reserved keywords
@@ -39,7 +40,8 @@ public:
     bool isAtEnd() const;
     void identifier();
     void number();
-    void string();
+    std::string unescape(const std::string& escaped);
+    void string(char ch='"');
     bool match(char);
     char peek() const;
     char peekNext() const;
@@ -48,6 +50,8 @@ public:
     bool isAlNum(char) const;
     void skipComments();
     void skipMultilineComments();
+    bool isPrintable(char ch);
+    char searchPrintable();
    
 };
 

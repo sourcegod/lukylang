@@ -1,0 +1,23 @@
+Todo list
+Date: Wed, 30/09/2020
+Last update: Wed, 30/09/2020
+
+-- Unit testing
+-- Multi-variable  declarations: 
+var a, b=0, c=1
+
+-- String Interpolation
+-- do...while statement
+-- Function arrow
+-- Lambda arrow
+
+-- Goto statement
+-- switch statement
+-- Native to_int function
+-- Native to_str function
+-- Native to_double function
+-- Native shell function
+
+-- array data type
+-- Hashmap data type
+

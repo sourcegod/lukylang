@@ -79,6 +79,7 @@ private:
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
     ExprPtr primary();
+    bool checkEndLine(const std::string& msg);
 
     TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);

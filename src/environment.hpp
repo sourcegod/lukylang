@@ -65,7 +65,7 @@ public:
     void assign(TokPtr& name, ObjPtr& val);
     void assign(TokPtr& name, std::shared_ptr<LukCallable> callable);
 
-    void define(const std::string& name, ObjPtr& val);
+    void define(const std::string& name, ObjPtr val);
     ObjPtr getAt(int distance, const std::string& name);
     Environment* ancestor(int distance);
     void assignAt(int distance, TokPtr& name, ObjPtr& val);

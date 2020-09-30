@@ -1,10 +1,17 @@
-/* Grammar lambda
+    /* Grammar for Luky language
+     
+     * Grammar for all operators
+     * Date: Mon, 21/09/2020
      *
     * program     → declaration* EOF ;
     *
-    * declaration → funDecl
+    * declaration → classDecl
+    *       | funDecl
     *       | VarDecl
     *       | statement ;
+    *
+    * classDecl → "class" IDENTIFIER ( "<" IDENTIFIER )?
+    *        "{" function* "}" ;
     *
     * funDecl  → "fun" function ;
     *
@@ -29,8 +36,8 @@
     * exprStmt  → expression ";" ;
     *
     *  forStmt   → "for" "(" ( varDecl | exprStmt | ";" )
-    *                  expression? ";"
-    *                  expression? ")" statement ;
+    *                  ( expression )? ";"
+    *                  ( expression )? ")" statement ;
     *
     * ifStmt    → "if" "(" expression ")" statement ( "else" statement )? ;
     *
@@ -47,40 +54,60 @@
     *
     * block     → "{" declaration* "}" ;
     *
-    * expression → assignment ;
+    * expression → comma ;
     *
-    * assignment → identifier "=" assignment
-    *       | logic_or 
-    *       | compoundAssignment ;
-    *       | ternaryExpr ; 
+    * comma → assignment ( "," assignment )* ;
     *
-    * logic_or   → logic_and ( "or" logic_and )* ;
+    * assignment → ( call "." )? identifier ( ( "=" 
+    *               | "+=" | "-=" | "*=" | "/=" | "%=" 
+    *               | "&=" | "|=" | "^="
+    *               | "**=" | "<<=" | ">>=" ) assignment )? 
+    *       | conditional ;
     *
-    * compoundAssignment → identifier ( "+=" | "-=" | "*=" | "/=" | "%=" ) addition ;
+    * conditional : logicOr "?" expression ":" conditional;
     *
-    * ternaryExpr : expression "?" expression ":" expression ;
+    * logicOr   → logicAnd ( "or" logicAnd )* ;
     *
-    * logic_and  → equality ( "and" equality )* ;
+    * logicAnd  → bitwiseOr ( "and" bitwiseOr )* ;
+    *
+    * bitwiseOr → bitwiseXor ( ( "|" ) )* bitwiseXor ;
+    *
+    * bitwiseXor → bitwiseAnd ( ( "^" ) )* bitwiseAnd ;
+    *
+    * bitwiseAnd → equality ( ( "&" ) )* equality ;
     *
     * equality → comparison ( ( "!=" | "==" ) comparison )* ;
     * 
-    * comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
+    * comparison → bitwiseShift ( ( ">" | ">=" | "<" | "<=" ) bitwiseShift )* ;
+    *
+    * bitwiseShift → addition ( ( "<<" | ">>" ) addition )* ;
     * 
     * addition → multiplication ( ( "+" | "-" ) multiplication )* ;
     *
     * multiplication → unary ( ( "/" | "*" | "%" ) unary )* ;
-    * 
-    * unary → ( "!" | "-" | "+" ) unary | call ;
     *
-    * call  → primary ( "(" arguments? ")" )* ;
+    * unary → ( "!" | "-" | "+" | "++" | "--" | "~") unary 
+    *           | exponentiation ;
+    *
+    * exponentiation → prefix ( ( "**" ) unary )* ;
+    *
+    * prefix → ( "--" | "++" ) primary 
+    *           | postfix ;
+    *
+    * postfix → primary ( "--" | "++" ) 
+    *           | call ;
+    *
+    * call → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
     *
     * primary → "true" | "false" | "nil"
-    *      | NUMBER | STRING
+    *        | NUMBER | STRING
     *        | "(" expression ")"
+    *        | this
     *        | IDENTIFIER
-    *        | lambda ;
+    *        | lambda
+    *        | "super" "." IDENTIFIER ;
     *
-    * arguments → expression ( "," expression )* ;
+    * arguments → assignment ( "," assignment )* ;
     *
     * */
 

@@ -32,6 +32,9 @@ std::vector<StmtPtr> Parser::parse() {
 }
 
 StmtPtr Parser::statement() {
+    // manage semicolon with empty statement
+    if (match({TokenType::SEMICOLON})) return expressionStatement();
+     
     if (match({TokenType::BREAK, TokenType::CONTINUE})) 
         return breakStatement();
 
@@ -127,7 +130,10 @@ StmtPtr Parser::ifStatement() {
 
 StmtPtr Parser::printStatement() {
     ExprPtr value = expression();
-    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    // consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    // No require semicolon
+    // checking whether not end line for automatic semicolon insertion
+    checkEndLine("Expect ';' after value.");
 
     return std::make_shared<PrintStmt>(value);
 }
@@ -159,7 +165,9 @@ StmtPtr Parser::varDeclaration() {
     if (match({TokenType::EQUAL})) {
         initializer = expression();
     }
-    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+    // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+    // checking whether not end line for automatic semicolon insertion
+    checkEndLine("Expect ';' after variable declaration.");
     
     return std::make_shared<VarStmt>(name, initializer);
 }
@@ -204,7 +212,10 @@ StmtPtr Parser::declaration() {
 
 StmtPtr Parser::expressionStatement() {
     ExprPtr expr = expression();
-    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    // consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    // checking whether not end line for automatic semicolon insertion
+    checkEndLine("Expect ';' after expression.");
+
     return std::make_shared<ExpressionStmt>(expr);
 }
 
@@ -488,10 +499,12 @@ ExprPtr Parser::finishCall(ExprPtr callee) {
     std::vector<ExprPtr> args;
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
-            if (args.size() >= 8) {
-                error(peek(), "Cannot have more than 8 arguments.");
+            if (args.size() >= 32) {
+                error(peek(), "Cannot have more than 32 arguments.");
             }
-            args.emplace_back(expression());
+            
+            /// Note: calling assignment function rather than expression to avoid the comma operator
+            args.emplace_back(assignment());
         } while (match({TokenType::COMMA}));
     }
 
@@ -545,6 +558,13 @@ ExprPtr Parser::primary() {
     
     throw error(peek(), "Expect expression.");
     return nullptr;
+}
+
+bool Parser::checkEndLine(const std::string& msg) {
+    if (isAtEnd()) return false;
+    if (match({TokenType::SEMICOLON})) return true;
+
+    throw error(peek(), msg);
 }
 
 TokPtr& Parser::consume(TokenType type, std::string message) {

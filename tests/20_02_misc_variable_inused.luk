@@ -1,0 +1,6 @@
+fun test() {
+  var a=42;
+  var b=0;
+  print "local variable is not used... ";
+} 
+test();

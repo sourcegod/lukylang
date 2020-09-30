@@ -1,0 +1,2 @@
+print 'Here is a simple quote: \' on the first line\nAnd a double quotes: " on a second line.\n';
+

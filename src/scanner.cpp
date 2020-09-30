@@ -50,12 +50,22 @@ void Scanner::addToken(const TokenType _tokenType) {
 
 
 void Scanner::scanToken() {
-    const char c = advance();
-    switch (c) {
+    const char ch = advance();
+    switch (ch) {
         case '(': addToken(TokenType::LEFT_PAREN); break;
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
-        case '}': addToken(TokenType::RIGHT_BRACE); break;
+        
+        // Automatic semicolon insertion
+        case '}': 
+            lastToken = m_tokens.back();
+            if (lastToken->type != TokenType::LEFT_BRACE &&
+                    lastToken->type != TokenType::RIGHT_BRACE && 
+                    lastToken->type != TokenType::SEMICOLON) {
+                addToken(TokenType::SEMICOLON);
+            }
+            addToken(TokenType::RIGHT_BRACE); 
+            break;
         case ',': addToken(TokenType::COMMA); break;
         case '.': addToken(TokenType::DOT); break;
         case ';': addToken(TokenType::SEMICOLON); break;
@@ -133,17 +143,34 @@ void Scanner::scanToken() {
         case '\n':
             m_line++;
             m_col =0;
+            // Automatic semicolon insertion
+            if (m_tokens.size() == 0) break;
+            lastToken = m_tokens.back();
+            // No insert semicolon 
+            if (lastToken->type == TokenType::RIGHT_PAREN && 
+                    searchPrintable() == '{' ) {
+                break;
+            } else if (lastToken->type !=  TokenType::SEMICOLON &&
+                    lastToken->type != TokenType::LEFT_BRACE &&
+                    lastToken->type != TokenType::RIGHT_BRACE ) {
+                addToken(TokenType::SEMICOLON);
+            }
             break;
 
-        case '"': string(); break;
+            break;
+
+        // support simple and double quotes string
+        case '"': string(ch); break;
+        case '\'': string(ch); break;
+
         default: {
-            if (isDigit(c)) {
+            if (isDigit(ch)) {
                 number();
-            } else if (isAlpha(c)) {
+            } else if (isAlpha(ch)) {
                 identifier();
             } else {
                 std::string errMessage = "Unexpected character: ";
-                errMessage += c;
+                errMessage += ch;
                 m_lukErr.error(m_errTitle, m_line, m_col, errMessage);
                 break;
             }
@@ -208,25 +235,63 @@ void Scanner::number() {
         addToken(TokenType::DOUBLE, numLiteral);
 }
 
-void Scanner::string() {
-    while (peek() != '"' && !isAtEnd()) {
+std::string Scanner::unescape(const std::string& escaped) {
+    // escape sequence character
+    std::string strChar;
+    
+    for (size_t i=0; i < escaped.size(); i++) {
+        if (escaped[i] == '\\') {
+            i++;
+            switch (escaped[i]) {
+                case 'n': strChar.push_back('\n'); break;
+                case 'r': strChar.push_back('\r'); break;
+                case '\\': strChar.push_back('\\'); break;
+                case '"': strChar.push_back('\"'); break;
+                case '\'': strChar.push_back('\''); break;
+                case 't': strChar.push_back('\t'); break;
+                case 'b': strChar.push_back('\b');
+                    break;
+                default:
+                    /// Note: best way to construct string with const char* 
+                    /// is to create first char* in a std::string
+                    m_lukErr.error(m_errTitle, m_line, m_col, 
+                          std::string("Unrecognized escape sequence : '\\") +
+                          escaped[i] + "'."); 
+            } 
+        
+        } else {
+            strChar.push_back(escaped[i]);
+        }
+    
+    }
+        
+    return  strChar;
+}
+
+void Scanner::string(char ch) {
+    // the ch argument is to indicate whether it's simple or double quotes
+    while (peek() != ch && !isAtEnd()) {
         if (peek() == '\n') {
             m_line++;
             m_col=0;
         }
+        if (peek() == '\\' && peekNext()  == ch) advance();
         advance();
     }
+
     // unterminated string
     if (isAtEnd()) {
-        m_lukErr.error(m_errTitle, m_line, m_col, "Unterminated string.");
+        m_lukErr.error(m_errTitle, m_line, m_col, std::string("Unterminated string: '") + ch + "'.");
         return;
     }
-    // closing "
+    
+    // the closing "
     advance();
-    const size_t stringLen = m_current - m_start;
+    const size_t strLen = m_current - m_start;
+    // Handle escapes sequences
     // trim the surrounding quotes
-    const std::string stringLiteral = m_source.substr(m_start + 1, stringLen - 2);
-    addToken(TokenType::STRING, stringLiteral);
+    const std::string strLiteral = unescape(m_source.substr(m_start +1, strLen -2));
+    addToken(TokenType::STRING, strLiteral);
 }
 
 bool Scanner::match(const char expected) {
@@ -288,4 +353,23 @@ void Scanner::skipMultilineComments() {
 
 }
 
+bool Scanner::isPrintable(char ch) {
+    return (ch != ' ' && 
+        ch != '\n' && 
+        ch != '\r' && 
+        ch != '\t' );
+}
+
+char Scanner::searchPrintable() {
+    if (isAtEnd()) return '\0';
+    size_t cur = m_current;
+    char ch;
+    while (cur < m_source.size()) {
+        ch = m_source[cur];
+        if (isPrintable(ch)) return ch;
+        cur++;
+    }
+
+    return '\0';
+}
 
