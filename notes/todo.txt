@@ -1,6 +1,6 @@
 Todo list
 Date: Wed, 30/09/2020
-Last update: Wed, 30/09/2020
+Last update: Sat, 03/10/2020
 
 -- Unit testing
 -- Multi-variable  declarations: 
@@ -13,11 +13,18 @@ var a, b=0, c=1
 
 -- Goto statement
 -- switch statement
--- Native to_int function
--- Native to_str function
+-- Native to_int or num function
+-- Native to_str or str function
 -- Native to_double function
+-- type function: returns object as string
+-- len function: returns string or array count.
+-- Modules and import function
+-- random function
 -- Native shell function
-
+-- Static variable and method in classes.
 -- array data type
 -- Hashmap data type
+-- Sound: play audio frequency function
+-- Play:  play audio note function
+-- Note: play midi note function
 
