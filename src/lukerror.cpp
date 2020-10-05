@@ -1,18 +1,18 @@
-#include "error_handler.hpp"
+#include "lukerror.hpp"
 #include <iostream>
 
 // using namespace luky;
 
-ErrorHandler::ErrorHandler()
+LukError::LukError()
     : hadError(false) {}
 
-void ErrorHandler::error(int line, int col,
+void LukError::error(int line, int col,
                        const std::string& message) {
 	report(line, col, "", message);
     hadError = true;
 }
 
-void ErrorHandler::error(Token& token, std::string& message) {
+void LukError::error(Token& token, std::string& message) {
 	if (token.type == TokenType::END_OF_FILE) {
       report(token.line, token.col, " at end", message);
     } else {
@@ -22,7 +22,7 @@ void ErrorHandler::error(Token& token, std::string& message) {
     hadError = true;
 }
 
-void ErrorHandler::report(int line, int col, const std::string& where, const std::string& message) const {
+void LukError::report(int line, int col, const std::string& where, const std::string& message) const {
 	std::cerr << "[line " + std::to_string(line) + " col " + std::to_string(col) + "] Error" + 
 		where + ": " + message
 		<< std::endl;

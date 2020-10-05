@@ -26,5 +26,8 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -v $(OBJS) $(TARGET)
+	rm -rf $(BUILD_DIR)
+# Run the interpreter
+run:
+	./$(TARGET)
 

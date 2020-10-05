@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace luky {
+// namespace luky {
     enum class TokenType {
         // Single-character tokens.
         LEFT_PAREN, RIGHT_PAREN,
@@ -36,6 +36,7 @@ namespace luky {
 
     class Token {
       public:
+        Token() {}
         Token(TokenType _type, const std::string& _lexeme,
               const std::string& _literal, const int _line, const int _col);
         TokenType type;
@@ -44,8 +45,9 @@ namespace luky {
         int line;
         int col;
         std::string toString() const;
+        std::string stringType() const;
     };
 
-}
+// }
 
 #endif // TOKEN_HPP

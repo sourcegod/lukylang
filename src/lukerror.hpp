@@ -1,5 +1,5 @@
-#ifndef ERROR_HANDLER_HPP
-#define ERROR_HANDLER_HPP
+#ifndef LUKERROR_HPP
+#define LUKERROR_HPP
 
 #include <string>
 #include <vector>
@@ -7,9 +7,9 @@
 
 
 // namespace luky {
-class ErrorHandler {
+class LukError {
   public:
-    ErrorHandler();
+    LukError();
     void error(int line, int col, const std::string& message);
     void error(Token& token, std::string& message);
 
@@ -21,4 +21,4 @@ class ErrorHandler {
 
 // }
 
-#endif // ERROR_HANDLER_HPP
+#endif // LUKERROR_HPP

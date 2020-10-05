@@ -1,20 +1,12 @@
 #include "scanner.hpp"
-#include "error_handler.hpp"
+#include "lukerror.hpp"
 
-using namespace luky;
+// using namespace luky;
 
-/*
-Scanner::Scanner(const std::string& _source, ErrorHandler& _errorHandler)
+Scanner::Scanner(const std::string& _source, LukError& _lukErr)
     : start(0), current(0),
     line(1), col(0),
-    source(_source), errorHandler(_errorHandler) {}
-*/
-
-Scanner::Scanner(const std::string& _source, ErrorHandler& _errorHandler)
-    : start(0), current(0),
-    line(1), col(0),
-    source(_source), errorHandler(_errorHandler) {
-        // errorHandler = ErrorHandler::ErrorHandler;
+    source(_source), lukErr(_lukErr) {
     // initialize reserved keywords map
     keywords["and"]    = TokenType::AND;
     keywords["class"]  = TokenType::CLASS;
@@ -118,7 +110,7 @@ void Scanner::scanToken() {
             } else {
                 std::string errorMessage = "Unexpected character: ";
                 errorMessage += c;
-                errorHandler.error(line, col, errorMessage);
+                lukErr.error(line, col, errorMessage);
                 break;
             }
         }
@@ -175,7 +167,7 @@ void Scanner::string() {
     }
     // unterminated string
     if (isAtEnd()) {
-        // errorHandler.add(line, "", "Unterminated string.");
+        lukErr.error(line, col, "Unterminated string.");
         return;
     }
     // closing "
@@ -186,10 +178,27 @@ void Scanner::string() {
     addToken(TokenType::STRING, stringLiteral);
 }
 
-void Scanner::addToken(const TokenType _tokenType, const std::string& value) {
+void Scanner::addToken(const TokenType _type, const std::string& _literal) {
+    
+    /*
+     * no yet necessary
+    if (type == TokenType::IDENTIFIER) {
+        lexeme = "IDENTIFIER";
+    } else if (type == TokenType::STRING) {
+        lexeme = "STRING";
+    } else if (type == TokenType::NUMBER) {
+        lexeme = "NUMBER";
+    } else {
+        const size_t lexLen = current - start;
+        // const auto 
+        lexeme       = source.substr(start, lexLen);
+    }
+    */
+    
     const size_t lexLen = current - start;
     const auto lexeme       = source.substr(start, lexLen);
-    tokens.push_back(Token(_tokenType, lexeme, value, line, col));
+
+    tokens.push_back(Token(_type, lexeme, _literal, line, col));
 }
 
 void Scanner::addToken(const TokenType _tokenType) { addToken(_tokenType, ""); }
