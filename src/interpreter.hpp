@@ -9,6 +9,8 @@
 using PObject = std::unique_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
+    PEnvironment m_globals;
+
     Interpreter();
     ~Interpreter() { }
 
@@ -18,6 +20,7 @@ public:
     void visitBlockStmt(BlockStmt& stmt);
     void visitBreakStmt(BreakStmt& stmt);
     void visitExpressionStmt(ExpressionStmt&);
+    void visitFunctionStmt(FunctionStmt* stmt);
     void visitIfStmt(IfStmt& stmt);
     void visitPrintStmt(PrintStmt&);
     void visitVarStmt(VarStmt& stmt);
@@ -32,14 +35,14 @@ public:
     TObject visitUnaryExpr(UnaryExpr& expr);
     TObject visitVariableExpr(VariableExpr& expr);
 
-private:
-    PEnvironment m_environment;
-    PEnvironment m_globals;
-    TObject m_result;
-    const std::string errTitle = "InterpretError: ";
     TObject evaluate(PExpr& expr);
     void execute(PStmt stmt);
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
+
+private:
+    PEnvironment m_environment;
+    TObject m_result;
+    const std::string errTitle = "InterpretError: ";
     bool isTruthy(TObject& obj);
     bool isEqual(TObject& a, TObject& b);
     void checkNumberOperand(Token& op, TObject& operand);

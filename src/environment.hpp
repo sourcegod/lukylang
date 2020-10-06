@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "token.hpp"
 #include "lukobject.hpp"
-#include <memory> // shared_ptr
+#include <memory> // smart pointers
 
 class LukObject;
 class Environment;
@@ -20,10 +20,10 @@ public:
     
     TObject& get(Token name);
     void assign(Token name, TObject value);
-    void define(std::string name, TObject value);
+    void define(const std::string& name, TObject value);
 
 private:
-    std::unordered_map<std::string, TObject> values;
+    std::unordered_map<std::string, std::shared_ptr<TObject>> values = {};
     PEnvironment m_enclosing;
 
 };

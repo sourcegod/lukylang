@@ -2,15 +2,11 @@
 #include "lukerror.hpp"
 #include <vector>
 #include <typeinfo>
+#include <memory>
 
 ParseError::ParseError(const std::string& msg, Token& token)
     : std::runtime_error(msg)
     , m_token(token) {}
-
-struct LargeData {
-    int id;
-    int ar [100];
-};
 
 Parser::Parser(const std::vector<Token>&& tokens, LukError& _lukErr)
     : current(0)
@@ -151,6 +147,31 @@ PStmt Parser::expressionStatement() {
     return PStmt(new ExpressionStmt(std::move(expr)) );
 }
 
+PStmt Parser::function(std::string kind) {
+    Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + " name.");
+    consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
+    std::vector<Token> params;
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (params.size() >= 8) {
+                error(peek(), "Cannot have more than 8 parameters.");
+            }
+            
+            params.emplace_back(consume(TokenType::IDENTIFIER, "Expect parameter name."));
+        } while (match({TokenType::COMMA}));
+    }
+
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
+
+    consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
+
+    std::vector<PStmt> body = block();
+    
+    return PStmt(new FunctionStmt(name, std::move(params), std::move(body) ));
+
+}
+
+
 std::vector<PStmt> Parser::block() {
     std::vector<PStmt> statements;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
@@ -207,6 +228,8 @@ PExpr Parser::logicAnd() {
 
 PStmt Parser::declaration() {
     try {
+        
+        if (match({TokenType::FUN})) return function("function");
         if (match({TokenType::VAR})) return varDeclaration();
         
         return statement();

@@ -3,6 +3,8 @@
 #include "jump.hpp"
 #include "lukcallable.hpp"
 #include "clock_func.hpp"
+#include "lukfunction.hpp"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -108,6 +110,17 @@ void Interpreter::visitBreakStmt(BreakStmt& stmt) {
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
     m_result = evaluate(stmt.expression);
 }
+
+void Interpreter::visitFunctionStmt(FunctionStmt* stmt) {
+    // auto func = std::make_shared<LukFunction>(stmt);
+    auto func = std::make_shared<LukFunction>(stmt);
+    // auto func = std::make_shared<LukFunction>(stmt->params, stmt->body);
+
+    auto obj = LukObject(func);
+    m_environment->define(stmt->name.lexeme, obj); // LukObject(func));
+    
+}
+
 
 void Interpreter::visitIfStmt(IfStmt& stmt) {
     auto val  = evaluate(stmt.condition);
@@ -216,22 +229,21 @@ TObject Interpreter::visitCallExpr(CallExpr& expr) {
        throw RuntimeError(expr.paren, "Can only call function and class.");
     }
     
-    std::vector<TObject> args;
+    std::vector<TObject> v_args;
     for (auto& arg: expr.args) {
-        args.push_back(evaluate(arg));
+        v_args.push_back(evaluate(arg));
     }
      
-    auto func = callee.getCallable();
-    if (args.size() != func->arity()) {
+    const auto& func = callee.getCallable();
+    if (v_args.size() != func->arity()) {
         std::ostringstream msg;
         msg << "Expected " << func->arity() 
             << " arguments but got " 
-            << args.size() << ".";
+            << v_args.size() << ".";
         throw RuntimeError(expr.paren, msg.str());
     }
 
-    return func->call(*this, args);
-
+    return func->call(*this, v_args);
 }
 
 TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {

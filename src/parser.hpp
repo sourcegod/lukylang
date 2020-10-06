@@ -41,6 +41,7 @@ private:
     PStmt breakStatement();
     PStmt expressionStatement();
     PStmt forStatement();
+    PStmt function(std::string kind);
     PStmt ifStatement();
     PStmt printStatement();
     PStmt whileStatement();

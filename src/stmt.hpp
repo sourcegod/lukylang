@@ -13,6 +13,7 @@ class BlockStmt;
 class BreakStmt;
 class Expr;
 class ExpressionStmt;
+class FunctionStmt;
 class IfStmt;
 class PrintStmt;
 class Stmt;
@@ -27,6 +28,7 @@ public:
     virtual void visitBlockStmt(BlockStmt&) =0;
     virtual void visitBreakStmt(BreakStmt&) =0;
     virtual void visitExpressionStmt(ExpressionStmt&) =0;
+    virtual void visitFunctionStmt(FunctionStmt*) =0;
     virtual void visitIfStmt(IfStmt&) =0;
     virtual void visitPrintStmt(PrintStmt&) =0;
     virtual void visitVarStmt(VarStmt&) =0;
@@ -95,6 +97,24 @@ public:
     std::unique_ptr<Expr> condition;
     std::unique_ptr<Stmt> thenBranch;
     std::unique_ptr<Stmt> elseBranch;
+
+};
+
+class FunctionStmt : public Stmt {
+public:
+    FunctionStmt() {}
+    FunctionStmt(Token _name, std::vector<Token>&& _params, std::vector<PStmt>&& _body) {
+        name = _name;
+        params = std::move(_params);
+        body  = std::move(_body);
+    }
+
+    void accept(StmtVisitor& v) override {
+        v.visitFunctionStmt(this);
+    }
+    Token name;
+    std::vector<Token> params;
+    std::vector<PStmt> body;
 
 };
 

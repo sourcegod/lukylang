@@ -2,6 +2,15 @@
 # Author: Coolbrother
 # Date: samedi, 24/08/1
 
+# Version 0.19: Function Declaration
+Date: mercredi, 11/12/19
+-- Adding: LukFunction, FunctionStmt object.
+Note: C++11 can only store polymorphic or derived class with pointers or smart
+pointers.
+Otherwise, derived object will be slicing.
+It took me more one month to realize this, and fixe this bug in LukFunction
+object.
+
 # Version 0.18: Function Native
 # Date: mardi, 22/10/19
 -- Adding: Callable object, ClockFunc object as clock as internal function.

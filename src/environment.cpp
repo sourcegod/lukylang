@@ -8,7 +8,7 @@
 TObject& Environment::get(Token name) {
     auto elem = values.find(name.lexeme);
     if (elem != values.end()) {
-        return elem->second;
+        return *elem->second;
     }
     
     if (m_enclosing != nullptr) return m_enclosing->get(name);
@@ -19,7 +19,7 @@ TObject& Environment::get(Token name) {
 
 void Environment::assign(Token name, TObject value) {
     if ( values.find(name.lexeme) != values.end() ) {
-        values[name.lexeme]= value;
+        values[name.lexeme]= std::make_shared<TObject>(value);
         return;
     }
 
@@ -33,7 +33,7 @@ void Environment::assign(Token name, TObject value) {
 
 }
 
-void Environment::define(std::string name, TObject value) {
-    values[name] =  value;
+void Environment::define(const std::string& name, TObject value) {
+    values[name] =  std::make_shared<TObject>(value);
 }
 
