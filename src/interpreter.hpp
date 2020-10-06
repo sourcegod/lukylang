@@ -6,13 +6,13 @@
 #include "environment.hpp"
 #include <string>
 #include <vector>
-
+using PObject = std::unique_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     Interpreter();
 
     void interpret(std::vector<std::unique_ptr<Stmt>>&&);
-
+    void printResult();
     void visitExpressionStmt(ExpressionStmt&);
     void visitPrintStmt(PrintStmt&);
     void visitVarStmt(VarStmt& stmt);
@@ -26,7 +26,8 @@ public:
 
 private:
     Environment environment;
-    std::string m_result;
+    TObject m_result;
+    TObject lastObj;
     TObject evaluate(PExpr& expr);
     void execute(PStmt stmt);
     bool isTruthy(TObject& obj);

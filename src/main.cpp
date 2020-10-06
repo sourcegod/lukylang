@@ -78,6 +78,7 @@ static void runPrompt(LukError& LukError) {
         std::cout << "-> ";
         // manage ctrl-D to exit the input loop
         if (!getline(std::cin, line)) break;
+        if (line == "") continue;
         run(line, LukError);
         LukError.hadError = false;
     }

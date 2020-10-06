@@ -27,11 +27,11 @@ LukObject::LukObject(Token tok)
             break;
         case TokenType::NUMBER: 
             type_id = LukType::Number;
-            m_number = std::stod(tok.lexeme); 
+            m_number = std::stod(tok.literal); 
             break;
         case TokenType::STRING: 
             type_id = LukType::String;
-            m_string = tok.lexeme;
+            m_string = tok.literal;
             break;
         default:
             std::runtime_error("Invalid Luky object.");

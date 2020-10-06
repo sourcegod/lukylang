@@ -27,30 +27,36 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     }
     // m_result += "tata ";
     // std::cerr << "result: " << m_result << std::endl;
+    if (!m_result.isNil())
+        printResult();
 
 
     return;
 }
 
 TObject Interpreter::evaluate(PExpr& expr) { 
+    // std::cerr << "evaluate\n";
     return expr->accept(*this);
 }
 
 void Interpreter::execute(PStmt stmt) {
     stmt->accept(*this);
 }
+void Interpreter::printResult() {
+    std::cout << stringify(m_result) << "\n";
+    // reinitialize m_result to nil
+    m_result = TObject();
+    
 
+}
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
-    // std::cout << "visitExpressionStmt\n";
-    // std::string name = typeid(stmt.expression).name();
-    // std::cout << "name: " << name << std::endl;
-    // stmt.expression->accept(*this);
-    evaluate(stmt.expression);
+    m_result = evaluate(stmt.expression);
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
     TObject value = evaluate(stmt.expression);
     std::cout << stringify(value) << std::endl;
+    m_result = TObject();
 
 }
 
@@ -71,6 +77,7 @@ TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
 
  
 TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
+    // std::cerr << "visitBinaryExpr\n";
     // method get allow to convert smart pointer to raw pointer
     TObject left = evaluate(expr.left);
     TObject right = evaluate(expr.right);
@@ -126,6 +133,7 @@ TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
+    // std::cerr << "visitLiteralExpr\n";
     return expr.value;
 }
 
@@ -146,7 +154,6 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 
 TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
     return environment.get(expr.name);
-    // return TObject();
 }
 
 

@@ -1,11 +1,9 @@
 #include "scanner.hpp"
 #include "lukerror.hpp"
 
-// using namespace luky;
-
 Scanner::Scanner(const std::string& _source, LukError& _lukErr)
     : start(0), current(0),
-    line(1), col(0),
+    line(1), col(1),
     source(_source), lukErr(_lukErr) {
     // initialize reserved keywords map
     keywords["and"]    = TokenType::AND;
@@ -85,7 +83,7 @@ void Scanner::scanToken() {
             if (match('/')) {
                 // a comment goes until the end of the line.
                 while (peek() != '\n' && !isAtEnd())
-                    (void)advance();
+                    advance();
             } else {
                 addToken(TokenType::SLASH);
             }
@@ -129,14 +127,12 @@ void Scanner::identifier() {
     // using "maximal munch"
     // e.g. match "orchid" not "or" keyword and "chid"
     while (isAlNum(peek()))
-        (void)advance();
+        advance();
     // see if the identifier is a reserved keyword
     const size_t idLen = current - start;
     const std::string identifier  = source.substr(start, idLen);
-    const bool isKeyword =
-        keywords.find(identifier) != keywords.end();
-    if (isKeyword) {
-        addToken(keywords[identifier]);
+        if ( keywords.find(identifier) != keywords.end() ) {
+            addToken(keywords[identifier]);
     } else {
         addToken(TokenType::IDENTIFIER);
     }
@@ -146,24 +142,26 @@ bool Scanner::isDigit(const char c) const { return c >= '0' && c <= '9'; }
 
 void Scanner::number() {
     while (isDigit(peek()))
-        (void)advance();
+        advance();
     // look for fractional part
     if (peek() == '.' && isDigit(peekNext())) {
         // consume the "."
-        (void)advance();
+        advance();
         while (isDigit(peek()))
-            (void)advance();
+            advance();
     }
-    const size_t numLen       = current - start;
+    const size_t numLen = current - start;
     const std::string numberLiteral = source.substr(start, numLen);
     addToken(TokenType::NUMBER, numberLiteral);
 }
 
 void Scanner::string() {
     while (peek() != '"' && !isAtEnd()) {
-        if (peek() == '\n')
+        if (peek() == '\n') {
             line++;
-        (void)advance();
+            col=1;
+        }
+        advance();
     }
     // unterminated string
     if (isAtEnd()) {
@@ -171,7 +169,7 @@ void Scanner::string() {
         return;
     }
     // closing "
-    (void)advance();
+    advance();
     const size_t stringLen = current - start;
     // trim the surrounding quotes
     const std::string stringLiteral = source.substr(start + 1, stringLen - 2);
@@ -179,25 +177,9 @@ void Scanner::string() {
 }
 
 void Scanner::addToken(const TokenType _type, const std::string& _literal) {
-    
-    /*
-     * no yet necessary
-    if (type == TokenType::IDENTIFIER) {
-        lexeme = "IDENTIFIER";
-    } else if (type == TokenType::STRING) {
-        lexeme = "STRING";
-    } else if (type == TokenType::NUMBER) {
-        lexeme = "NUMBER";
-    } else {
-        const size_t lexLen = current - start;
-        // const auto 
-        lexeme       = source.substr(start, lexLen);
-    }
-    */
-    
+    // FIXE: manage the right lexeme
     const size_t lexLen = current - start;
-    const auto lexeme       = source.substr(start, lexLen);
-
+    const std::string lexeme = source.substr(start, lexLen);
     tokens.push_back(Token(_type, lexeme, _literal, line, col));
 }
 

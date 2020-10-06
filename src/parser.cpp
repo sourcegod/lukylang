@@ -149,12 +149,10 @@ PExpr Parser::unary() {
 
 PExpr Parser::primary() {
     if (match(
-                {TokenType::FALSE, TokenType::TRUE,
-                TokenType::NIL, 
-                TokenType::NUMBER, TokenType::STRING})) {
-
+                {TokenType::FALSE, TokenType::TRUE, 
+                TokenType::NIL,
+                TokenType::NUMBER, TokenType::STRING}))
         return PExpr(new LiteralExpr( LukObject( previous() ) ));
-    }
 
     if (match({TokenType::IDENTIFIER})) {
         return PExpr(new VariableExpr(previous()) );

@@ -26,7 +26,7 @@ class Scanner {
     std::vector<Token> tokens;
     LukError& lukErr;
 
-     char advance();
+    char advance();
     void scanToken();
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);

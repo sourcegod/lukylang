@@ -1,4 +1,5 @@
-# Simple makefile to compile all *.cpp files in a directory
+# makefile for luky project
+# Last Update: 08/09/19
 
 CC := g++
 CFLAGS := -std=c++11 -Wall -Wextra -pedantic -g
@@ -23,15 +24,13 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 # pull in dependency info for *existing* .o files
-
-
 # TODO: how to rebuild when headerfiles are changed
 # not ideal: 
 #$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp $(SRC_DIR)/main.cpp
 # compile and generate dependency info
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c -o $@ $<
-	$(CC) -MM $(CFLAGS) $(SRC_DIR)/$*.cpp > $(BUILD_DIR)/$*.d
+	# $(CC) -MM $(CFLAGS) $(SRC_DIR)/$*.cpp > $(BUILD_DIR)/$*.d
 
 
 clean:
@@ -39,5 +38,10 @@ clean:
 # Run the interpreter
 run:
 	rlwrap ./$(TARGET)
+	#
+# Debug the interpreter with gdb
+debug:
+	rlwrap gdb ./$(TARGET)
 
--include $(OBJS:.o=.d)
+
+# -include $(OBJS:.o=.d)
