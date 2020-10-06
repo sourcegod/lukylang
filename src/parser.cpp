@@ -72,17 +72,11 @@ PExpr Parser::primary() {
                 {TokenType::FALSE, TokenType::TRUE,
                 TokenType::NIL, 
                 TokenType::NUMBER, TokenType::STRING}))
-        return PExpr(new LiteralExpr( LukObject(previous()) ));
+        // std::cout << "parser: " << previous().lexeme << std::endl;
+        // LukObject obj(previous());
+        // std::cout << "voici : " << obj.m_number << std::endl;
+        return PExpr(new LiteralExpr( LukObject( previous() ) ));
 
-    /*
-    if (match({TokenType::TRUE}))
-        return new LiteralExpr("true");
-    if (match({TokenType::NIL}))
-        return new LiteralExpr("nil");
-    if (match({TokenType::NUMBER, TokenType::STRING}))
-        return new LiteralExpr(LukObject(previous().literal));
-    */
-    
     if (match({TokenType::LEFT_PAREN})) {
         PExpr expr = expression();
         consume(TokenType::RIGHT_PAREN, "Exppect ')' after expression.");

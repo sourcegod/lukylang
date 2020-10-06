@@ -4,12 +4,13 @@
 #include "lukerror.hpp"
 #include "token.hpp"
 #include "scanner.hpp"
+#include "parser.hpp"
+#include "astprinter.hpp"
 
 using namespace std;
 // test macro from the preprocessor to retriev string
 #define stringify( name ) #name
 
-// namespace luky {
 
 static void printer(const vector<Token>& v_tokens) {
     size_t pos =1;
@@ -38,24 +39,26 @@ static void run(const std::string& source, LukError& LukError) {
     const auto tokens = scanner.scanTokens();
     if (LukError.hadError) return;
     // printer
-    printer(tokens);
-    /*
+    // printer(tokens);
+    // /*
     /// parser
-    // Parser parser(tokens, LukError);
-    // auto expr = parser.parse();
+    Parser parser(tokens, LukError);
+    auto expr = parser.parse();
     // if found error during parsing, report
-    if (LukError.foundError) {
-        LukError.report();
+    if (LukError.hadError) {
+        std::cout << "There is an error." << std::endl;
+        // LukError.report();
         return;
     }
-    */
+    // */
     
-    /*
     /// print ast
-    ASTPrinter pp;
-    pp.print(expr);
+    AstPrinter ap;
+    // convert smart pointer to raw pointer
+    ap.print(expr.get());
+
+
     std::cout << std::endl;
-    */
 
 }
 
@@ -78,7 +81,6 @@ static void runPrompt(LukError& LukError) {
     }
 
 }
-// }
 
 static void test() {
     LukError lukErr;

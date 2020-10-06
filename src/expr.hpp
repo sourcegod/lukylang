@@ -1,5 +1,6 @@
 #ifndef EXPR_HPP
 #define EXPR_HPP
+
 #include "lukobject.hpp"
 #include "token.hpp"
 #include <memory>
@@ -10,23 +11,23 @@ class BinaryExpr;
 class GroupingExpr;
 class LiteralExpr;
 class UnaryExpr;
-// namespace luky {
 
 using PExpr = std::unique_ptr<Expr>;
+using TObject = LukObject;
 
 // create visitor object
 class ExprVisitor {
     public:
-        virtual void visitBinaryExpr(BinaryExpr&) =0;
-        virtual void visitGroupingExpr(GroupingExpr&) =0;
-        virtual void visitLiteralExpr(LiteralExpr&) =0;
-        virtual void visitUnaryExpr(UnaryExpr&) =0;
+        virtual TObject visitBinaryExpr(BinaryExpr&) =0;
+        virtual TObject visitGroupingExpr(GroupingExpr&) =0;
+        virtual TObject visitLiteralExpr(LiteralExpr&) =0;
+        virtual TObject visitUnaryExpr(UnaryExpr&) =0;
 };
 
 // Base class for different objects
 class  Expr {
 public:
-    virtual void accept(class ExprVisitor &v) =0;
+    virtual TObject accept(class ExprVisitor &v) =0;
 };
 
 // differents objects
@@ -38,8 +39,8 @@ public:
         right = std::move(_right);
     }
     
-    void accept(ExprVisitor &v) override {
-        v.visitBinaryExpr(*this); 
+    TObject accept(ExprVisitor &v) override {
+        return v.visitBinaryExpr(*this); 
     }
 
     PExpr left;
@@ -50,21 +51,21 @@ public:
 class GroupingExpr : public Expr {
 public:
     GroupingExpr(PExpr&& _expr) {
-        expr = std::move(_expr);
+        expression = std::move(_expr);
     }
     
-    void accept(ExprVisitor &v) override {
-        v.visitGroupingExpr(*this); 
+    TObject accept(ExprVisitor &v) override {
+        return v.visitGroupingExpr(*this); 
     }
 
-    PExpr expr;
+    PExpr expression;
 };
 
 class LiteralExpr: public Expr {
 public:
     LiteralExpr(LukObject _value) { value = _value; }
-    void accept(ExprVisitor &v) override {
-        v.visitLiteralExpr(*this); 
+    TObject accept(ExprVisitor &v) override {
+        return v.visitLiteralExpr(*this); 
     }
 
     LukObject value;
@@ -77,18 +78,17 @@ public:
         right = std::move(_right);
     }
     
-    void accept(ExprVisitor &v) override {
-        v.visitUnaryExpr(*this); 
+    TObject accept(ExprVisitor &v) override {
+        return v.visitUnaryExpr(*this); 
     }
 
     Token op;
     PExpr right;
 };
-// }
 //
 // temporary methods
-void ExprVisitor::visitBinaryExpr(BinaryExpr& expr) {}
-void ExprVisitor::visitLiteralExpr(LiteralExpr& expr) {}
+// void ExprVisitor::visitBinaryExpr(BinaryExpr& expr) {}
+// void ExprVisitor::visitLiteralExpr(LiteralExpr& expr) {}
 
 
 #endif // EXPR_HPP
