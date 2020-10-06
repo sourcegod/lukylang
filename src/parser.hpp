@@ -26,18 +26,19 @@ class ParseError : public std::runtime_error {
 
 class Parser {
 public:
-    Parser(const std::vector<Token>& _tokens, LukError& lukErr);
+    Parser(const std::vector<Token>&& tokens, LukError& lukErr);
     std::vector<PStmt> parse();
     ParseError error(Token& token, const std::string& message);
 
 private:
     size_t current;
-    std::vector<Token> tokens;
+    std::vector<Token> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
 
     PStmt statement();
     std::vector<PStmt> block();
+    PStmt breakStatement();
     PStmt expressionStatement();
     PStmt forStatement();
     PStmt ifStatement();

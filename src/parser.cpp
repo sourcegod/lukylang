@@ -12,9 +12,9 @@ struct LargeData {
     int ar [100];
 };
 
-Parser::Parser(const std::vector<Token>& _tokens, LukError& _lukErr)
+Parser::Parser(const std::vector<Token>&& tokens, LukError& _lukErr)
     : current(0)
-    , tokens(_tokens)
+    , m_tokens(std::move(tokens))
     , lukErr(_lukErr) {}
 
 std::vector<PStmt> Parser::parse() {
@@ -33,6 +33,9 @@ std::vector<PStmt> Parser::parse() {
 }
 
 PStmt Parser::statement() {
+    if (match({TokenType::BREAK, TokenType::CONTINUE})) 
+        return breakStatement();
+
     if (match({TokenType::FOR})) 
         return forStatement();
     if (match({TokenType::IF})) 
@@ -41,10 +44,16 @@ PStmt Parser::statement() {
         return printStatement();
     if (match({TokenType::WHILE})) 
         return whileStatement();
-if (match({TokenType::LEFT_BRACE}))
+    if (match({TokenType::LEFT_BRACE}))
         return PStmt(new BlockStmt(std::move(block())) );
     
     return  expressionStatement();
+}
+
+PStmt Parser::breakStatement() {
+    Token keyword = previous();
+    consume(TokenType::SEMICOLON, "Expect ';' after break statement");
+    return PStmt(new BreakStmt(keyword) );
 }
 
 PStmt Parser::forStatement() {
@@ -264,8 +273,11 @@ PExpr Parser::primary() {
     if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
-                TokenType::NUMBER, TokenType::STRING}))
-        return PExpr(new LiteralExpr( LukObject( previous() ) ));
+                TokenType::NUMBER, TokenType::STRING})) {
+        const auto obj = LukObject( previous() );
+        // std::cerr << "Parser::Primary, obj.p_string: " << obj.p_string << std::endl;
+        return PExpr(new LiteralExpr( ( obj ) ));
+    }
 
     if (match({TokenType::IDENTIFIER})) {
         return PExpr(new VariableExpr(previous()) );
@@ -310,7 +322,7 @@ bool Parser::match(const std::vector<TokenType>& types) {
 }
 
 Token Parser::previous() {
-    return tokens[current - 1];
+    return m_tokens[current - 1];
 }
 
 Token Parser::advance() {
@@ -320,7 +332,7 @@ Token Parser::advance() {
 }
 
 Token& Parser::peek() {
-    return tokens[current];
+    return m_tokens[current];
 }
 
 bool Parser::isAtEnd() {

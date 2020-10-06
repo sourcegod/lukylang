@@ -10,6 +10,7 @@
 
 // forward declarations
 class BlockStmt;
+class BreakStmt;
 class ExpressionStmt;
 class IfStmt;
 class PrintStmt;
@@ -23,6 +24,7 @@ using PExpr =  std::unique_ptr<Expr>;
 class StmtVisitor {
 public:
     virtual void visitBlockStmt(BlockStmt&) =0;
+    virtual void visitBreakStmt(BreakStmt&) =0;
     virtual void visitExpressionStmt(ExpressionStmt&) =0;
     virtual void visitIfStmt(IfStmt&) =0;
     virtual void visitPrintStmt(PrintStmt&) =0;
@@ -46,6 +48,19 @@ public:
         v.visitBlockStmt(*this);
     }
     std::vector<PStmt> statements;
+
+};
+
+class BreakStmt : public Stmt {
+public:
+    BreakStmt(Token _keyword) {
+        keyword = _keyword;
+    }
+
+    void accept(StmtVisitor& v) override {
+        v.visitBreakStmt(*this);
+    }
+    Token keyword;
 
 };
 

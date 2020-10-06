@@ -1,5 +1,6 @@
 #include "interpreter.hpp"
 #include "runtimeerror.hpp"
+#include "jump.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -35,11 +36,14 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
 }
 
 void Interpreter::printResult() {
-    std::cout << stringify(m_result) << "\n";
+    // std::cerr << "printResult avant \n";
+    // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
+    // std::cerr << stringify(m_result) << "\n";
     // reinitialize m_result to nil
+    // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
     m_result = TObject();
+    // std::cerr << "printResult à la fin,  m_result.p_string: " << m_result.p_string << std::endl;
     
-
 }
 
 
@@ -78,6 +82,19 @@ void Interpreter::visitBlockStmt(BlockStmt& stmt) {
     executeBlock(stmt.statements, std::make_shared<Environment>(m_environment) );
 }
 
+void Interpreter::visitBreakStmt(BreakStmt& stmt) {
+    std::string msg;
+    if (stmt.keyword.lexeme == "break") {
+        msg = "Error: 'break' must with while loop";
+        throw Jump(stmt.keyword, msg);
+    } else if (stmt.keyword.lexeme == "continue") {
+        msg = "Error: 'continue' must with while loop";
+        throw Jump(stmt.keyword, msg);
+    }
+         
+}
+
+
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
     m_result = evaluate(stmt.expression);
 }
@@ -93,9 +110,12 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
+    // std::cerr << "visitPrintStmt: avant value\n";
     TObject value = evaluate(stmt.expression);
+    // std::cerr << "après value : " << value.p_string << std::endl;
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
+    // std::cerr << "visitPrintStmt: à la fin: \n";
 
 }
 
@@ -111,8 +131,14 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
 void Interpreter::visitWhileStmt(WhileStmt& stmt) {
     auto val  = evaluate(stmt.condition);
     while (isTruthy(val)) {
-        stmt.body->accept(*this);
-        val  = evaluate(stmt.condition);
+        try {
+            stmt.body->accept(*this);
+            val  = evaluate(stmt.condition);
+        } catch(Jump jmp) {
+            if (jmp.keyword.lexeme == "break") break;
+            if (jmp.keyword.lexeme == "continue") continue;
+        }
+
     }
 
 }
@@ -156,7 +182,9 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             if (left.isNumber() && right.isNumber())
                 return (double)left + (double)right; 
             if (left.isString() && right.isString())
-                return (std::string)left + (std::string)right; 
+                // return (std::string)left + (std::string)right;
+                // Addingeach string to ostringstream
+                return left + right;
             throw RuntimeError(expr.op, 
                     "Operands must be two numbers or tow strings.");
 
@@ -191,7 +219,10 @@ TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
     // std::cerr << "visitLiteralExpr\n";
-    return expr.value;
+    auto obj = expr.value;
+    // std::cout << "voici obj.p_string: " << obj.p_string << std::endl;
+    // return expr.value;
+    return obj;
 }
 
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
@@ -216,9 +247,10 @@ TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
 
 bool Interpreter::isTruthy(TObject& obj) {
     if (obj.isNil()) return false;
-    if (obj.isBool()) return (bool)obj;
-    if (obj.isNumber() && (double)obj == 0) return false;
-
+    if (obj.isBool()) return obj.getBool();
+    if (obj.isNumber() && obj.getNumber() == 0) return false;
+    if (obj.isString() && obj.getString() == "") return false;
+    
     return true;
 }
 
@@ -253,7 +285,8 @@ std::string Interpreter::stringify(TObject& obj) {
         return text;
     }
 
-    return obj.value();
+    // return obj.value();
+    return *obj.getPtrString();
 }
 
 

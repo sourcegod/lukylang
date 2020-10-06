@@ -7,7 +7,9 @@ Scanner::Scanner(const std::string& _source, LukError& _lukErr)
     source(_source), lukErr(_lukErr) {
     // initialize reserved keywords map
     keywords["and"]    = TokenType::AND;
+    keywords["break"]    = TokenType::BREAK;
     keywords["class"]  = TokenType::CLASS;
+    keywords["continue"]    = TokenType::CONTINUE;
     keywords["else"]   = TokenType::ELSE;
     keywords["false"]  = TokenType::FALSE;
     keywords["for"]    = TokenType::FOR;
@@ -216,7 +218,7 @@ char Scanner::peek() const {
     return source[current];
 }
 
-std::vector<Token> Scanner::scanTokens() {
+const std::vector<Token>& Scanner::scanTokens() {
     while (!isAtEnd()) {
         // we are at the beginning of the next lexeme
         start = current;

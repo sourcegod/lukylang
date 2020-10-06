@@ -15,7 +15,7 @@ class Scanner {
   public:
     // Scanner(const std::string& _source, LukError& _lukErr);
     Scanner(const std::string& _source, LukError& _lukErr);
-    std::vector<Token> scanTokens();
+    const std::vector<Token>& scanTokens();
 
   private:
     size_t start;

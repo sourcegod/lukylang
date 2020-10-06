@@ -90,11 +90,12 @@ class LiteralExpr: public Expr {
 public:
 
     LiteralExpr(LukObject _value) 
-    // : value(_value) 
-    {
-    value = _value;
+        : value(_value) 
+        {
+        // std::cerr << "LiteralExpr, id: " << _value.id << "\n";
+        // std::cerr << "value, id: " << value.id << "\n";
+    }
 
-}
     TObject accept(ExprVisitor &v) override {
         return v.visitLiteralExpr(*this); 
     }

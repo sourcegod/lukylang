@@ -20,12 +20,15 @@ public:
     bool m_bool = false;
     double m_number =0;
     std::string m_string = "";
+    std::shared_ptr<std::string> p_string;
 
  
     // constructors
     LukObject() 
-        : id(++next_id)
-    { type_id = LukType::Nil;  }
+        : id(++next_id) { 
+        // std::cerr << "C.tor, id: " << id << "\n";
+        type_id = LukType::Nil;  
+    }
     LukObject(bool val) 
         : id(++next_id)
     { type_id = LukType::Bool; m_bool = val; }
@@ -36,19 +39,25 @@ public:
         : id(++next_id)
     { type_id = LukType::Number; m_number = val; }
     LukObject(const std::string& val) 
-        : id(++next_id)
-    { type_id = LukType::String; m_string = val; 
+        : id(++next_id) { 
+        // std::cerr << "Copy C.tor with string&, id: " << id << "\n";
+        type_id = LukType::String; 
+        // m_string = val; 
+        p_string = std::make_shared<std::string>(val);
     }
 
     LukObject(const char* val) 
-        : id(++next_id)
-    { type_id = LukType::String; m_string = std::string(val); 
+        : id(++next_id) { 
+        type_id = LukType::String; 
+        // m_string = std::string(val); 
+        p_string = std::make_shared<std::string>(val);
     }
+
     LukObject(Token tok);
    
     // destructor is necessary
     ~LukObject() {
-        // std::cerr << "Destructor id: " << id << std::endl;
+        // std::cerr << "D.tor id: " << id << std::endl;
     }
 
        
@@ -80,10 +89,11 @@ public:
     bool isString() { return type_id == LukType::String; }
 
     // getters
-    bool getBool();
-    double getNumber();
+    bool getBool() { return m_bool; }
+    double getNumber() { return m_number; }
     std::string& getString() { return m_string; }
-    //
+    std::shared_ptr<std::string> getPtrString() { return p_string; }
+    
 
     // casting to the right type
     void cast(LukType tp);
@@ -102,6 +112,7 @@ public:
     LukObject& operator=(const char* &&val);
     LukObject& operator=(const std::string&& val);
     LukObject& operator=(const LukObject& obj); 
+    // LukObject& operator=(const LukObject&& obj); 
  
     // compound assignment operators
     LukObject& operator+=(const LukObject& obj);

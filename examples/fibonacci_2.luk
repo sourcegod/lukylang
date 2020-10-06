@@ -1,0 +1,10 @@
+// test for 60 first numbers
+var a=0;
+var b=1;
+while (a < 102000000) {
+    var temp =a;
+    a = b;
+    b = temp + b;
+}
+
+print a;

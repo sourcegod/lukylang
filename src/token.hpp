@@ -22,7 +22,8 @@
         IDENTIFIER, STRING, NUMBER,
 
         // Reserved Keywords.
-        AND, CLASS,
+        AND, BREAK, 
+        CLASS, CONTINUE,
         ELSE, FALSE,
         FUN, FOR,
         IF, NIL,

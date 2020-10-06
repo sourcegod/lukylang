@@ -16,6 +16,7 @@ public:
     void printResult();
     
     void visitBlockStmt(BlockStmt& stmt);
+    void visitBreakStmt(BreakStmt& stmt);
     void visitExpressionStmt(ExpressionStmt&);
     void visitIfStmt(IfStmt& stmt);
     void visitPrintStmt(PrintStmt&);

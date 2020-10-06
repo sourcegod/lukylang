@@ -11,9 +11,9 @@
 
 int LukObject::next_id =0;
 // constructors
-// /*
 LukObject::LukObject(Token tok) 
         : id(++next_id) {
+    // std::cerr << "C.tor with token, id: " << id << "\n";
     switch(tok.type) {
         case TokenType::NIL:
             type_id = LukType::Nil; break;
@@ -31,14 +31,14 @@ LukObject::LukObject(Token tok)
             break;
         case TokenType::STRING: 
             type_id = LukType::String;
-            m_string = tok.literal;
+            // m_string = tok.literal;
+            p_string = std::make_shared<std::string>(tok.literal);
             break;
         default:
             std::runtime_error("Invalid Luky object.");
     }
 
 }
-// */
 
 // returns the current value to string
 std::string LukObject::value() {
@@ -50,7 +50,8 @@ std::string LukObject::value() {
             case LukType::Number: 
                 return std::to_string(m_number);
             case LukType::String: 
-                return m_string;
+                // return m_string;
+                return *p_string;
         }
 
         return "";
@@ -214,19 +215,41 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     // avoid copy of same object
     if (this == &obj) return *this;
     id = ++next_id;
+    // std::cerr << "Copy Assignement, id: " << id << "\n";
     type_id = obj.type_id;
     m_bool = obj.m_bool; 
     m_number = obj.m_number;
-    m_string = obj.m_string;
+    // m_string = obj.m_string;
+    p_string = obj.p_string;
+    // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
+    // std::cerr << "Voici p_string: " << p_string << std::endl;
 
     return *this;
 }
 
+/*
+LukObject& LukObject::operator=(const LukObject&& obj) { 
+    // avoid copy of same object
+    if (this == &obj) return *this;
+    id = ++next_id;
+        // std::cerr << "Move Assignement, id: " << id << "\n";
+    type_id = obj.type_id;
+    m_bool = obj.m_bool; 
+    m_number = obj.m_number;
+    // m_string = std::move(obj.m_string);
+    p_string = std::move(obj.p_string);
+    // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
+    // std::cerr << "Voici p_string: " << p_string << std::endl;
+
+    return *this;
+}
+*/
 
 
 // compound assignment operators
 // += operator
 LukObject& LukObject::operator+=(const LukObject& obj) {
+    std::ostringstream oss;
     if (type_id == obj.type_id)  {
         switch(type_id) {
             case LukType::Nil:
@@ -236,7 +259,11 @@ LukObject& LukObject::operator+=(const LukObject& obj) {
             case LukType::Number:
                 m_number += obj.m_number; break;
             case LukType::String:
-                m_string += obj.m_string; break;
+                // m_string += obj.m_string; break;
+                // p_string  += obj.p_string;
+                oss << *p_string << *obj.p_string;
+                p_string = std::make_shared<std::string>(oss.str());
+                break;
             default:
                 throw std::runtime_error("Cannot add objects.");
         }
