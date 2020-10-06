@@ -16,7 +16,7 @@ class Stmt;
 
 using PExpr = std::unique_ptr<Expr>;
 using PStmt = std::unique_ptr<Stmt>;
-
+using PObject = std::unique_ptr<LukObject>;
 
 class ParseError : public std::runtime_error {
   public:

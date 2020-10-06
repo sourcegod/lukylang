@@ -1,6 +1,12 @@
 # Changelog for Luky project
 # Author: Coolbrother
-# Date: samedi, 24/08/19
+# Date: samedi, 24/08/1
+
+# Version 0.10 runcommand
+# Date: dimanche, 01/09/19
+-- Adding: runcommand for passing code in commandline
+unique id for lukobject.
+
 # Version 0.9 Statement
 # Date: mardi, 27/08/19
 -- Adding: Statement object, print statement.

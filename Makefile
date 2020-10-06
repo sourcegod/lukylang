@@ -22,8 +22,17 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
+# pull in dependency info for *existing* .o files
+
+
+# TODO: how to rebuild when headerfiles are changed
+# not ideal: 
+#$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp $(SRC_DIR)/main.cpp
+# compile and generate dependency info
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) -MM $(CFLAGS) $(SRC_DIR)/$*.cpp > $(BUILD_DIR)/$*.d
+
 
 clean:
 	rm -f $(BUILD_DIR)/*.o ./$(TARGET)
@@ -31,3 +40,4 @@ clean:
 run:
 	rlwrap ./$(TARGET)
 
+-include $(OBJS:.o=.d)

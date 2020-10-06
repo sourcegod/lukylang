@@ -10,7 +10,7 @@ Interpreter::Interpreter() {}
 
 void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     if (statements.empty()) 
-        std::cout << "Interp: vector is empty.\n";
+        std::cerr << "Interp: vector is empty.\n";
     try {
          for (auto& stmt : statements) {
             if (stmt) {
@@ -47,6 +47,7 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
+    std::cerr << "visitPrintStmt\n";
     TObject value = evaluate(stmt.expression);
     std::cout << stringify(value) << std::endl;
 
@@ -108,6 +109,10 @@ TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
+    std::cerr << "visitliteral: " << std::endl; 
+    std::cerr << "value id: " << expr.value.id << std::endl;
+    stringify(expr.value);
+
     return expr.value;
 }
 
@@ -156,6 +161,7 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 }
 
 std::string Interpreter::stringify(TObject& obj) { 
+    std::cerr << "stringify obj: " << obj.id << std::endl;
     if (obj.isNumber()) {
         std::string text = obj.value(); 
         std::string end = ".000000";

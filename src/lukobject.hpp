@@ -1,6 +1,7 @@
 #ifndef LUKOBJECT_HPP
 #define LUKOBJECT_HPP
 
+#include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
 #include <memory>
@@ -10,7 +11,11 @@ enum class LukType { Nil=0, Bool=1, Number=2, String=3 };
 
 class Token;
 class LukObject {
+protected:
+    static int next_id;
+
 public:
+    int id;
     LukType type_id;
     bool m_bool = false;
     double m_number =0;
@@ -18,20 +23,55 @@ public:
 
  
     // constructors
-    LukObject() { type_id = LukType::Nil;  }
-    LukObject(bool val) { type_id = LukType::Bool; m_bool = val;}
-    LukObject(int val) { type_id = LukType::Number; m_number = val; }
-    LukObject(double val) { type_id = LukType::Number; m_number = val; }
-    LukObject(const std::string& val) { type_id = LukType::String; m_string = val; }
-    LukObject(const char* val) { type_id = LukType::String; m_string = std::string(val); }
+    LukObject() 
+        : id(++next_id)
+    { 
+        type_id = LukType::Nil;  
+        std::cerr << "Luk Constructor id: " << id << std::endl;
+    }
+    LukObject(bool val) 
+        : id(++next_id)
+    { type_id = LukType::Bool; m_bool = val;
+        std::cerr << "LukBool constructor\n"; 
+    }
+    LukObject(int val) 
+        : id(++next_id)
+    { type_id = LukType::Number; m_number = val; 
+        std::cerr << "LukInt constructor\n"; 
+    }
+    LukObject(double val) 
+        : id(++next_id)
+    { type_id = LukType::Number; m_number = val; 
+        std::cerr << "LukDouble constructor id: " << id << std::endl; 
+    }
+    LukObject(const std::string& val) 
+        : id(++next_id)
+    { type_id = LukType::String; m_string = val; 
+        std::cerr << "LukString constructor id: " << id << std::endl; 
+    }
+
+    LukObject(const char* val) 
+        : id(++next_id)
+    { type_id = LukType::String; m_string = std::string(val); 
+        std::cerr << "LukChar constructor id: " << id << std::endl; 
+    }
     LukObject(Token tok);
    
     // destructor is necessary
-    ~LukObject() {}
+    ~LukObject() {
+        std::cerr << "Destructor id: " << id << std::endl;
+    }
 
        
     // get the type id
     LukType type() { return type_id; }
+
+    // get the id name
+    std::string name() { 
+        std::ostringstream oss;
+        oss << this;
+        return oss.str(); 
+    }
         
     // convertions
     bool toBool();

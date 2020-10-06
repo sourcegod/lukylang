@@ -63,12 +63,21 @@ public:
 
 class LiteralExpr: public Expr {
 public:
-    LiteralExpr(LukObject _value) : value(_value) {}
+
+    LiteralExpr(LukObject _value) 
+    // : value(_value) 
+    {
+    std::cerr << "in literalexpr \n";
+    value = _value;
+    std::cerr << "obj _value  id: " << _value.id << std::endl;
+    std::cerr << "obj value  id: " << value.id << std::endl;
+
+}
     TObject accept(ExprVisitor &v) override {
         return v.visitLiteralExpr(*this); 
     }
 
-    LukObject value;
+LukObject value;
 };
 
 class UnaryExpr : public Expr {

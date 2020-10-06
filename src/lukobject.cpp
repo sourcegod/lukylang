@@ -5,12 +5,16 @@
 
 #include "lukobject.hpp"
 
-#include <iostream> // std::cout
+#include <iostream> // std::cerr
 #include <sstream> // stringstream
 #include <stdexcept> // exception
+
+int LukObject::next_id =0;
 // constructors
 // /*
-LukObject::LukObject(Token tok) {
+LukObject::LukObject(Token tok) 
+        : id(++next_id) {
+    std::cerr << "Token constructor id: " << id << std::endl;
     switch(tok.type) {
         case TokenType::NIL:
             type_id = LukType::Nil; break;
@@ -163,33 +167,42 @@ LukObject& LukObject::operator=(nullptr_t&& val) {
     }
     */
 
-LukObject& LukObject::operator=(const bool&& val) {
+LukObject& LukObject::operator=(const bool&& val) 
+{
+    id = ++next_id;
     type_id = LukType::Bool;
     m_bool = val;
     return *this;
 }
 
-LukObject& LukObject::operator=(const int&& val) {
+LukObject& LukObject::operator=(const int&& val) 
+{
+    id = ++next_id;
     type_id = LukType::Number;
     m_number = val;
     return *this;
 }
 
-LukObject& LukObject::operator=(const double&& val) {
+LukObject& LukObject::operator=(const double&& val) 
+{
+    id = ++next_id;
     type_id = LukType::Number;
     m_number = val;
     return *this;
 }
 
-    // implement overloaded char* to avoid implicit casting to bool
-LukObject& LukObject::operator=(const char* &&val) {
+// implement overloaded char* to avoid implicit casting to bool
+LukObject& LukObject::operator=(const char* &&val) 
+{
+    id = ++next_id;
     type_id = LukType::String;
     m_string = std::string(val);
     return *this;
 }
 
 
-LukObject& LukObject::operator=(const std::string&& val) {
+LukObject& LukObject::operator=(const std::string&& val) { 
+            id = ++next_id;
     type_id = LukType::String;
     m_string = val;
     return *this;

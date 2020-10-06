@@ -21,11 +21,13 @@ std::vector<PStmt> Parser::parse() {
     std::vector<std::unique_ptr<Stmt>> statements;
     try {
         while (!isAtEnd()) {
-            statements.emplace_back(statement() );
+        statements.emplace_back(statement() );
+        std::cerr << "fin de parse\n"; 
         }
     } catch(ParseError err) {
             std::cerr << "ParseError: " << err.what() << std::endl;
     }
+
         
     return statements;
     
@@ -90,8 +92,8 @@ PExpr Parser::multiplication() {
     PExpr expr = unary();
     while (match({TokenType::SLASH, TokenType::STAR})) {
         Token Operator = previous();
-        PExpr right    = unary();
-        expr           = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
+        PExpr right = unary();
+        expr = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
     }
     return expr;
 }
@@ -110,11 +112,17 @@ PExpr Parser::primary() {
                 {TokenType::FALSE, TokenType::TRUE,
                 TokenType::NIL, 
                 TokenType::NUMBER, TokenType::STRING})) {
-        // std::cout << "parser: " << previous().lexeme << std::endl;
+        // std::cerr << "parser: " << previous().lexeme << std::endl;
         // LukObject obj(previous());
-        // std::cout << "voici : " << obj.m_number << std::endl;
-        // std::cout << "Literal parser\n";
-        return PExpr(new LiteralExpr( LukObject( previous() ) ));
+        // std::cerr << "voici : " << obj.m_number << std::endl;
+        std::cerr << "In primary parser\n";
+        // auto obj = LukObject( previous() );
+        // std::cerr << "after obj creation \n";
+        auto pp = PExpr(new LiteralExpr( LukObject( previous()) ));
+        std::cerr << "after new literalexpr  \n";
+        
+        return pp;
+        // return PExpr(new LiteralExpr( LukObject( previous() ) ));
     }
 
     if (match({TokenType::LEFT_PAREN})) {

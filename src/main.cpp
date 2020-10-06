@@ -84,6 +84,13 @@ static void runPrompt(LukError& LukError) {
 
 }
 
+static void runCommand(const std::string& line, LukError& LukError) {
+    run(line, LukError);
+    LukError.hadError = false;
+
+}
+
+
 /*
 static void test() {
     LukError lukErr;
@@ -105,7 +112,13 @@ int main(int argc, char* argv[]) {
     // test();
     LukError lukErr;
     if (argc >2) {
-        cout << "Usage: luky [filename]" << endl;
+        const std::string opt = std::string(argv[1]);
+        if (opt == "-c") {
+            const std::string line = argv[2];
+            runCommand(line, lukErr);
+        } else {
+            cout << "Usage: luky [filename]" << endl;
+        }
     } else if (argc == 2) {
         cout << "Run file " << argv[1] << endl;
         runFile(argv[1], lukErr);
