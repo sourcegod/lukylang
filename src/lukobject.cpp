@@ -5,7 +5,7 @@
 
 #include "lukobject.hpp"
 
-#include <iostream> // std::cerr
+#include <iostream> // cout and cerr
 #include <sstream> // stringstream
 #include <stdexcept> // exception
 
@@ -14,7 +14,6 @@ int LukObject::next_id =0;
 // /*
 LukObject::LukObject(Token tok) 
         : id(++next_id) {
-    std::cerr << "Token constructor id: " << id << std::endl;
     switch(tok.type) {
         case TokenType::NIL:
             type_id = LukType::Nil; break;

@@ -25,6 +25,8 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     } catch (RuntimeError& err) {
         std::cerr << "Interpreter Error: " << err.what() << "\n";
     }
+    // m_result += "tata ";
+    // std::cerr << "result: " << m_result << std::endl;
 
 
     return;
@@ -47,11 +49,26 @@ void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    std::cerr << "visitPrintStmt\n";
     TObject value = evaluate(stmt.expression);
     std::cout << stringify(value) << std::endl;
 
 }
+
+void Interpreter::visitVarStmt(VarStmt& stmt) {
+    TObject value;
+    if (stmt.initializer != nullptr) {
+        value = evaluate(stmt.initializer);
+    }
+    environment.define(stmt.name.lexeme, value);
+
+}
+
+TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
+    TObject value = evaluate(expr.value);
+    environment.assign(expr.name, value);
+    return value;
+}
+
  
 TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // method get allow to convert smart pointer to raw pointer
@@ -98,7 +115,7 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             return (double)left * (double)right;
          default: break;
     }
-
+    // unrichable
     return TObject();
 }
 
@@ -109,10 +126,6 @@ TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
-    std::cerr << "visitliteral: " << std::endl; 
-    std::cerr << "value id: " << expr.value.id << std::endl;
-    stringify(expr.value);
-
     return expr.value;
 }
 
@@ -129,6 +142,11 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
     }
 
     return TObject();
+}
+
+TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
+    return environment.get(expr.name);
+    // return TObject();
 }
 
 
@@ -161,7 +179,6 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 }
 
 std::string Interpreter::stringify(TObject& obj) { 
-    std::cerr << "stringify obj: " << obj.id << std::endl;
     if (obj.isNumber()) {
         std::string text = obj.value(); 
         std::string end = ".000000";

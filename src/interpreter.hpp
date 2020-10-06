@@ -3,6 +3,7 @@
 
 #include "expr.hpp"
 #include "stmt.hpp"
+#include "environment.hpp"
 #include <string>
 #include <vector>
 
@@ -14,13 +15,17 @@ public:
 
     void visitExpressionStmt(ExpressionStmt&);
     void visitPrintStmt(PrintStmt&);
+    void visitVarStmt(VarStmt& stmt);
     
+    TObject visitAssignExpr(AssignExpr& expr);
     TObject visitBinaryExpr(BinaryExpr& expr);
     TObject visitGroupingExpr(GroupingExpr& expr);
     TObject visitLiteralExpr(LiteralExpr& expr); 
     TObject visitUnaryExpr(UnaryExpr& expr);
+    TObject visitVariableExpr(VariableExpr& expr);
 
-private: 
+private:
+    Environment environment;
     std::string m_result;
     TObject evaluate(PExpr& expr);
     void execute(PStmt stmt);

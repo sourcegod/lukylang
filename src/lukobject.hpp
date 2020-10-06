@@ -25,41 +25,30 @@ public:
     // constructors
     LukObject() 
         : id(++next_id)
-    { 
-        type_id = LukType::Nil;  
-        std::cerr << "Luk Constructor id: " << id << std::endl;
-    }
+    { type_id = LukType::Nil;  }
     LukObject(bool val) 
         : id(++next_id)
-    { type_id = LukType::Bool; m_bool = val;
-        std::cerr << "LukBool constructor\n"; 
-    }
+    { type_id = LukType::Bool; m_bool = val; }
     LukObject(int val) 
         : id(++next_id)
-    { type_id = LukType::Number; m_number = val; 
-        std::cerr << "LukInt constructor\n"; 
-    }
+    { type_id = LukType::Number; m_number = val; }
     LukObject(double val) 
         : id(++next_id)
-    { type_id = LukType::Number; m_number = val; 
-        std::cerr << "LukDouble constructor id: " << id << std::endl; 
-    }
+    { type_id = LukType::Number; m_number = val; }
     LukObject(const std::string& val) 
         : id(++next_id)
     { type_id = LukType::String; m_string = val; 
-        std::cerr << "LukString constructor id: " << id << std::endl; 
     }
 
     LukObject(const char* val) 
         : id(++next_id)
     { type_id = LukType::String; m_string = std::string(val); 
-        std::cerr << "LukChar constructor id: " << id << std::endl; 
     }
     LukObject(Token tok);
    
     // destructor is necessary
     ~LukObject() {
-        std::cerr << "Destructor id: " << id << std::endl;
+        // std::cerr << "Destructor id: " << id << std::endl;
     }
 
        

@@ -7,10 +7,12 @@
 
 // forward declarations
 class Expr;
+class AssignExpr;
 class BinaryExpr;
 class GroupingExpr;
 class LiteralExpr;
 class UnaryExpr;
+class VariableExpr;
 
 using PExpr = std::unique_ptr<Expr>;
 using TObject = LukObject;
@@ -18,19 +20,40 @@ using TObject = LukObject;
 // create visitor object
 class ExprVisitor {
     public:
+        virtual TObject visitAssignExpr(AssignExpr&) =0;
         virtual TObject visitBinaryExpr(BinaryExpr&) =0;
         virtual TObject visitGroupingExpr(GroupingExpr&) =0;
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
         virtual TObject visitUnaryExpr(UnaryExpr&) =0;
+        virtual TObject visitVariableExpr(VariableExpr&) =0;
 };
 
 // Base class for different objects
 class  Expr {
 public:
     virtual TObject accept(ExprVisitor &v) =0;
+    virtual bool isVariableExpr() const { return false; }
+    virtual std::string typeName() const { return "Expr"; }
 };
 
 // differents objects
+
+class AssignExpr : public Expr {
+public:
+    AssignExpr(Token _name, PExpr _value) {
+        name = _name;
+        value = std::move(_value);
+    }
+    
+    TObject accept(ExprVisitor &v) override {
+        return v.visitAssignExpr(*this); 
+    }
+
+    Token name;
+    PExpr value;
+};
+
+
 class BinaryExpr : public Expr {
 public:
     BinaryExpr(PExpr&& _left, Token _op, PExpr&& _right) {
@@ -67,10 +90,7 @@ public:
     LiteralExpr(LukObject _value) 
     // : value(_value) 
     {
-    std::cerr << "in literalexpr \n";
     value = _value;
-    std::cerr << "obj _value  id: " << _value.id << std::endl;
-    std::cerr << "obj value  id: " << value.id << std::endl;
 
 }
     TObject accept(ExprVisitor &v) override {
@@ -94,5 +114,22 @@ public:
     Token op;
     PExpr right;
 };
+
+class VariableExpr : public Expr {
+public:
+    VariableExpr(Token _name) {
+        name = _name;
+    }
+    
+    TObject accept(ExprVisitor &v) override {
+        return v.visitVariableExpr(*this); 
+    }
+
+    bool isVariableExpr() const override { return true; }
+    std::string typeName() const override { return "VariableExpr"; }
+
+    Token name;
+};
+
 
 #endif // EXPR_HPP

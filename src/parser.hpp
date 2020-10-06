@@ -39,6 +39,9 @@ private:
     PStmt printStatement();
     PStmt expressionStatement();
     PExpr expression();
+    PExpr assignment();
+    PStmt declaration();
+    PStmt varDeclaration();
     PExpr equality();
     PExpr comparison();
     PExpr addition();
@@ -53,6 +56,7 @@ private:
     bool isAtEnd();
     bool check(TokenType type);
     Token consume(TokenType type, std::string message);
+    void synchronize();
 
 };
 

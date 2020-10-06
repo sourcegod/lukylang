@@ -2,6 +2,10 @@
 # Author: Coolbrother
 # Date: samedi, 24/08/1
 
+# Version 0.11 variable and environment
+# Date: jeudi, 05/09/19
+-- Adding: variable support, environment object.
+
 # Version 0.10 runcommand
 # Date: dimanche, 01/09/19
 -- Adding: runcommand for passing code in commandline

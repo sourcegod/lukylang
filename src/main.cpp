@@ -54,7 +54,7 @@ static void run(const std::string& source, LukError& lukErr) {
     // */
     
     // Interpreter
-    Interpreter  interp;
+    static Interpreter  interp;
     // convert smart pointer to raw pointer
     // interp.print(expr.get());
     interp.interpret(std::move(stmts));
