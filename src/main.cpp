@@ -44,7 +44,8 @@ static void run(const std::string& source, LukError& lukErr) {
     // /*
     // parser
     Parser parser(tokens, lukErr);
-    auto expr = parser.parse();
+    // auto expr = parser.parse();
+    auto stmts = parser.parse();
     // if found error during parsing, report
     if (lukErr.hadError) {
         std::cout << "There is an error." << std::endl;
@@ -56,7 +57,7 @@ static void run(const std::string& source, LukError& lukErr) {
     Interpreter  interp;
     // convert smart pointer to raw pointer
     // interp.print(expr.get());
-    interp.interpret(expr);
+    interp.interpret(std::move(stmts));
 
 
     std::cout << std::endl;

@@ -27,7 +27,7 @@ class ExprVisitor {
 // Base class for different objects
 class  Expr {
 public:
-    virtual TObject accept(class ExprVisitor &v) =0;
+    virtual TObject accept(ExprVisitor &v) =0;
 };
 
 // differents objects
@@ -63,7 +63,7 @@ public:
 
 class LiteralExpr: public Expr {
 public:
-    LiteralExpr(LukObject _value) { value = _value; }
+    LiteralExpr(LukObject _value) : value(_value) {}
     TObject accept(ExprVisitor &v) override {
         return v.visitLiteralExpr(*this); 
     }
@@ -85,10 +85,5 @@ public:
     Token op;
     PExpr right;
 };
-//
-// temporary methods
-// void ExprVisitor::visitBinaryExpr(BinaryExpr& expr) {}
-// void ExprVisitor::visitLiteralExpr(LiteralExpr& expr) {}
-
 
 #endif // EXPR_HPP

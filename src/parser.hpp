@@ -2,16 +2,21 @@
 #define PARSER_HPP
 
 #include "expr.hpp"
+#include "stmt.hpp"
 #include "token.hpp"
 #include <memory>
 #include <stdexcept>
 #include <vector>
 #include "lukobject.hpp"
 
-using PExpr = std::unique_ptr<Expr>;
 // forward declarations
 class LukError;
 class LukObject;
+class Stmt;
+
+using PExpr = std::unique_ptr<Expr>;
+using PStmt = std::unique_ptr<Stmt>;
+
 
 class ParseError : public std::runtime_error {
   public:
@@ -22,7 +27,17 @@ class ParseError : public std::runtime_error {
 class Parser {
 public:
     Parser(const std::vector<Token>& _tokens, LukError& lukErr);
+    std::vector<PStmt> parse();
+    ParseError error(Token& token, const std::string& message);
+
+private:
     size_t current;
+    std::vector<Token> tokens;
+    LukError& lukErr;
+
+    PStmt statement();
+    PStmt printStatement();
+    PStmt expressionStatement();
     PExpr expression();
     PExpr equality();
     PExpr comparison();
@@ -30,12 +45,6 @@ public:
     PExpr multiplication();
     PExpr unary();
     PExpr primary();
-    PExpr parse();
-    ParseError error(Token& token, const std::string& message);
-
-private:
-    std::vector<Token> tokens;
-    LukError& lukErr;
 
     bool match(const std::vector<TokenType>& types);
     Token previous();

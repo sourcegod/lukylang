@@ -3,23 +3,55 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <typeinfo> // type name
 
+std::vector<std::unique_ptr<Stmt>> v_ptr;
 Interpreter::Interpreter() {}
 
-void Interpreter::interpret(PExpr& expression) {
+void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
+    if (statements.empty()) 
+        std::cout << "Interp: vector is empty.\n";
     try {
-        auto val = evaluate(expression);
-        // std::cout << m_result << std::endl;
-        std::cout << stringify(val) << std::endl;
+         for (auto& stmt : statements) {
+            if (stmt) {
+                execute(std::move(stmt));
+                // v_ptr.emplace_back(std::move(stmt));
+                // v_ptr.back()->accept(*this);
+            }
+        }
+        
     // } catch (std::runtime_error err) {
     // Note: passing exception by reference to avoid copy
     } catch (RuntimeError& err) {
         std::cerr << "Interpreter Error: " << err.what() << "\n";
     }
 
+
     return;
 }
 
+TObject Interpreter::evaluate(PExpr& expr) { 
+    return expr->accept(*this);
+}
+
+void Interpreter::execute(PStmt stmt) {
+    stmt->accept(*this);
+}
+
+void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
+    // std::cout << "visitExpressionStmt\n";
+    // std::string name = typeid(stmt.expression).name();
+    // std::cout << "name: " << name << std::endl;
+    // stmt.expression->accept(*this);
+    evaluate(stmt.expression);
+}
+
+void Interpreter::visitPrintStmt(PrintStmt& stmt) {
+    TObject value = evaluate(stmt.expression);
+    std::cout << stringify(value) << std::endl;
+
+}
+ 
 TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // method get allow to convert smart pointer to raw pointer
     TObject left = evaluate(expr.left);
@@ -76,9 +108,7 @@ TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
-    // m_result += expr.value.toString();
     return expr.value;
-
 }
 
 TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
@@ -93,9 +123,9 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         default: break;
     }
 
-
     return TObject();
 }
+
 
 bool Interpreter::isTruthy(TObject& obj) {
     if (obj.isNil()) return false;
@@ -125,13 +155,9 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 
 }
 
-TObject Interpreter::evaluate(PExpr& expr) { 
-    return expr->accept(*this);
-}
-
-std::string Interpreter::stringify(TObject obj) { 
+std::string Interpreter::stringify(TObject& obj) { 
     if (obj.isNumber()) {
-        std::string text = obj.toString(); 
+        std::string text = obj.value(); 
         std::string end = ".000000";
         // extract decimal part if ending by .0
         if (endsWith(text, end)) 
@@ -139,7 +165,7 @@ std::string Interpreter::stringify(TObject obj) {
         return text;
     }
 
-    return obj.toString();
+    return obj.value();
 }
 
 

@@ -2,20 +2,33 @@
 #define INTERPRETER_HPP
 
 #include "expr.hpp"
+#include "stmt.hpp"
 #include <string>
 #include <vector>
 
-class Interpreter : public ExprVisitor {
+class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     Interpreter();
 
-    void interpret(PExpr& expression);
+    void interpret(std::vector<std::unique_ptr<Stmt>>&&);
+
+    void visitExpressionStmt(ExpressionStmt&);
+    void visitPrintStmt(PrintStmt&);
+    
     TObject visitBinaryExpr(BinaryExpr& expr);
     TObject visitGroupingExpr(GroupingExpr& expr);
     TObject visitLiteralExpr(LiteralExpr& expr); 
     TObject visitUnaryExpr(UnaryExpr& expr);
+
+private: 
+    std::string m_result;
+    TObject evaluate(PExpr& expr);
+    void execute(PStmt stmt);
+    bool isTruthy(TObject& obj);
+    bool isEqual(TObject& a, TObject& b);
     void checkNumberOperand(Token& op, TObject& operand);
     void checkNumberOperands(Token& op, TObject& left, TObject& right);
+
     // starts and ends for string
     inline bool startsWith(const std::string& str, const std::string& start) {
         if (start.size() > str.size()) return false;
@@ -27,12 +40,8 @@ public:
         return std::equal(end.rbegin(), end.rend(), str.rbegin());
     }
 
-private: 
-    std::string m_result;
-    TObject evaluate(PExpr& expr);
-    bool isTruthy(TObject& obj);
-    bool isEqual(TObject& a, TObject& b);
-    std::string stringify(TObject obj);
+    
+    std::string stringify(TObject& obj);
 
 };
 

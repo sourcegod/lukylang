@@ -1,6 +1,9 @@
 # Changelog for Luky project
 # Author: Coolbrother
 # Date: samedi, 24/08/19
+# Version 0.9 Statement
+# Date: mardi, 27/08/19
+-- Adding: Statement object, print statement.
 
 # Version 0.8 Expression
 # Date: dimanche, 25/08/19

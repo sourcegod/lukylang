@@ -2,16 +2,54 @@
 #include "lukerror.hpp"
 #include <vector>
 
-// using namespace luky;
 
 ParseError::ParseError(const std::string& msg, Token& token)
     : std::runtime_error(msg)
     , m_token(token) {}
 
+struct LargeData {
+    int id;
+    int ar [100];
+};
+
 Parser::Parser(const std::vector<Token>& _tokens, LukError& _lukErr)
     : current(0)
     , tokens(_tokens)
     , lukErr(_lukErr) {}
+
+std::vector<PStmt> Parser::parse() {
+    std::vector<std::unique_ptr<Stmt>> statements;
+    try {
+        while (!isAtEnd()) {
+            statements.emplace_back(statement() );
+        }
+    } catch(ParseError err) {
+            std::cerr << "ParseError: " << err.what() << std::endl;
+    }
+        
+    return statements;
+    
+}
+
+PStmt Parser::statement() {
+    if (match({TokenType::PRINT})) 
+        return printStatement();
+    
+    return  expressionStatement();
+}
+
+PStmt Parser::printStatement() {
+    PExpr value = expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+    return PStmt(new PrintStmt(std::move(value)) );
+}
+
+PStmt Parser::expressionStatement() {
+    PExpr expr = expression();
+    consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+    return PStmt(new ExpressionStmt(std::move(expr)) );
+}
+
 
 PExpr Parser::expression() {
     return equality();
@@ -71,11 +109,13 @@ PExpr Parser::primary() {
     if (match(
                 {TokenType::FALSE, TokenType::TRUE,
                 TokenType::NIL, 
-                TokenType::NUMBER, TokenType::STRING}))
+                TokenType::NUMBER, TokenType::STRING})) {
         // std::cout << "parser: " << previous().lexeme << std::endl;
         // LukObject obj(previous());
         // std::cout << "voici : " << obj.m_number << std::endl;
+        // std::cout << "Literal parser\n";
         return PExpr(new LiteralExpr( LukObject( previous() ) ));
+    }
 
     if (match({TokenType::LEFT_PAREN})) {
         PExpr expr = expression();
@@ -88,27 +128,19 @@ PExpr Parser::primary() {
     return nullptr;
 }
 
-PExpr Parser::parse() {
-    try {
-        return expression();
-    } catch (ParseError error) {
-        return nullptr;
-    }
-}
-
 Token Parser::consume(TokenType type, std::string message) {
     if (check(type))
         return advance();
     throw error(peek(), message);
+    
 }
 
 ParseError Parser::error(Token& token, const std::string& message) {
     if (token.type == TokenType::END_OF_FILE) {
-        lukErr.error(token.line, token.col, " at end" + message);
+        lukErr.error(token.line, token.col, " at end, " + message);
     } else {
-        lukErr.error(token.line, token.col, "at '" + token.lexeme + "'" + message);
+        lukErr.error(token.line, token.col, "at '" + token.lexeme + "' " + message);
     }
-    // errorHandler_.report();
     return *new ParseError(message, token);
 }
 
