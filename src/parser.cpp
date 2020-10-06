@@ -33,12 +33,30 @@ std::vector<PStmt> Parser::parse() {
 }
 
 PStmt Parser::statement() {
+    if (match({TokenType::IF})) 
+        return ifStatement();
     if (match({TokenType::PRINT})) 
         return printStatement();
     if (match({TokenType::LEFT_BRACE}))
         return PStmt(new BlockStmt(std::move(block())) );
     
     return  expressionStatement();
+}
+
+PStmt Parser::ifStatement() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'if'");
+    PExpr condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition");
+    PStmt thenBranch = statement();
+    PStmt elseBranch = nullptr;
+    if (match({TokenType::ELSE})) {
+        elseBranch = statement();
+    }
+
+    return PStmt(new IfStmt(
+                std::move(condition), 
+                std::move(thenBranch),
+                std::move(elseBranch) ));
 }
 
 PStmt Parser::printStatement() {
@@ -81,7 +99,7 @@ PExpr Parser::expression() {
 }
 
 PExpr Parser::assignment() {
-    PExpr left = equality();
+    PExpr left = logicOr();
     if (match({TokenType::EQUAL})) {
         Token equals = previous();
         PExpr value = assignment();
@@ -95,6 +113,29 @@ PExpr Parser::assignment() {
 
     return left;
 }
+
+PExpr Parser::logicOr() {
+    PExpr left = logicAnd();
+    while (match({TokenType::OR})) {
+        Token op = previous();
+        PExpr right = logicAnd();
+        left =  PExpr(new LogicalExpr( std::move(left), op, std::move(right) ));
+    }
+
+    return left;
+}
+
+PExpr Parser::logicAnd() {
+    PExpr left = equality();
+    while (match({TokenType::AND})) {
+        Token op = previous();
+        PExpr right = equality();
+        left =  PExpr(new LogicalExpr( std::move(left), op, std::move(right) ));
+    }
+
+    return left;
+}
+
 
 PStmt Parser::declaration() {
     try {

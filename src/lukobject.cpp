@@ -94,8 +94,7 @@ std::string LukObject::toString() {
         m_string = _toString();
         type_id = LukType::String;
         return m_string;
-    }
-
+}
 
 bool LukObject::_toBool() const {
     switch(type_id) {
@@ -164,11 +163,11 @@ void LukObject::cast(LukType tp) {
 
 // assignment operators
 /*
-LukObject& LukObject::operator=(nullptr_t&& val) {
+LukObject& LukObject::operator=(nullptr_t nullptr) {
         type_id = LukType::Nil;
         return *this;
-    }
-    */
+}
+*/
 
 LukObject& LukObject::operator=(const bool&& val) 
 {
@@ -205,13 +204,15 @@ LukObject& LukObject::operator=(const char* &&val)
 
 
 LukObject& LukObject::operator=(const std::string&& val) { 
-            id = ++next_id;
+    id = ++next_id;
     type_id = LukType::String;
     m_string = val;
     return *this;
 }
 
 LukObject& LukObject::operator=(const LukObject& obj) { 
+    // avoid copy of same object
+    if (this == &obj) return *this;
     id = ++next_id;
     type_id = obj.type_id;
     m_bool = obj.m_bool; 

@@ -53,10 +53,10 @@ public:
 
        
     // get the type id
-    LukType type() { return type_id; }
+    LukType getType() { return type_id; }
 
     // get the id name
-    std::string name() { 
+    std::string getName() { 
         std::ostringstream oss;
         oss << this;
         return oss.str(); 
@@ -71,13 +71,19 @@ public:
    // convert string to number  
     template<typename T>
     T stringToNumber(const std::string& stg);
- 
+
     // test type state
     bool isNil() { return type_id == LukType::Nil; }
     bool isBool() { return type_id == LukType::Bool; }
     bool isNumber() { return type_id == LukType::Number; }
     bool isDouble() { return type_id == LukType::Number; }
     bool isString() { return type_id == LukType::String; }
+
+    // getters
+    bool getBool();
+    double getNumber();
+    std::string& getString() { return m_string; }
+    //
 
     // casting to the right type
     void cast(LukType tp);
@@ -88,7 +94,7 @@ public:
     operator std::string() const { return _toString(); }
 
     // assignment operators 
-    // LukObject& operator=(nullptr_t val);
+    // LukObject& operator=(nullptr_t);
     LukObject& operator=(const bool&& val);
     LukObject& operator=(const int&& val);
     LukObject& operator=(const double&& val);

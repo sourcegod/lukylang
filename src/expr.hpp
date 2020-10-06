@@ -11,6 +11,7 @@ class AssignExpr;
 class BinaryExpr;
 class GroupingExpr;
 class LiteralExpr;
+class LogicalExpr;
 class UnaryExpr;
 class VariableExpr;
 
@@ -24,6 +25,7 @@ class ExprVisitor {
         virtual TObject visitBinaryExpr(BinaryExpr&) =0;
         virtual TObject visitGroupingExpr(GroupingExpr&) =0;
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
+        virtual TObject visitLogicalExpr(LogicalExpr&) =0;
         virtual TObject visitUnaryExpr(UnaryExpr&) =0;
         virtual TObject visitVariableExpr(VariableExpr&) =0;
 };
@@ -98,6 +100,23 @@ public:
     }
 
 LukObject value;
+};
+
+class LogicalExpr : public Expr {
+public:
+    LogicalExpr(PExpr&& _left, Token _op, PExpr&& _right) {
+        left = std::move(_left);
+        op = _op;
+        right = std::move(_right);
+    }
+    
+    TObject accept(ExprVisitor &v) override {
+        return v.visitLogicalExpr(*this); 
+    }
+
+    PExpr left;
+    Token op;
+    PExpr right;
 };
 
 class UnaryExpr : public Expr {

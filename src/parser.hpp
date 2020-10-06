@@ -37,14 +37,19 @@ private:
     const std::string errTitle = "ParseError: ";
 
     PStmt statement();
-    PStmt printStatement();
     PStmt expressionStatement();
+    PStmt ifStatement();
+    PStmt printStatement();
     std::vector<PStmt> block();
     
     PExpr expression();
     PExpr assignment();
+    PExpr logicOr();
+    PExpr logicAnd();
+    
     PStmt declaration();
     PStmt varDeclaration();
+    
     PExpr equality();
     PExpr comparison();
     PExpr addition();

@@ -2,7 +2,7 @@
 #define ENVIRONMENT_HPP
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "token.hpp"
 #include "lukobject.hpp"
 #include <memory> // shared_ptr
@@ -22,7 +22,7 @@ public:
     void define(std::string name, TObject value);
 
 private:
-    std::map<std::string, TObject> values;
+    std::unordered_map<std::string, TObject> values;
     PEnvironment m_enclosing;
 
 };

@@ -17,12 +17,14 @@ public:
     
     void visitBlockStmt(BlockStmt& stmt);
     void visitExpressionStmt(ExpressionStmt&);
+    void visitIfStmt(IfStmt& stmt);
     void visitPrintStmt(PrintStmt&);
     void visitVarStmt(VarStmt& stmt);
     
     TObject visitAssignExpr(AssignExpr& expr);
     TObject visitBinaryExpr(BinaryExpr& expr);
     TObject visitGroupingExpr(GroupingExpr& expr);
+    TObject visitLogicalExpr(LogicalExpr& expr);
     TObject visitLiteralExpr(LiteralExpr& expr); 
     TObject visitUnaryExpr(UnaryExpr& expr);
     TObject visitVariableExpr(VariableExpr& expr);
