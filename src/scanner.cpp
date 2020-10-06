@@ -106,9 +106,9 @@ void Scanner::scanToken() {
             } else if (isAlpha(c)) {
                 identifier();
             } else {
-                std::string errorMessage = "Unexpected character: ";
-                errorMessage += c;
-                lukErr.error(line, col, errorMessage);
+                std::string errMessage = "Unexpected character: ";
+                errMessage += c;
+                lukErr.error(errTitle, line, col, errMessage);
                 break;
             }
         }
@@ -165,7 +165,7 @@ void Scanner::string() {
     }
     // unterminated string
     if (isAtEnd()) {
-        lukErr.error(line, col, "Unterminated string.");
+        lukErr.error(errTitle, line, col, "Unterminated string.");
         return;
     }
     // closing "
@@ -176,14 +176,23 @@ void Scanner::string() {
     addToken(TokenType::STRING, stringLiteral);
 }
 
-void Scanner::addToken(const TokenType _type, const std::string& _literal) {
+void Scanner::addToken(const TokenType type, const std::string& literal) {
     // FIXE: manage the right lexeme
     const size_t lexLen = current - start;
-    const std::string lexeme = source.substr(start, lexLen);
-    tokens.push_back(Token(_type, lexeme, _literal, line, col));
+    // avoid string copy
+    auto lexeme = literal;
+    if (type != TokenType::IDENTIFIER ||
+            type != TokenType::NUMBER ||
+            type != TokenType::STRING) {
+        lexeme = source.substr(start, lexLen);
+    }
+    
+    tokens.push_back(Token(type, lexeme, literal, line, col));
 }
 
-void Scanner::addToken(const TokenType _tokenType) { addToken(_tokenType, ""); }
+void Scanner::addToken(const TokenType _tokenType) { 
+    addToken(_tokenType, ""); 
+}
 
 bool Scanner::isAtEnd() const { return current >= source.size(); }
 

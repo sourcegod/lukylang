@@ -95,6 +95,7 @@ public:
     // implement overloaded char* to avoid implicit casting to bool
     LukObject& operator=(const char* &&val);
     LukObject& operator=(const std::string&& val);
+    LukObject& operator=(const LukObject& obj); 
  
     // compound assignment operators
     LukObject& operator+=(const LukObject& obj);

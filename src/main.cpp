@@ -48,7 +48,6 @@ static void run(const std::string& source, LukError& lukErr) {
     auto stmts = parser.parse();
     // if found error during parsing, report
     if (lukErr.hadError) {
-        std::cout << "There is an error." << std::endl;
         return;
     }
     // */

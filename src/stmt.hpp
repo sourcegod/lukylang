@@ -7,16 +7,19 @@
 #include <memory> // smart pointer
 #include <vector>
 
+
 // forward declarations
-class Stmt;
+class BlockStmt;
 class ExpressionStmt;
 class PrintStmt;
+class Stmt;
 class VarStmt;
 
 using PStmt = std::unique_ptr<Stmt>;
 
 class StmtVisitor {
 public:
+    virtual void visitBlockStmt(BlockStmt&) =0;
     virtual void visitExpressionStmt(ExpressionStmt&) =0;
     virtual void visitPrintStmt(PrintStmt&) =0;
     virtual void visitVarStmt(VarStmt&) =0;
@@ -25,7 +28,9 @@ public:
 class Stmt {
 public:
     virtual void accept(StmtVisitor&) = 0;
+    virtual std::string typeName() const { return "Stmt"; }
 };
+
 
 class ExpressionStmt : public Stmt {
 public:
@@ -51,6 +56,19 @@ public:
     }
 
     std::unique_ptr<Expr> expression;
+
+};
+
+class BlockStmt : public Stmt {
+public:
+    BlockStmt(std::vector<PStmt>&& _statements) {
+        statements = std::move(_statements);
+    }
+
+    void accept(StmtVisitor& v) override {
+        v.visitBlockStmt(*this);
+    }
+    std::vector<PStmt> statements;
 
 };
 

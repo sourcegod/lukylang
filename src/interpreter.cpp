@@ -5,8 +5,9 @@
 #include <vector>
 #include <typeinfo> // type name
 
-std::vector<std::unique_ptr<Stmt>> v_ptr;
-Interpreter::Interpreter() {}
+Interpreter::Interpreter() {
+    m_environment = std::make_shared<Environment>();
+}
 
 void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     if (statements.empty()) 
@@ -23,16 +24,24 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     // } catch (std::runtime_error err) {
     // Note: passing exception by reference to avoid copy
     } catch (RuntimeError& err) {
-        std::cerr << "Interpreter Error: " << err.what() << "\n";
+        std::cerr << errTitle << err.what() << "\n";
     }
     // m_result += "tata ";
-    // std::cerr << "result: " << m_result << std::endl;
     if (!m_result.isNil())
         printResult();
 
 
     return;
 }
+
+void Interpreter::printResult() {
+    std::cout << stringify(m_result) << "\n";
+    // reinitialize m_result to nil
+    m_result = TObject();
+    
+
+}
+
 
 TObject Interpreter::evaluate(PExpr& expr) { 
     // std::cerr << "evaluate\n";
@@ -42,13 +51,31 @@ TObject Interpreter::evaluate(PExpr& expr) {
 void Interpreter::execute(PStmt stmt) {
     stmt->accept(*this);
 }
-void Interpreter::printResult() {
-    std::cout << stringify(m_result) << "\n";
-    // reinitialize m_result to nil
-    m_result = TObject();
+
+void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
+    auto previous = m_environment;
     
+    try {
+        m_environment = env;
+        
+        for (auto& stmt: statements) {
+            if (stmt) 
+                execute(stmt);
+
+        }
+
+            
+    } catch(RuntimeError& err) {
+        m_environment = previous;
+    }
+        m_environment = previous;
 
 }
+
+void Interpreter::visitBlockStmt(BlockStmt& stmt) {
+    executeBlock(stmt.statements, std::make_shared<Environment>(m_environment) );
+}
+
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
     m_result = evaluate(stmt.expression);
 }
@@ -65,17 +92,16 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
     if (stmt.initializer != nullptr) {
         value = evaluate(stmt.initializer);
     }
-    environment.define(stmt.name.lexeme, value);
+    m_environment->define(stmt.name.lexeme, value);
 
 }
 
 TObject Interpreter::visitAssignExpr(AssignExpr& expr) {
     TObject value = evaluate(expr.value);
-    environment.assign(expr.name, value);
+    m_environment->assign(expr.name, value);
     return value;
 }
 
- 
 TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // std::cerr << "visitBinaryExpr\n";
     // method get allow to convert smart pointer to raw pointer
@@ -153,7 +179,7 @@ TObject Interpreter::visitUnaryExpr(UnaryExpr& expr) {
 }
 
 TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
-    return environment.get(expr.name);
+    return m_environment->get(expr.name);
 }
 
 

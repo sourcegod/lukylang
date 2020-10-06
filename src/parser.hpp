@@ -34,10 +34,13 @@ private:
     size_t current;
     std::vector<Token> tokens;
     LukError& lukErr;
+    const std::string errTitle = "ParseError: ";
 
     PStmt statement();
     PStmt printStatement();
     PStmt expressionStatement();
+    std::vector<PStmt> block();
+    
     PExpr expression();
     PExpr assignment();
     PStmt declaration();

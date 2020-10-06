@@ -25,6 +25,7 @@ class Scanner {
     std::string source;
     std::vector<Token> tokens;
     LukError& lukErr;
+    const std::string errTitle = "ScanError: ";
 
     char advance();
     void scanToken();

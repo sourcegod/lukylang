@@ -24,7 +24,7 @@ std::vector<PStmt> Parser::parse() {
         statements.emplace_back(declaration() );
         }
     } catch(ParseError err) {
-            std::cerr << "ParseError: " << err.what() << std::endl;
+            std::cerr << errTitle << err.what() << std::endl;
     }
 
         
@@ -35,6 +35,8 @@ std::vector<PStmt> Parser::parse() {
 PStmt Parser::statement() {
     if (match({TokenType::PRINT})) 
         return printStatement();
+    if (match({TokenType::LEFT_BRACE}))
+        return PStmt(new BlockStmt(std::move(block())) );
     
     return  expressionStatement();
 }
@@ -63,6 +65,16 @@ PStmt Parser::expressionStatement() {
     return PStmt(new ExpressionStmt(std::move(expr)) );
 }
 
+std::vector<PStmt> Parser::block() {
+    std::vector<PStmt> statements;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        statements.emplace_back( declaration() );
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+
+    return statements;
+}
 
 PExpr Parser::expression() {
     return assignment();
@@ -110,7 +122,8 @@ PExpr Parser::equality() {
 PExpr Parser::comparison() {
     PExpr expr = addition();
     while (
-        match({TokenType::GREATER, TokenType::LESS, TokenType::LESS_EQUAL})) {
+        match({TokenType::GREATER, TokenType::LESS, 
+            TokenType::LESS_EQUAL, TokenType::GREATER_EQUAL})) {
         Token op = previous();
         PExpr right    = addition();
         expr           = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
@@ -178,9 +191,10 @@ Token Parser::consume(TokenType type, std::string message) {
 
 ParseError Parser::error(Token& token, const std::string& message) {
     if (token.type == TokenType::END_OF_FILE) {
-        lukErr.error(token.line, token.col, " at end, " + message);
+        lukErr.error(errTitle, token.line, token.col, " at end, " + message);
     } else {
-        lukErr.error(token.line, token.col, "at '" + token.lexeme + "' " + message);
+        lukErr.error(errTitle, token.line, token.col, 
+                "at '" + token.lexeme + "' " + message);
     }
     return *new ParseError(message, token);
 }

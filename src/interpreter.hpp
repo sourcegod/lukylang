@@ -10,9 +10,12 @@ using PObject = std::unique_ptr<LukObject>;
 class Interpreter : public ExprVisitor,  public StmtVisitor {
 public:
     Interpreter();
+    ~Interpreter() { }
 
     void interpret(std::vector<std::unique_ptr<Stmt>>&&);
     void printResult();
+    
+    void visitBlockStmt(BlockStmt& stmt);
     void visitExpressionStmt(ExpressionStmt&);
     void visitPrintStmt(PrintStmt&);
     void visitVarStmt(VarStmt& stmt);
@@ -25,11 +28,12 @@ public:
     TObject visitVariableExpr(VariableExpr& expr);
 
 private:
-    Environment environment;
+    PEnvironment m_environment;
     TObject m_result;
-    TObject lastObj;
+    const std::string errTitle = "InterpretError: ";
     TObject evaluate(PExpr& expr);
     void execute(PStmt stmt);
+    void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
     bool isTruthy(TObject& obj);
     bool isEqual(TObject& a, TObject& b);
     void checkNumberOperand(Token& op, TObject& operand);

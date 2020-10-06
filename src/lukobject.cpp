@@ -43,10 +43,14 @@ LukObject::LukObject(Token tok)
 // returns the current value to string
 std::string LukObject::value() {
         switch(type_id) {
-            case LukType::Nil: return "Nil";
-            case LukType::Bool: return m_bool ? "True" : "False";
-            case LukType::Number: return std::to_string(m_number);
-            case LukType::String: return m_string;
+            case LukType::Nil: 
+                return "nil";
+            case LukType::Bool: 
+                return m_bool ? "true" : "false";
+            case LukType::Number: 
+                return std::to_string(m_number);
+            case LukType::String: 
+                return m_string;
         }
 
         return "";
@@ -206,6 +210,17 @@ LukObject& LukObject::operator=(const std::string&& val) {
     m_string = val;
     return *this;
 }
+
+LukObject& LukObject::operator=(const LukObject& obj) { 
+    id = ++next_id;
+    type_id = obj.type_id;
+    m_bool = obj.m_bool; 
+    m_number = obj.m_number;
+    m_string = obj.m_string;
+
+    return *this;
+}
+
 
 
 // compound assignment operators
