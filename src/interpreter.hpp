@@ -30,12 +30,12 @@ public:
 
 private: 
     std::string m_result;
-    // LukError lukErr;
-
     std::string parenthesize(std::string name, std::vector<Expr*> exprs);
     TObject evaluate(PExpr& expr);
-    std::string stringify(TObject obj);
     bool isTruthy(TObject& obj);
+    bool isEqual(TObject& a, TObject& b);
+
+    std::string stringify(TObject obj);
 
 };
 

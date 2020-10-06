@@ -34,6 +34,25 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     TObject left = evaluate(expr.left);
     TObject right = evaluate(expr.right);
     switch(expr.op.type) {
+        case TokenType::GREATER:
+            checkNumberOperands(expr.op, left, right);
+            return (double)left > (double)right;
+        
+        case TokenType::GREATER_EQUAL:
+            checkNumberOperands(expr.op, left, right);
+            return (double)left >= (double)right;
+
+         case TokenType::LESS:
+            checkNumberOperands(expr.op, left, right);
+            return (double)left < (double)right;
+
+         case TokenType::LESS_EQUAL:
+            checkNumberOperands(expr.op, left, right);
+            return (double)left <= (double)right;
+   
+        case TokenType::BANG_EQUAL: return !isEqual(left, right);
+        case TokenType::EQUAL_EQUAL: return isEqual(left, right);
+
         case TokenType::MINUS:
             checkNumberOperands(expr.op, left, right);
             return (double)left - (double)right;
@@ -41,6 +60,11 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         case TokenType::PLUS:
             if (left.isNumber() && right.isNumber())
                 return (double)left + (double)right; 
+            if (left.isString() && right.isString())
+                return (std::string)left + (std::string)right; 
+            throw RuntimeError(expr.op, 
+                    "Operands must be two numbers or tow strings.");
+
         case TokenType::SLASH:
             checkNumberOperands(expr.op, left, right);
             return (double)left / (double)right;
@@ -93,6 +117,15 @@ bool Interpreter::isTruthy(TObject& obj) {
 
     return true;
 }
+
+bool Interpreter::isEqual(TObject& a, TObject& b) {
+    // nil is only equal to nil
+    if (a.isNil() && b.isNil()) return true;
+    if (a.isNil()) return false;
+
+    return a == b;
+}
+
 void Interpreter::checkNumberOperand(Token& op, TObject& operand) {
     if (operand.isNumber()) return;
     // throw std::runtime_error("From throw: Operand must be number.");

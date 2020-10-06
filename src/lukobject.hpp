@@ -81,7 +81,7 @@ public:
     */
 
     // Equality operators
-    friend bool operator==(LukObject& a, LukObject& b);
+    friend bool operator==(const LukObject& a, const LukObject& b);
     friend inline bool operator!=(LukObject& a, LukObject& b);
 
     // Unary operators
@@ -121,7 +121,6 @@ inline LukObject& operator*(LukObject a, const LukObject& b) { return a *= b; }
 inline LukObject& operator/(LukObject a, const LukObject& b) { return a /= b; }
 
 // equality != operator
-bool operator==(const LukObject& a, const LukObject& b);
 inline bool operator!=(LukObject& a, LukObject& b) { return !(a == b); }
 
 // comparison operators

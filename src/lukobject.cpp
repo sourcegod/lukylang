@@ -349,6 +349,7 @@ LukObject operator!(LukObject a) {
 
 // equality operators
 // equality == operator
+// /*
 bool operator==(const LukObject& a, const LukObject& b) {
     if (a.type_id == b.type_id) {
         switch(a.type_id) {
@@ -373,18 +374,16 @@ bool operator==(const LukObject& a, const LukObject& b) {
     
     return false;
 }
+// */
 
-// comparison operators
-
+// comparison operators for luktype
 bool operator<(LukType a, LukType b) {
     return static_cast<int>(a) < static_cast<int>(b);
 }
-// */
+
 bool operator>(LukType a, LukType b) {
     return static_cast<int>(a) > static_cast<int>(b);
 }
-// */
-
 
 
 bool operator<(const LukObject& a, const LukObject& b) {
@@ -402,11 +401,8 @@ bool operator<(const LukObject& a, const LukObject& b) {
 
     throw std::runtime_error("Only objects of the same type can be ordered.");
 }
+
 /* 
  * Note: other operators like binary operators, are implemented inline in .hpp file
  * */
-
-
-
-
 
