@@ -44,6 +44,7 @@ private:
     PStmt function(std::string kind);
     PStmt ifStatement();
     PStmt printStatement();
+    PStmt returnStatement();
     PStmt whileStatement();
     
     PExpr expression();

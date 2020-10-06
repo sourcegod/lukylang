@@ -4,6 +4,7 @@
 #include "lukcallable.hpp"
 #include "clock_func.hpp"
 #include "lukfunction.hpp"
+#include "return.hpp"
 
 #include <iostream>
 #include <string>
@@ -27,7 +28,8 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
     try {
          for (auto& stmt : statements) {
             if (stmt) {
-                execute(std::move(stmt));
+                // execute(std::move(stmt));
+                execute((stmt));
                 // v_ptr.emplace_back(std::move(stmt));
                 // v_ptr.back()->accept(*this);
             }
@@ -64,12 +66,16 @@ TObject Interpreter::evaluate(PExpr& expr) {
     return expr->accept(*this);
 }
 
-void Interpreter::execute(PStmt stmt) {
+void Interpreter::execute(PStmt& stmt) {
     stmt->accept(*this);
 }
 
 void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env) {
     auto previous = m_environment;
+    // std::cerr << "dans executeblock: \n";
+    // std::cerr << "statements.size: " << statements.size() << "\n";
+    // std::cerr << "env->size: " <<  env->size() << "\n";
+    // std::cerr << "m_env.size: " << m_environment->size() << "\n";
     
     try {
         m_environment = env;
@@ -77,16 +83,25 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
         for (auto& stmt: statements) {
             if (stmt)
                 // not use move because for reuse of the block
-                stmt->accept(*this);
+                // stmt->accept(*this);
+                execute(stmt);
 
         }
 
-            
-    } catch(RuntimeError& err) {
+    // Note: must catch all exceptions, event the Return exception.
+    } catch(...) {
+        // std::cerr << "Je catch\n"; 
         m_environment = previous;
+        // throw up the exception
+        throw;
     }
-    // finally
+    // finally, whether no exception
     m_environment = previous;
+    
+    // std::cerr << "a la fin de executebloc:\n";
+    // std::cerr << "env.size: " << env->size() << "\n";
+    // std::cerr << "m_globals.size: " << m_globals->size() << "\n";
+    // std::cerr << "m_environment.size: " << m_environment->size() << "\n";
 
 }
 
@@ -125,9 +140,15 @@ void Interpreter::visitFunctionStmt(FunctionStmt* stmt) {
 void Interpreter::visitIfStmt(IfStmt& stmt) {
     auto val  = evaluate(stmt.condition);
     if (isTruthy(val)) {
-        execute(std::move(stmt.thenBranch));
+        // Note: no moving statement pointer, because
+        // it will be necessary for function call
+        // execute(std::move(stmt.thenBranch));
+        // stmt.thenBranch->accept(*this);
+        execute(stmt.thenBranch);
     } else if (stmt.elseBranch != nullptr) {
-        execute(std::move(stmt.elseBranch));
+        // execute(std::move(stmt.elseBranch));
+        // stmt.elseBranch->accept(*this);
+        execute(stmt.elseBranch);
     }
 
 }
@@ -135,12 +156,24 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
     // std::cerr << "visitPrintStmt: avant value\n";
     TObject value = evaluate(stmt.expression);
-    // std::cerr << "après value : " << value.p_string << std::endl;
+    // std::cerr << "après value : " << value << std::endl;
     std::cout << stringify(value) << std::endl;
     m_result = TObject();
     // std::cerr << "visitPrintStmt: à la fin: \n";
 
 }
+void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
+    TObject value;
+    if (stmt.value != nullptr) { 
+        value = evaluate(stmt.value);
+    } else {
+        std::cout << "okok\n";
+        value = nullptr;;
+    }
+
+    throw Return(value);
+}
+
 
 void Interpreter::visitVarStmt(VarStmt& stmt) {
     TObject value;
@@ -155,7 +188,8 @@ void Interpreter::visitWhileStmt(WhileStmt& stmt) {
     auto val  = evaluate(stmt.condition);
     while (isTruthy(val)) {
         try {
-            stmt.body->accept(*this);
+            // stmt.body->accept(*this);
+            execute(stmt.body);
             val  = evaluate(stmt.condition);
         } catch(Jump jmp) {
             if (jmp.keyword.lexeme == "break") break;
@@ -321,6 +355,7 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
 }
 
 std::string Interpreter::stringify(TObject& obj) { 
+    // std::cerr << "in stringify, objtype: " << obj.getType() << "\n";
     if (obj.isNumber()) {
         std::string text = obj.value(); 
         std::string end = ".000000";
@@ -328,10 +363,12 @@ std::string Interpreter::stringify(TObject& obj) {
         if (endsWith(text, end)) 
             return text.substr(0, text.size() - end.size());
         return text;
+    } else if (obj.isNil() ) {
+        return "";
     }
 
     // return obj.value();
-
+    // std::cerr << "End of stringify\n";
     return *obj.getPtrString();
 }
 

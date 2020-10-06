@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "return.hpp"
 #include <cassert>
 #include <typeinfo> // type name
 
@@ -42,14 +43,27 @@ public:
     virtual size_t arity() const override { return m_declaration->params.size(); }
     virtual LukObject  call(Interpreter& interp, 
            std::vector<LukObject>& v_args) const override {
+
+        // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
         auto env = std::make_shared<Environment>(interp.m_globals);
+        // auto env = std::make_shared<Environment>();
+        // std::cerr << "env.size: " << env->size() << "\n";
         for (unsigned i=0; i < m_declaration->params.size(); ++i) {
-            // Note: C++ can only store polymorphic or derived class
-            // with pointer or smart pointers.
+            // Note: C++ can store polymorphic or derived object in a container
+            // only with pointer or smart pointers.
             env->define(m_declaration->params.at(i).lexeme, v_args.at(i));
         }
-
-        interp.executeBlock(m_declaration->body, env);
+        
+        try {
+            // std::cout << "in lukfunction\n";
+            // std::cerr << "env.size: " << env->size() << "\n";
+            // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";
+            interp.executeBlock(m_declaration->body, env);
+            // std::cout << "after body\n";
+        } catch(Return& ret) {
+            // std::cerr << "je return: " << ret.value.value() << "\n";
+            return ret.value;
+        }
         
         return LukObject();
    }

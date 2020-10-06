@@ -23,6 +23,7 @@ public:
     void visitFunctionStmt(FunctionStmt* stmt);
     void visitIfStmt(IfStmt& stmt);
     void visitPrintStmt(PrintStmt&);
+    void visitReturnStmt(ReturnStmt& stmt);
     void visitVarStmt(VarStmt& stmt);
     void visitWhileStmt(WhileStmt& stmt);
     
@@ -36,7 +37,7 @@ public:
     TObject visitVariableExpr(VariableExpr& expr);
 
     TObject evaluate(PExpr& expr);
-    void execute(PStmt stmt);
+    void execute(PStmt& stmt);
     void executeBlock(std::vector<PStmt>& statements, PEnvironment env);
 
 private:

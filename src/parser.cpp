@@ -38,6 +38,8 @@ PStmt Parser::statement() {
         return ifStatement();
     if (match({TokenType::PRINT})) 
         return printStatement();
+    if (match({TokenType::RETURN})) 
+        return returnStatement();
     if (match({TokenType::WHILE})) 
         return whileStatement();
     if (match({TokenType::LEFT_BRACE}))
@@ -119,6 +121,18 @@ PStmt Parser::printStatement() {
 
     return PStmt(new PrintStmt(std::move(value)) );
 }
+
+PStmt Parser::returnStatement() {
+    Token keyword = previous();
+    PExpr value = nullptr;
+    if (!check(TokenType::SEMICOLON)) {
+        value = expression();
+    }
+    consume(TokenType::SEMICOLON, "Expect ';' after return value.");
+
+    return PStmt(new ReturnStmt(keyword, std::move(value)) );
+}
+
 
 PStmt Parser::whileStatement() {
     consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'");

@@ -2,6 +2,12 @@
 # Author: Coolbrother
 # Date: samedi, 24/08/1
 
+
+# Version 0.20: Function Return
+Date: mardi, 17/12/19
+-- Adding: Return object, return function.
+-- Correctifs for executeblock in Interpreter object, to catch all exceptions.
+
 # Version 0.19: Function Declaration
 Date: mercredi, 11/12/19
 -- Adding: LukFunction, FunctionStmt object.
