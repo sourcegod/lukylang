@@ -5,11 +5,11 @@
 #include "token.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
-#include "astprinter.hpp"
+#include "interpreter.hpp"
 
 using namespace std;
 // test macro from the preprocessor to retriev string
-#define stringify( name ) #name
+// #define stringify( name ) #name
 
 
 static void printer(const vector<Token>& v_tokens) {
@@ -33,29 +33,29 @@ static void printer(const vector<Token>& v_tokens) {
 
 }
 
-static void run(const std::string& source, LukError& LukError) {
+static void run(const std::string& source, LukError& lukErr) {
     // scanner
-    Scanner scanner(source, LukError);
+    Scanner scanner(source, lukErr);
     const auto tokens = scanner.scanTokens();
-    if (LukError.hadError) return;
+    if (lukErr.hadError) return;
     // printer
     // printer(tokens);
     // /*
-    /// parser
-    Parser parser(tokens, LukError);
+    // parser
+    Parser parser(tokens, lukErr);
     auto expr = parser.parse();
     // if found error during parsing, report
-    if (LukError.hadError) {
+    if (lukErr.hadError) {
         std::cout << "There is an error." << std::endl;
-        // LukError.report();
         return;
     }
     // */
     
-    /// print ast
-    AstPrinter ap;
+    // Interpreter
+    Interpreter  interp;
     // convert smart pointer to raw pointer
-    ap.print(expr.get());
+    // interp.print(expr.get());
+    interp.interpret(expr);
 
 
     std::cout << std::endl;

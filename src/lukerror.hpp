@@ -5,8 +5,6 @@
 #include <vector>
 #include "token.hpp"
 
-
-// namespace luky {
 class LukError {
   public:
     LukError();
@@ -18,7 +16,5 @@ class LukError {
     bool hadError;
 
 };
-
-// }
 
 #endif // LUKERROR_HPP
