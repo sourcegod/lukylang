@@ -11,7 +11,7 @@ using namespace std;
 // test macro from the preprocessor to retriev string
 // #define stringify( name ) #name
 
-
+/*
 static void printer(const vector<Token>& v_tokens) {
     size_t pos =1;
     std::string  type, result;
@@ -32,6 +32,7 @@ static void printer(const vector<Token>& v_tokens) {
     cout << "Finish..." << endl;
 
 }
+*/
 
 static void run(const std::string& source, LukError& lukErr) {
     // scanner
@@ -82,6 +83,7 @@ static void runPrompt(LukError& LukError) {
 
 }
 
+/*
 static void test() {
     LukError lukErr;
     const std::string source = "1+2; while { print }";
@@ -96,6 +98,7 @@ static void test() {
     cout << "It's ok" << endl;
 
 }
+*/
 
 int main(int argc, char* argv[]) {
     // test();

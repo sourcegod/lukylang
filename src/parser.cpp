@@ -4,13 +4,13 @@
 
 // using namespace luky;
 
-ParseError::ParseError(std::string msg, Token token)
+ParseError::ParseError(const std::string& msg, Token& token)
     : std::runtime_error(msg)
-    , token_(token) {}
+    , m_token(token) {}
 
-Parser::Parser(const std::vector<Token>& tokens, LukError& _lukErr)
+Parser::Parser(const std::vector<Token>& _tokens, LukError& _lukErr)
     : current(0)
-    , tokens_(tokens)
+    , tokens(_tokens)
     , lukErr(_lukErr) {}
 
 PExpr Parser::expression() {
@@ -28,27 +28,27 @@ PExpr Parser::equality() {
 }
 
 PExpr Parser::comparison() {
-    PExpr expr = term();
+    PExpr expr = addition();
     while (
         match({TokenType::GREATER, TokenType::LESS, TokenType::LESS_EQUAL})) {
         Token op = previous();
-        PExpr right    = term();
+        PExpr right    = addition();
         expr           = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
     }
     return expr;
 }
 
-PExpr Parser::term() {
-    PExpr expr = factor();
+PExpr Parser::addition() {
+    PExpr expr = multiplication();
     while (match({TokenType::MINUS, TokenType::PLUS})) {
         Token Operator = previous();
-        PExpr right    = factor();
+        PExpr right    = multiplication();
         expr           = PExpr(new BinaryExpr(std::move(expr), Operator, std::move(right)));
     }
     return expr;
 }
 
-PExpr Parser::factor() {
+PExpr Parser::multiplication() {
     PExpr expr = unary();
     while (match({TokenType::SLASH, TokenType::STAR})) {
         Token Operator = previous();
@@ -102,7 +102,7 @@ Token Parser::consume(TokenType type, std::string message) {
     throw error(peek(), message);
 }
 
-ParseError Parser::error(Token token, std::string message) {
+ParseError Parser::error(Token& token, const std::string& message) {
     if (token.type == TokenType::END_OF_FILE) {
         lukErr.error(token.line, token.col, " at end" + message);
     } else {
@@ -123,7 +123,7 @@ bool Parser::match(const std::vector<TokenType>& types) {
 }
 
 Token Parser::previous() {
-    return tokens_[current - 1];
+    return tokens[current - 1];
 }
 
 Token Parser::advance() {
@@ -132,8 +132,8 @@ Token Parser::advance() {
     return previous();
 }
 
-Token Parser::peek() {
-    return tokens_[current];
+Token& Parser::peek() {
+    return tokens[current];
 }
 
 bool Parser::isAtEnd() {

@@ -1,0 +1,40 @@
+# Changelog for Luky project
+# Author: Coolbrother
+# Date: samedi, 24/08/19
+
+# Version 0.8 Expression
+# Date: dimanche, 25/08/19
+-- Refactoring, and cleanup warnings.
+
+# Version 0.7 Comparison operators
+#Date: samedi, 24/08/19
+-- Adding comparison operators, RuntimeError object
+
+# Version 0.6 Arithmetic operators
+# Date: 19/08/2019
+-- Adding: Arithmetic operators
+
+
+# Version 0.5 Interpreter
+# Date: 19/08/2019
+-- Adding: Interpreter
+
+
+# Version 0.4 AstPrinter
+# Date: 10/08/2019
+-- Adding: AstPrinter object
+
+# Version 0.3 Parser
+# Date: 10/08/2019
+-- Adding: Parser, lukobject objects
+
+# Version 0.2 Scanner
+# Date: 26/07/2019
+-- Adding: Scanner, error_handler objects
+
+# Version 0.1 Main
+# Date: 26/07/2019
+-- Adding: main, token, error_handler objects.
+
+
+

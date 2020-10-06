@@ -9,7 +9,6 @@ class Interpreter : public ExprVisitor {
 public:
     Interpreter();
 
-    std::string print(Expr* expr);
     void interpret(PExpr& expression);
     TObject visitBinaryExpr(BinaryExpr& expr);
     TObject visitGroupingExpr(GroupingExpr& expr);
@@ -30,11 +29,9 @@ public:
 
 private: 
     std::string m_result;
-    std::string parenthesize(std::string name, std::vector<Expr*> exprs);
     TObject evaluate(PExpr& expr);
     bool isTruthy(TObject& obj);
     bool isEqual(TObject& a, TObject& b);
-
     std::string stringify(TObject obj);
 
 };

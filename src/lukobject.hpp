@@ -119,7 +119,7 @@ inline LukObject& operator+(LukObject a, const LukObject & b) { return a += b; }
 inline LukObject& operator-(LukObject a, const LukObject& b) { return a -= b; }
 inline LukObject& operator*(LukObject a, const LukObject& b) { return a *= b; }
 inline LukObject& operator/(LukObject a, const LukObject& b) { return a /= b; }
-
+/// Note: "==" and "<" operators are implemented in the source filefor better readability
 // equality != operator
 inline bool operator!=(LukObject& a, LukObject& b) { return !(a == b); }
 

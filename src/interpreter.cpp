@@ -1,19 +1,10 @@
 #include "interpreter.hpp"
-// #include "lukerror.hpp"
 #include "runtimeerror.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 
 Interpreter::Interpreter() {}
-    // : lukErr(_lukErr) {}
-
-std::string Interpreter::print(Expr* expr) {
-    expr->accept(*this);
-    std::cout << m_result << std::endl;
-    m_result = "";
-    return m_result;
-}
 
 void Interpreter::interpret(PExpr& expression) {
     try {
@@ -75,11 +66,6 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
          default: break;
     }
 
-    /*
-    TObject obj =  parenthesize(expr.op.lexeme, 
-            {expr.left.get(), expr.right.get()});
-    */
-
     return TObject();
 }
 
@@ -137,19 +123,6 @@ void Interpreter::checkNumberOperands(Token& op, TObject& left, TObject& right) 
     throw RuntimeError(op, "Operands must be numbers.");
     // throw std::runtime_error("Yes, Operands must be numbers.");
 
-}
-
-
-std::string Interpreter::parenthesize(std::string name, std::vector<Expr*> v_expr) {
-    m_result += "(" + name;
-    for (auto expr : v_expr) {
-        m_result += " ";
-        expr->accept(*this);
-    }
-
-    m_result += ")";
-
-    return m_result;
 }
 
 TObject Interpreter::evaluate(PExpr& expr) { 
