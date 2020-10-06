@@ -33,14 +33,63 @@ std::vector<PStmt> Parser::parse() {
 }
 
 PStmt Parser::statement() {
+    if (match({TokenType::FOR})) 
+        return forStatement();
     if (match({TokenType::IF})) 
         return ifStatement();
     if (match({TokenType::PRINT})) 
         return printStatement();
-    if (match({TokenType::LEFT_BRACE}))
+    if (match({TokenType::WHILE})) 
+        return whileStatement();
+if (match({TokenType::LEFT_BRACE}))
         return PStmt(new BlockStmt(std::move(block())) );
     
     return  expressionStatement();
+}
+
+PStmt Parser::forStatement() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'for'");
+    PStmt initializer; 
+    if (match({TokenType::SEMICOLON})) {
+        initializer = nullptr;
+    } else if (match({TokenType::VAR})) {
+        initializer = varDeclaration();
+    } else {
+        initializer = expressionStatement();
+    }
+
+    PExpr condition = nullptr;
+    if (!check(TokenType::SEMICOLON)) {
+        condition = expression();
+    }
+    consume(TokenType::SEMICOLON, "Expect ';' after loop condition.");
+    
+    PStmt increment = nullptr;
+    if (!check(TokenType::RIGHT_PAREN)) {
+        increment = PStmt(new ExpressionStmt(expression()) );
+    }
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    PStmt body = statement();
+
+    if (increment != nullptr) {
+        std::vector<PStmt> stmts;
+        stmts.emplace_back(std::move(body));
+        stmts.emplace_back(std::move(increment));
+        body = PStmt(new BlockStmt(
+                    std::move(stmts)) );
+    }
+    body = PStmt(new WhileStmt(
+                std::move(condition),
+                std::move(body)) );
+    if (initializer) {
+        std::vector<PStmt> stmts;
+        stmts.emplace_back( std::move(initializer) );
+        stmts.emplace_back( std::move(body) );
+        return PStmt(new BlockStmt( std::move(stmts) ));
+    }
+
+    return body;
 }
 
 PStmt Parser::ifStatement() {
@@ -64,6 +113,16 @@ PStmt Parser::printStatement() {
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
 
     return PStmt(new PrintStmt(std::move(value)) );
+}
+
+PStmt Parser::whileStatement() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'");
+    PExpr condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
+    PStmt body = statement();
+
+    return PStmt(new WhileStmt( std::move(condition), 
+                std::move(body) ));
 }
 
 PStmt Parser::varDeclaration() {

@@ -59,8 +59,9 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
         m_environment = env;
         
         for (auto& stmt: statements) {
-            if (stmt) 
-                execute(stmt);
+            if (stmt)
+                // not use move because for reuse of the block
+                stmt->accept(*this);
 
         }
 
@@ -68,7 +69,8 @@ void Interpreter::executeBlock(std::vector<PStmt>& statements, PEnvironment env)
     } catch(RuntimeError& err) {
         m_environment = previous;
     }
-        m_environment = previous;
+    // finally
+    m_environment = previous;
 
 }
 
@@ -78,6 +80,16 @@ void Interpreter::visitBlockStmt(BlockStmt& stmt) {
 
 void Interpreter::visitExpressionStmt(ExpressionStmt& stmt) {
     m_result = evaluate(stmt.expression);
+}
+
+void Interpreter::visitIfStmt(IfStmt& stmt) {
+    auto val  = evaluate(stmt.condition);
+    if (isTruthy(val)) {
+        execute(std::move(stmt.thenBranch));
+    } else if (stmt.elseBranch != nullptr) {
+        execute(std::move(stmt.elseBranch));
+    }
+
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
@@ -93,6 +105,15 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
         value = evaluate(stmt.initializer);
     }
     m_environment->define(stmt.name.lexeme, value);
+
+}
+
+void Interpreter::visitWhileStmt(WhileStmt& stmt) {
+    auto val  = evaluate(stmt.condition);
+    while (isTruthy(val)) {
+        stmt.body->accept(*this);
+        val  = evaluate(stmt.condition);
+    }
 
 }
 
@@ -157,6 +178,16 @@ TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     // return TObject();
 }
 
+TObject Interpreter::visitLogicalExpr(LogicalExpr& expr) {
+    TObject left = evaluate(expr.left);
+    if (expr.op.type == TokenType::OR) {
+        if (isTruthy(left)) return left;
+    } else {
+        if (!isTruthy(left)) return left;
+    }
+    
+    return evaluate(expr.right);
+}
 
 TObject Interpreter::visitLiteralExpr(LiteralExpr& expr) {
     // std::cerr << "visitLiteralExpr\n";
@@ -186,6 +217,7 @@ TObject Interpreter::visitVariableExpr(VariableExpr& expr) {
 bool Interpreter::isTruthy(TObject& obj) {
     if (obj.isNil()) return false;
     if (obj.isBool()) return (bool)obj;
+    if (obj.isNumber() && (double)obj == 0) return false;
 
     return true;
 }

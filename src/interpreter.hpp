@@ -20,6 +20,7 @@ public:
     void visitIfStmt(IfStmt& stmt);
     void visitPrintStmt(PrintStmt&);
     void visitVarStmt(VarStmt& stmt);
+    void visitWhileStmt(WhileStmt& stmt);
     
     TObject visitAssignExpr(AssignExpr& expr);
     TObject visitBinaryExpr(BinaryExpr& expr);

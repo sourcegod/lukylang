@@ -15,6 +15,7 @@ class IfStmt;
 class PrintStmt;
 class Stmt;
 class VarStmt;
+class WhileStmt;
 
 using PStmt = std::unique_ptr<Stmt>;
 using PExpr =  std::unique_ptr<Expr>;
@@ -26,6 +27,7 @@ public:
     virtual void visitIfStmt(IfStmt&) =0;
     virtual void visitPrintStmt(PrintStmt&) =0;
     virtual void visitVarStmt(VarStmt&) =0;
+    virtual void visitWhileStmt(WhileStmt&) =0;
 };
 
 class Stmt {
@@ -108,6 +110,21 @@ public:
     Token name;
     std::unique_ptr<Expr> initializer;
 
+};
+
+class WhileStmt : public Stmt {
+public:
+    WhileStmt(PExpr&& _condition, PStmt&& _body) { 
+        condition = std::move(_condition);
+        body  = std::move(_body);
+    }
+
+    void accept(StmtVisitor& v) override {
+        v.visitWhileStmt(*this);
+    }
+
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<Stmt> body;
 };
 
 
