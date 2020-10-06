@@ -25,6 +25,7 @@ public:
     
     TObject visitAssignExpr(AssignExpr& expr);
     TObject visitBinaryExpr(BinaryExpr& expr);
+    TObject visitCallExpr(CallExpr& expr);
     TObject visitGroupingExpr(GroupingExpr& expr);
     TObject visitLogicalExpr(LogicalExpr& expr);
     TObject visitLiteralExpr(LiteralExpr& expr); 
@@ -33,6 +34,7 @@ public:
 
 private:
     PEnvironment m_environment;
+    PEnvironment m_globals;
     TObject m_result;
     const std::string errTitle = "InterpretError: ";
     TObject evaluate(PExpr& expr);

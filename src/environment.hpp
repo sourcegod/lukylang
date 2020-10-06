@@ -7,6 +7,7 @@
 #include "lukobject.hpp"
 #include <memory> // shared_ptr
 
+class LukObject;
 class Environment;
 using TObject = LukObject;
 using PEnvironment = std::shared_ptr<Environment>;

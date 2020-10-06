@@ -4,9 +4,10 @@
  * */
 
 #include "lukobject.hpp"
+#include "token.hpp"
 
 #include <iostream> // cout and cerr
-#include <sstream> // stringstream
+#include <sstream> // ostringstream
 #include <stdexcept> // exception
 
 int LukObject::next_id =0;
@@ -52,6 +53,7 @@ std::string LukObject::value() {
             case LukType::String: 
                 // return m_string;
                 return *p_string;
+            case LukType::Callable:  return *p_string;
         }
 
         return "";
@@ -102,7 +104,9 @@ bool LukObject::_toBool() const {
         case LukType::Nil: return false;
         case LukType::Bool: return m_bool != 0;
         case LukType::Number: return m_number != 0;
-        case LukType::String: return m_string != "";
+        case LukType::String: return p_string != nullptr;
+        // callables and classes are true by default
+        case LukType::Callable: return true;
     }
     
     throw std::runtime_error("Invalid convertion to bool\n");
@@ -118,7 +122,7 @@ double LukObject::_toNumber() const {
         case LukType::String: {
             double d;
             try {
-                d = std::stod(m_string);
+                d = std::stod(*p_string);
             } catch (const std::invalid_argument &) {
                 // not throw exception
                 // std::cerr << "Argument is invalid\n";
@@ -133,7 +137,12 @@ double LukObject::_toNumber() const {
             return d;
         }
         break;
+
+        case LukType::Callable:  
+        break;
+        
     }
+    throw std::runtime_error("Cannot convert object to number.");
 
     return 0;
 }
@@ -143,8 +152,10 @@ std::string LukObject::_toString() const {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Number: return std::to_string(m_number);
-        case LukType::String: return m_string;
+        case LukType::String: return *p_string;
+        case LukType::Callable: return *p_string;
     }
+    throw std::runtime_error("Cannot convert object to string.");
 
     return "";
 }
@@ -156,6 +167,7 @@ void LukObject::cast(LukType tp) {
         case LukType::Bool: m_bool = (bool)(*this); break;
         case LukType::Number: m_number = (double)(*this); break;
         case LukType::String: m_string = (std::string)(*this); break;
+        case LukType::Callable: break;
     
     }
     type_id = tp;
@@ -221,6 +233,7 @@ LukObject& LukObject::operator=(const LukObject& obj) {
     m_number = obj.m_number;
     // m_string = obj.m_string;
     p_string = obj.p_string;
+    p_callable = obj.p_callable;
     // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
     // std::cerr << "Voici p_string: " << p_string << std::endl;
 
@@ -238,6 +251,7 @@ LukObject& LukObject::operator=(const LukObject&& obj) {
     m_number = obj.m_number;
     // m_string = std::move(obj.m_string);
     p_string = std::move(obj.p_string);
+    p_callable = obj.p_callable;
     // std::cerr << "Voici obj.p_string: " << obj.p_string << std::endl;
     // std::cerr << "Voici p_string: " << p_string << std::endl;
 

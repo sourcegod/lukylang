@@ -11,6 +11,7 @@
 // forward declarations
 class BlockStmt;
 class BreakStmt;
+class Expr;
 class ExpressionStmt;
 class IfStmt;
 class PrintStmt;

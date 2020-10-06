@@ -1,15 +1,20 @@
 #ifndef LUKOBJECT_HPP
 #define LUKOBJECT_HPP
 
+#include "lukcallable.hpp"
 #include <sstream> // ostreamstring
 #include <string>
 #include <iostream>
 #include <memory>
-#include "token.hpp"
 
-enum class LukType { Nil=0, Bool=1, Number=2, String=3 };
+enum class LukType { 
+    Nil=0, Bool=1, Number=2, String=3,
+    Callable =4
+};
 
 class Token;
+class LukCallable;
+
 class LukObject {
 protected:
     static int next_id;
@@ -21,6 +26,7 @@ public:
     double m_number =0;
     std::string m_string = "";
     std::shared_ptr<std::string> p_string;
+    std::shared_ptr<LukCallable> p_callable;
 
  
     // constructors
@@ -29,12 +35,15 @@ public:
         // std::cerr << "C.tor, id: " << id << "\n";
         type_id = LukType::Nil;  
     }
+
     LukObject(bool val) 
-        : id(++next_id)
-    { type_id = LukType::Bool; m_bool = val; }
+        : id(++next_id) {
+        type_id = LukType::Bool; m_bool = val; 
+    }
+    
     LukObject(int val) 
-        : id(++next_id)
-    { type_id = LukType::Number; m_number = val; }
+        : id(++next_id) { type_id = LukType::Number; m_number = val; }
+
     LukObject(double val) 
         : id(++next_id)
     { type_id = LukType::Number; m_number = val; }
@@ -52,7 +61,17 @@ public:
         // m_string = std::string(val); 
         p_string = std::make_shared<std::string>(val);
     }
+    
+    // /* 
+    LukObject(std::shared_ptr<LukCallable> callable)
+        : id(++next_id) { 
+        type_id = LukType::Callable;
+        p_callable = callable; // std::make_shared<LukCallable>(callable);
+        p_string = std::make_shared<std::string>(callable->toString());
+    }
+    // */
 
+        
     LukObject(Token tok);
    
     // destructor is necessary
@@ -87,12 +106,19 @@ public:
     bool isNumber() { return type_id == LukType::Number; }
     bool isDouble() { return type_id == LukType::Number; }
     bool isString() { return type_id == LukType::String; }
+    bool isCallable() { return type_id == LukType::Callable; }
 
     // getters
+    LukObject getNil() {
+        LukObject obj;
+        return obj;
+    }
+
     bool getBool() { return m_bool; }
     double getNumber() { return m_number; }
     std::string& getString() { return m_string; }
     std::shared_ptr<std::string> getPtrString() { return p_string; }
+    std::shared_ptr<LukCallable> getCallable() { return p_callable; }
     
 
     // casting to the right type
@@ -193,14 +219,15 @@ inline std::ostream& operator<<(std::ostream& ost, LukType tp) {
     // // using Type = LukObject::LukType
     using Type = LukType;
     switch(tp) {
-        case Type::Nil: return ost << "Nil";
-        case Type::Bool: return ost << "Bool";
-        case Type::Number: return ost << "Number";
-        case Type::String: return ost << "String";
+        case Type::Nil: return ost << "<Nil>";
+        case Type::Bool: return ost << "<Bool>";
+        case Type::Number: return ost << "<Number>";
+        case Type::String: return ost << "<String>";
+        case Type::Callable: return ost << "<Callable>";
     }
     
     return ost << "Invalid Object type";
 }
 
 
-#endif // LUK_OBJECT_HPP
+#endif // LUKOBJECT_HPP

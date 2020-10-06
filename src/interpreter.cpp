@@ -1,13 +1,22 @@
 #include "interpreter.hpp"
 #include "runtimeerror.hpp"
 #include "jump.hpp"
+#include "lukcallable.hpp"
+#include "clock_func.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <typeinfo> // type name
+#include <sstream> // for stringstream
 
 Interpreter::Interpreter() {
-    m_environment = std::make_shared<Environment>();
+    m_globals = std::make_shared<Environment>();
+    m_environment = m_globals;
+    // std::shared_ptr<LukCallable>  
+    // auto func = std::make_shared<ClockFunc>();
+    auto func = std::make_shared<ClockFunc>();
+    m_globals->define("clock", LukObject(func));
+
 }
 
 void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
@@ -37,6 +46,7 @@ void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>>&& statements) {
 
 void Interpreter::printResult() {
     // std::cerr << "printResult avant \n";
+    std::cout << stringify(m_result) << "\n";
     // std::cerr << "voici m_result.p_string: " << m_result.p_string << std::endl;
     // std::cerr << stringify(m_result) << "\n";
     // reinitialize m_result to nil
@@ -200,6 +210,29 @@ TObject Interpreter::visitBinaryExpr(BinaryExpr& expr) {
     // unrichable
     return TObject();
 }
+TObject Interpreter::visitCallExpr(CallExpr& expr) {
+    auto callee = evaluate(expr.callee);
+    if (! callee.isCallable()) {
+       throw RuntimeError(expr.paren, "Can only call function and class.");
+    }
+    
+    std::vector<TObject> args;
+    for (auto& arg: expr.args) {
+        args.push_back(evaluate(arg));
+    }
+     
+    auto func = callee.getCallable();
+    if (args.size() != func->arity()) {
+        std::ostringstream msg;
+        msg << "Expected " << func->arity() 
+            << " arguments but got " 
+            << args.size() << ".";
+        throw RuntimeError(expr.paren, msg.str());
+    }
+
+    return func->call(*this, args);
+
+}
 
 TObject Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.expression);
@@ -286,6 +319,7 @@ std::string Interpreter::stringify(TObject& obj) {
     }
 
     // return obj.value();
+
     return *obj.getPtrString();
 }
 

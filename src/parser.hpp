@@ -58,6 +58,8 @@ private:
     PExpr addition();
     PExpr multiplication();
     PExpr unary();
+    PExpr call();
+    PExpr finishCall(PExpr callee);
     PExpr primary();
 
     bool match(const std::vector<TokenType>& types);

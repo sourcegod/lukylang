@@ -223,7 +223,7 @@ PExpr Parser::equality() {
     while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
         Token op = previous();
         PExpr right    = comparison();
-        expr           = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
+        expr = PExpr(new BinaryExpr(std::move(expr), op, std::move(right)));
     }
     return expr;
 }
@@ -266,7 +266,37 @@ PExpr Parser::unary() {
         PExpr right    = unary();
         return PExpr(new UnaryExpr(Operator, std::move(right)));
     }
-    return primary();
+
+    return call();
+}
+
+PExpr Parser::call() {
+    PExpr expr = primary();
+    while (true) {
+        if (match({TokenType::LEFT_PAREN})) {
+            expr = finishCall(std::move(expr));
+        } else {
+            break;
+        }
+    }
+
+    return expr;
+}
+
+PExpr Parser::finishCall(PExpr callee) {
+    std::vector<PExpr> args;
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (args.size() >= 8) {
+                error(peek(), "Cannot have more than 8 arguments.");
+            }
+            args.emplace_back(expression());
+        } while (match({TokenType::COMMA}));
+    }
+
+    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
+
+    return PExpr(new CallExpr(std::move(callee), paren, std::move(args) ));
 }
 
 PExpr Parser::primary() {

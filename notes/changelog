@@ -2,6 +2,13 @@
 # Author: Coolbrother
 # Date: samedi, 24/08/1
 
+# Version 0.18: Function Native
+# Date: mardi, 22/10/19
+-- Adding: Callable object, ClockFunc object as clock as internal function.
+
+# Version 0.17: Function Call
+# Date: mardi, 15/10/19
+-- Adding: CallExpr, visitCallExpr
 
 # Version 0.16: Break Statement
 # Date: samedi, 12/10/19

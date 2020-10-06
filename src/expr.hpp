@@ -4,11 +4,14 @@
 #include "lukobject.hpp"
 #include "token.hpp"
 #include <memory>
-
+#include <vector>
 // forward declarations
+
 class Expr;
+class LukObject;
 class AssignExpr;
 class BinaryExpr;
+class CallExpr;
 class GroupingExpr;
 class LiteralExpr;
 class LogicalExpr;
@@ -23,6 +26,7 @@ class ExprVisitor {
     public:
         virtual TObject visitAssignExpr(AssignExpr&) =0;
         virtual TObject visitBinaryExpr(BinaryExpr&) =0;
+        virtual TObject visitCallExpr(CallExpr&) =0;
         virtual TObject visitGroupingExpr(GroupingExpr&) =0;
         virtual TObject visitLiteralExpr(LiteralExpr&) =0;
         virtual TObject visitLogicalExpr(LogicalExpr&) =0;
@@ -34,6 +38,7 @@ class ExprVisitor {
 class  Expr {
 public:
     virtual TObject accept(ExprVisitor &v) =0;
+    virtual bool isCallExpr() const { return false; }
     virtual bool isVariableExpr() const { return false; }
     virtual std::string typeName() const { return "Expr"; }
 };
@@ -71,6 +76,26 @@ public:
     PExpr left;
     Token op;
     PExpr right;
+};
+
+class CallExpr : public Expr {
+public:
+    CallExpr(PExpr&& _callee, Token _paren, std::vector<PExpr>&& _args) {
+        callee = std::move(_callee);
+        paren = _paren;
+        args = std::move(_args);
+    }
+    
+    TObject accept(ExprVisitor &v) override {
+        return v.visitCallExpr(*this); 
+    }
+
+    bool isCallExpr() const override { return true; }
+    std::string typeName() const override { return "CallExpr"; }
+
+    PExpr callee;
+    Token paren;
+    std::vector<PExpr> args;
 };
 
 class GroupingExpr : public Expr {
