@@ -26,6 +26,7 @@ enum class TokenType {
     STAR_EQUAL, SLASH_EQUAL, 
     MOD, MOD_EQUAL,
     EXP, EXP_EQUAL,
+    EQUAL_ARROW,
 
     // bitwise operators
     BIT_AND, BIT_AND_EQUAL, BIT_NOT,
