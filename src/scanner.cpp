@@ -105,7 +105,11 @@ void Scanner::scanToken() {
         case '%': addToken(match('=') ? TokenType::MOD_EQUAL : TokenType::MOD); break;
 
         case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
-        case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
+        case '=': 
+          if (match('=')) addToken(TokenType::EQUAL_EQUAL);
+          else if (match('>')) addToken(TokenType::EQUAL_ARROW);
+          else addToken(TokenType::EQUAL); 
+          break;
 
         // Adding: bitwise shift operators
         case '<': 
