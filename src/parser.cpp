@@ -227,6 +227,7 @@ FuncPtr Parser::function(const std::string& kind) {
 std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<TokPtr> params;
+    std::vector<StmtPtr> body;
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (params.size() >= 8) {
@@ -239,9 +240,24 @@ std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
 
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
 
+    // Adding function arrow expression
+    if (match({TokenType::EQUAL_ARROW})) {
+      auto keyword = previous();
+      ExprPtr value = expression();
+      // checking whether not end line for automatic semicolon insertion
+      checkEndLine("Expect ';' after value.");
+
+      auto retStmt = std::make_shared<ReturnStmt>(keyword, value);
+      body.emplace_back( retStmt );
+ 
+      return std::make_shared<FunctionExpr>(params, body);
+
+    }
+
     consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
 
-    std::vector<StmtPtr> body = block();
+    // std::vector<StmtPtr> body = block();
+    body = block();
 
     return std::make_shared<FunctionExpr>(params, body);
 }
