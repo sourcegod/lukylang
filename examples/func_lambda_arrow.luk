@@ -1,0 +1,2 @@
+var fx = fun (x) => x**3;
+print fx(6);
