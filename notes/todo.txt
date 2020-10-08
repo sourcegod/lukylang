@@ -1,6 +1,6 @@
 Todo list
 Date: Wed, 30/09/2020
-Last update: Mon, 05/10/2020
+Last update: Thu, 08/10/2020
 
 -- Unit testing
 -- Multi-variable  declarations: 
@@ -10,6 +10,7 @@ var a, b=0, c=1
 -- do...while statement
 -- Function arrow
 -- Lambda arrow
+-- Static variable in class
 
 -- Goto statement
 -- switch statement
