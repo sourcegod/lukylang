@@ -34,6 +34,7 @@ public:
 
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);
+    void insertToken(const TokenType type, const std::string& literal);
 
     void scanToken();
     char advance();
@@ -52,6 +53,7 @@ public:
     void skipMultilineComments();
     bool isPrintable(char ch);
     char searchPrintable();
+    void logTokens();
    
 };
 

@@ -27,6 +27,11 @@ Scanner::Scanner(const std::string& source, LukError& lukErr)
     m_keywords["while"]  = TokenType::WHILE;
 }
 
+void Scanner::addToken(const TokenType _tokenType) { 
+    addToken(_tokenType, ""); 
+}
+
+
 void Scanner::addToken(const TokenType type, const std::string& literal) {
     // FIXE: manage the right lexeme
     const size_t lexLen = m_current - m_start;
@@ -44,8 +49,11 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
     m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
 }
 
-void Scanner::addToken(const TokenType _tokenType) { 
-    addToken(_tokenType, ""); 
+void Scanner::insertToken(const TokenType type, const std::string& literal) { 
+    auto lexeme = literal;
+    m_col++;
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
+
 }
 
 
@@ -62,7 +70,8 @@ void Scanner::scanToken() {
             if (lastToken->type != TokenType::LEFT_BRACE &&
                     lastToken->type != TokenType::RIGHT_BRACE && 
                     lastToken->type != TokenType::SEMICOLON) {
-                addToken(TokenType::SEMICOLON);
+                // logMsg("last token: ", lastToken->lexeme);
+                insertToken(TokenType::SEMICOLON, ";");
             }
             addToken(TokenType::RIGHT_BRACE); 
             break;
@@ -191,7 +200,10 @@ const std::vector<TokPtr>&& Scanner::scanTokens() {
     TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", m_line, m_col);
     // Note: it will be safer to move the pointer to the vector
     m_tokens.push_back( std::move(endOfFile) );
-    
+#ifdef DEBUG
+      logTokens();
+#endif
+
     // Note: move function must be used when returning vector of pointer.
     return std::move(m_tokens);
 }
@@ -377,3 +389,10 @@ char Scanner::searchPrintable() {
     return '\0';
 }
 
+void Scanner::logTokens() {
+  logMsg("Tokens list");
+  for (auto& it: m_tokens) {
+    logMsg("id: ", it->id, "lexeme: ", it->lexeme);
+  }
+
+}
