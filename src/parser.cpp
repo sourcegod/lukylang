@@ -167,6 +167,7 @@ StmtPtr Parser::varDeclaration() {
     }
     // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     // checking whether not end line for automatic semicolon insertion
+    // checkEndLine("Expect ';' after variable declaration.");
     checkEndLine("Expect ';' after variable declaration.");
     
     return std::make_shared<VarStmt>(name, initializer);

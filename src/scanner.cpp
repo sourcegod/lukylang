@@ -70,7 +70,6 @@ void Scanner::scanToken() {
             if (lastToken->type != TokenType::LEFT_BRACE &&
                     lastToken->type != TokenType::RIGHT_BRACE && 
                     lastToken->type != TokenType::SEMICOLON) {
-                // logMsg("last token: ", lastToken->lexeme);
                 insertToken(TokenType::SEMICOLON, ";");
             }
             addToken(TokenType::RIGHT_BRACE); 
@@ -166,11 +165,10 @@ void Scanner::scanToken() {
             } else if (lastToken->type !=  TokenType::SEMICOLON &&
                     lastToken->type != TokenType::LEFT_BRACE &&
                     lastToken->type != TokenType::RIGHT_BRACE ) {
-                addToken(TokenType::SEMICOLON);
+                insertToken(TokenType::SEMICOLON, ";");
             }
             break;
 
-            break;
 
         // support simple and double quotes string
         case '"': string(ch); break;
