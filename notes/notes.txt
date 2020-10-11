@@ -1,10 +1,20 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Wed, 30/09/2020
-Last version: v0.32.0
+Last update: Wed, 11/10/2020
+Last version: v0.32.1
 
   0. Changelog
+# Version 0.32.1: Function and Lambda arrow
+-- Added support for lambda and function arrow with (=>) Token type.
+-- Added Scanner::logTokens and Scanner::insertToken functions
+-- Fixed bugs in Scanner class for Automatic Semicolon Insertion.
+-- Fixed bugs in Parser::varDeclaration function, for Automatic Semicolon
+Insertion.
+-- Added files: func_count_three.luk in examples and tests directories.
+--  Added files: func_lambda_arrow.luk in examples and tests directories.
+-- Added files: func_var_lambda.luk in examples and tests directories.
+
 # Version 0.32.0: println and readln
 -- Added file: notes/todo.txt
 -- Updated file: README.md
