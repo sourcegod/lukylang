@@ -41,6 +41,7 @@ private:
     std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
+    bool m_isFuncBody = false;
 
     StmtPtr statement();
     std::vector<StmtPtr> block();
@@ -79,7 +80,7 @@ private:
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
     ExprPtr primary();
-    bool checkEndLine(const std::string& msg);
+    bool checkEndLine(const std::string& msg, bool verbose);
 
     TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);

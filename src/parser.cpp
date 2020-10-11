@@ -133,7 +133,7 @@ StmtPtr Parser::printStatement() {
     // consume(TokenType::SEMICOLON, "Expect ';' after value.");
     // No require semicolon
     // checking whether not end line for automatic semicolon insertion
-    checkEndLine("Expect ';' after value.");
+    checkEndLine("Expect ';' after value.", true);
 
     return std::make_shared<PrintStmt>(value);
 }
@@ -167,8 +167,10 @@ StmtPtr Parser::varDeclaration() {
     }
     // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     // checking whether not end line for automatic semicolon insertion
-    // checkEndLine("Expect ';' after variable declaration.");
-    checkEndLine("Expect ';' after variable declaration.");
+    std::cerr << "voici m_isfuncbody: " << m_isFuncBody << "\n";
+    if (m_isFuncBody) checkEndLine("Expect ';' after variable declaration.", false);
+    else checkEndLine("Expect ';' after variable declaration.", true);
+    m_isFuncBody = false;
     
     return std::make_shared<VarStmt>(name, initializer);
 }
@@ -215,7 +217,7 @@ StmtPtr Parser::expressionStatement() {
     ExprPtr expr = expression();
     // consume(TokenType::SEMICOLON, "Expect ';' after expression.");
     // checking whether not end line for automatic semicolon insertion
-    checkEndLine("Expect ';' after expression.");
+    checkEndLine("Expect ';' after expression.", true);
 
     return std::make_shared<ExpressionStmt>(expr);
 }
@@ -226,6 +228,7 @@ FuncPtr Parser::function(const std::string& kind) {
 }
 
 std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
+    m_isFuncBody = true;
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<TokPtr> params;
     std::vector<StmtPtr> body;
@@ -246,7 +249,7 @@ std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
       auto keyword = previous();
       ExprPtr value = expression();
       // checking whether not end line for automatic semicolon insertion
-      checkEndLine("Expect ';' after value.");
+      checkEndLine("Expect ';' after value.", true);
 
       auto retStmt = std::make_shared<ReturnStmt>(keyword, value);
       body.emplace_back( retStmt );
@@ -577,11 +580,14 @@ ExprPtr Parser::primary() {
     return nullptr;
 }
 
-bool Parser::checkEndLine(const std::string& msg) {
+bool Parser::checkEndLine(const std::string& msg, bool verbose=true) {
     if (isAtEnd()) return false;
     if (match({TokenType::SEMICOLON})) return true;
+    
+    if (verbose)
+      throw error(peek(), msg);
 
-    throw error(peek(), msg);
+    return false;
 }
 
 TokPtr& Parser::consume(TokenType type, std::string message) {
