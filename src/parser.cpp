@@ -166,8 +166,7 @@ StmtPtr Parser::varDeclaration() {
         initializer = expression();
     }
     // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    // checking whether not end line for automatic semicolon insertion
-    std::cerr << "voici m_isfuncbody: " << m_isFuncBody << "\n";
+    // checking end line whether is a function or simple variable for automatic semicolon insertion
     if (m_isFuncBody) checkEndLine("Expect ';' after variable declaration.", false);
     else checkEndLine("Expect ';' after variable declaration.", true);
     m_isFuncBody = false;
