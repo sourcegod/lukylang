@@ -10,7 +10,7 @@ Resolver::Resolver(Interpreter& interp, LukError& lukErr)
 void Resolver::beginScope() {
   std::unordered_map<std::string, Variable> scope;
   m_scopes.push_back(scope);
-  logMsg("\in beginScope, adding scope, m_scopes size: ", m_scopes.size());
+  logMsg("\nin beginScope, adding scope, m_scopes size: ", m_scopes.size());
 }
 
 void Resolver::endScope() {
@@ -332,11 +332,15 @@ void Resolver::visitReturnStmt(ReturnStmt& stmt) {
 }
 
 void Resolver::visitVarStmt(VarStmt& stmt) {
-  declare(stmt.m_name);
-  if (stmt.m_initializer != nullptr) {
-    resolve(stmt.m_initializer);
+  for (auto& it: stmt.m_vars) {
+      auto name = it.first;
+      auto initializer = it.second;
+      declare(name);
+      if (initializer != nullptr) {
+        resolve(initializer);
+      }
+      define(name);
   }
-  define(stmt.m_name);
 
 }
 
