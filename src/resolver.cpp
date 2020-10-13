@@ -332,9 +332,11 @@ void Resolver::visitReturnStmt(ReturnStmt& stmt) {
 }
 
 void Resolver::visitVarStmt(VarStmt& stmt) {
+    TokPtr name;
+    ExprPtr initializer;
   for (auto& it: stmt.m_vars) {
-      auto name = it.first;
-      auto initializer = it.second;
+      name = it.first;
+      initializer = it.second;
       declare(name);
       if (initializer != nullptr) {
         resolve(initializer);

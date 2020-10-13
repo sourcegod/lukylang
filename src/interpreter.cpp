@@ -820,9 +820,12 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
 void Interpreter::visitVarStmt(VarStmt& stmt) {
     // Note: new ObjPtr needs to be initialized to nilptr to avoid crash
     ObjPtr value = nilptr;
+    TokPtr name;
+    ExprPtr initializer;
     for (auto& it: stmt.m_vars) {
-        auto name = it.first;
-        auto initializer = it.second;
+        value = nilptr;
+        name = it.first;
+        initializer = it.second;
         if (initializer != nullptr) {
             value = evaluate(initializer);
         }
