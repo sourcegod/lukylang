@@ -180,9 +180,8 @@ public:
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(TokPtr& name, ExprPtr expr) :
-        m_name(name),
-        m_initializer(std::move(expr))
+    // VarStmt(TokPtr& name, ExprPtr expr) : m_name(name), m_initializer(std::move(expr))
+    VarStmt(std::vector<std::pair<TokPtr, ExprPtr>>&& vars) : m_vars(std::move(vars))
     {}
 
     void accept(StmtVisitor& v) override {
@@ -190,6 +189,7 @@ public:
     }
     TokPtr m_name;
     ExprPtr m_initializer;
+    std::vector<std::pair<TokPtr, ExprPtr>> m_vars;
 
 };
 

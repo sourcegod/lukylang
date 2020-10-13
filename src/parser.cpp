@@ -169,7 +169,9 @@ StmtPtr Parser::varDeclaration() {
         if (match({TokenType::EQUAL})) {
             initializer = expression();
         }
-        v_vars.emplace_back(std::make_pair(name, initializer));
+        // v_vars.emplace_back(std::make_pair(name, initializer));
+        // /// Note: we can also pass an initializer list to push_back function
+        v_vars.push_back({name, initializer});
     } while (match({TokenType::COMMA}));
     // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     // checking end line whether is a function or simple variable for automatic semicolon insertion
@@ -177,7 +179,8 @@ StmtPtr Parser::varDeclaration() {
     else checkEndLine("Expect ';' after variable declaration.", true);
     m_isFuncBody = false;
     
-    return std::make_shared<VarStmt>(name, initializer);
+    return std::make_shared<VarStmt>(std::move(v_vars));
+    // return std::make_shared<VarStmt>(name, initializer);
 }
 
 StmtPtr Parser::classDeclaration() {
