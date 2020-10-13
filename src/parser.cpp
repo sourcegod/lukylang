@@ -160,11 +160,17 @@ StmtPtr Parser::whileStatement() {
 }
 
 StmtPtr Parser::varDeclaration() {
-    TokPtr name = consume(TokenType::IDENTIFIER, "Expect variable name.");
-    ExprPtr initializer = nullptr;
-    if (match({TokenType::EQUAL})) {
-        initializer = expression();
-    }
+    std::vector<std::pair<TokPtr, ExprPtr>> v_vars;
+    TokPtr name;
+    ExprPtr initializer;
+    do {
+        name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+        initializer = nullptr;
+        if (match({TokenType::EQUAL})) {
+            initializer = expression();
+        }
+        v_vars.emplace_back(std::make_pair(name, initializer));
+    } while (match({TokenType::COMMA}));
     // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
     // checking end line whether is a function or simple variable for automatic semicolon insertion
     if (m_isFuncBody) checkEndLine("Expect ';' after variable declaration.", false);
