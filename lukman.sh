@@ -2,6 +2,7 @@
 ### Script for managing luky application.
 ### Author: Coolbrother
 ### Date: Tue, 30/09/2020
+### Last update: Wed, 14/10/2020
 
 # globals variables
 appName="$0"
@@ -16,7 +17,7 @@ excludeFile="17_03_native_readln.luk"
 # some files to test
 declare -a someFiles=("04_01_hello.luk" "04_02_calc.luk"
     "06_01_condition_1.luk" 
-    "08_var.luk" "10_01_loop_while.luk"
+    "08_01_var_1.luk" "10_01_loop_while.luk"
     "11_01_func_1.luk" "11_05_fact.luk" "11_08_fib_3.luk"
     "11_10_lambda_1.luk"
     "12_03_class_getter.luk" "12_04_class_this.luk" "12_10_class_init.luk"
