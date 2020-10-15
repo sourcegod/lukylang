@@ -1,10 +1,15 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Wed, 11/10/2020
-Last version: v0.32.1
+Update: Thu, 15/10/2020
+Last version: v0.32.2
 
   0. Changelog
+# Version 0.32.2: multi variable declaration
+-- Adding multi-variable declaration support.
+-- Added files: var_1.luk, var_2.luk and var_multi.luk in tests directory.
+
+
 # Version 0.32.1: Function and Lambda arrow
 -- Added support for lambda and function arrow with (=>) Token type.
 -- Added Scanner::logTokens and Scanner::insertToken functions
