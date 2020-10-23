@@ -1,0 +1,4 @@
+fun abs(x) => x>=0 ? x : -x
+println("abs(4): ", abs(4))
+println("abs(-55): ", abs(-55))
+
