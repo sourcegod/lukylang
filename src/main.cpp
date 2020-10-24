@@ -43,6 +43,18 @@ bool hasOnlySpaces(const std::string& str) {
     return str.find_first_not_of(" \t\n\v\f\r") == std::string::npos;
 }
 
+std::vector<std::string> split(const std::string& str, char delim) {
+  std::stringstream oss(str);
+  std::string item;
+  std::vector<std::string> v_elems;
+    while(std::getline(oss, item, delim)) {
+    // do not copy item  
+    v_elems.push_back(std::move(item));
+    }
+
+    return v_elems;
+}
+
 static void run(const std::string& source) {
     if (source.empty() || hasOnlySpaces(source)) return;
 
@@ -96,6 +108,22 @@ static void runPrompt() {
         // manage ctrl-D to exit the input loop
         if (!getline(std::cin, line)) break;
         if (line == "") continue;
+        // if (line.rfind(':', 0) == 0) {
+        if (line[0] == ':') {
+          // deleting first char
+          line = line.substr(1, line.size() -1);
+          std::vector<std::string> v_str = split(line, ' ');
+          if (v_str.empty()) continue;
+          if (v_str[0] == "load") {
+            if (v_str.size() == 2) {
+              std::cout << "Loading file: " << v_str[1] << "\n";
+              runFile(v_str[1]);
+            }
+          }
+
+          continue;
+        }
+
         run(line);
         m_lukErr.hadError = false;
     }
