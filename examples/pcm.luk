@@ -1,0 +1,4 @@
+fun gcd(a, b) => b == 0 ? a : gcd(b, a % b)
+fun pcm(a, b) => (a==0 or b==0) ? 0 : (a*b)/gcd(a, b)
+println("pcm(42, 56): ", pcm(42, 56))
+println("pcm(5, 12): ", pcm(5, 12))
