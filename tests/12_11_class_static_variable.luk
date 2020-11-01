@@ -1,0 +1,13 @@
+var a=33;
+var b=55;
+class Test {
+  var x=0, y="lolo"; 
+var z="zonzon";
+  hello() {
+    print "coucou"
+    print Test.y
+  }
+}
+println(Test.x, Test.y, Test.z)
+println(a, b)
+print Test.hello()
