@@ -247,48 +247,61 @@ void Resolver::visitBreakStmt(BreakStmt& /*stmt*/) {
 
 
 void Resolver::visitClassStmt(ClassStmt& stmt) {
-  ClassType enclosingClass = currentClass;
-  currentClass = ClassType::Class;
-  
-  declare(stmt.m_name);
-  define(stmt.m_name);
+    ClassType enclosingClass = currentClass;
+    currentClass = ClassType::Class;
+    
+    declare(stmt.m_name);
+    define(stmt.m_name);
 
-  if (stmt.m_superclass != nullptr &&
-      stmt.m_name->lexeme == stmt.m_superclass->m_name->lexeme) {
-      m_lukErr.error(errTitle, stmt.m_superclass->m_name,
-        "A class cannot inherit from itself.");
-  }
+    if (stmt.m_superclass != nullptr &&
+        stmt.m_name->lexeme == stmt.m_superclass->m_name->lexeme) {
+        m_lukErr.error(errTitle, stmt.m_superclass->m_name,
+          "A class cannot inherit from itself.");
+    }
 
-  if (stmt.m_superclass != nullptr) {
-    // Note: changing resolve(ExprPtr&) to resolve(ExprPtr), to accept VariableExpr as parameter
-    currentClass = ClassType::Subclass;
-    resolve(stmt.m_superclass);
-  }
-  
-  if (stmt.m_superclass != nullptr) {
+    if (stmt.m_superclass != nullptr) {
+      // Note: changing resolve(ExprPtr&) to resolve(ExprPtr), to accept VariableExpr as parameter
+      currentClass = ClassType::Subclass;
+      resolve(stmt.m_superclass);
+    }
+    
+    if (stmt.m_superclass != nullptr) {
+      beginScope();
+      if (m_scopes.size() == 0) return;
+      auto& scope = m_scopes.back(); 
+      scope["super"] = Variable(stmt.m_superclass->m_name, VarState::READ);
+    }
+    
     beginScope();
     if (m_scopes.size() == 0) return;
     auto& scope = m_scopes.back(); 
-    scope["super"] = Variable(stmt.m_superclass->m_name, VarState::READ);
-  }
-  
-  beginScope();
-  if (m_scopes.size() == 0) return;
-  auto& scope = m_scopes.back(); 
-  // Using State READ for "this" to not generate an error for variable inused
-  scope["this"] = Variable(stmt.m_name, VarState::READ);
-
-  for (auto funcStmt: stmt.m_methods) {
-    auto declaration = FunctionType::Method;
-    if (funcStmt->m_name->lexeme == "init") {
-      declaration = FunctionType::Initializer;
+    // Using State READ for "this" to not generate an error for variable inused
+    scope["this"] = Variable(stmt.m_name, VarState::READ);
+    // resolving variables fields
+    TokPtr name;
+    ExprPtr initializer;
+    for (auto& it: stmt.m_vars) {
+        name = it.first;
+        initializer = it.second;
+        declare(name);
+        if (initializer != nullptr) {
+          resolve(initializer);
+        }
+        define(name);
     }
-    resolveFunction(*funcStmt->m_function, declaration); // [local] 
-  }
 
-  endScope();
-  if (stmt.m_superclass != nullptr) endScope();
-  currentClass = enclosingClass;
+    // resolving the methods
+    for (auto funcStmt: stmt.m_methods) {
+      auto declaration = FunctionType::Method;
+      if (funcStmt->m_name->lexeme == "init") {
+        declaration = FunctionType::Initializer;
+      }
+      resolveFunction(*funcStmt->m_function, declaration); // [local] 
+    }
+
+    endScope();
+    if (stmt.m_superclass != nullptr) endScope();
+    currentClass = enclosingClass;
 }
 
 
@@ -334,15 +347,15 @@ void Resolver::visitReturnStmt(ReturnStmt& stmt) {
 void Resolver::visitVarStmt(VarStmt& stmt) {
     TokPtr name;
     ExprPtr initializer;
-  for (auto& it: stmt.m_vars) {
-      name = it.first;
-      initializer = it.second;
-      declare(name);
-      if (initializer != nullptr) {
-        resolve(initializer);
-      }
-      define(name);
-  }
+    for (auto& it: stmt.m_vars) {
+        name = it.first;
+        initializer = it.second;
+        declare(name);
+        if (initializer != nullptr) {
+          resolve(initializer);
+        }
+        define(name);
+    }
 
 }
 
