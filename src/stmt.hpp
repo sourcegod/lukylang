@@ -58,9 +58,12 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(TokPtr& name, std::shared_ptr<VariableExpr>& superclass, std::vector<FuncPtr>&& methods) :
+    ClassStmt(TokPtr& name, std::shared_ptr<VariableExpr>& superclass, 
+        std::vector<std::pair<TokPtr, ExprPtr>>&& vars,
+        std::vector<FuncPtr>&& methods) :
       m_name(name),
       m_superclass(std::move(superclass)),
+      m_vars(std::move(vars)),
       m_methods(std::move(methods))
     {}
 
@@ -69,6 +72,7 @@ public:
     }
     TokPtr m_name;
     std::shared_ptr<VariableExpr> m_superclass;
+    std::vector<std::pair<TokPtr, ExprPtr>> m_vars;
     std::vector<FuncPtr> m_methods;
 
 };
