@@ -146,6 +146,7 @@ ObjPtr Interpreter::evaluate(ExprPtr expr) {
      auto obj = expr->accept(*this);
      if (obj == nullptr) {
        std::cerr << "Evaluated expr " << expr->typeName() << " to nullptr \n";
+       return nilptr;
      }
 
     logMsg("Evaluating obj result after accept: ", obj->toString());
@@ -462,7 +463,15 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
     return obj_ptr;
   }
-
+  // searching klass fields
+  logMsg("obj is: ", obj->toString(), ", type: ", obj->getType());
+  auto klass = obj->getDynCast<LukClass>();
+  if (klass != nullptr) { 
+    auto objMeth = klass->findMethod(expr.m_name->lexeme);
+    if (objMeth != nullptr) return objMeth;
+    throw RuntimeError(expr.m_name,
+    "property not found.");
+   }
   throw RuntimeError(expr.m_name,
     "Only instances have properties.");
   
@@ -749,6 +758,21 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   }
 
   std::unordered_map<std::string, ObjPtr> methods;
+  // Adding variables fields into the class map
+  ObjPtr value = nilptr;
+  TokPtr name;
+  ExprPtr initializer;
+  for (auto& it: stmt.m_vars) {
+      value = nilptr;
+      name = it.first;
+      initializer = it.second;
+      if (initializer != nullptr) {
+          value = evaluate(initializer);
+      }
+      methods[name->lexeme] = value;
+  }
+  
+  // Adding methods into the class map
   for (auto meth: stmt.m_methods) {
     auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
         meth->m_function, m_env,
@@ -760,7 +784,6 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
     methods[meth->m_name->lexeme] = obj_ptr;
   }
-
   auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
   if (stmt.m_superclass != nullptr) {
     // Note: moving m_enclosing from private to public in Environment object

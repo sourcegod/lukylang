@@ -24,8 +24,10 @@ public:
       // cause this object is more sophisticated
       // so the compiler's default copy constructor cannot copy it entirely.
       logMsg("LukInstance copy Ctor with deep copy");
-      m_klass = other.getKlass();
-      m_fields = other.getFields();
+      // m_klass = other.getKlass();
+      // m_fields = other.getFields();
+      m_klass = other.m_klass;
+      m_fields = other.m_fields;
     }
     
     ~LukInstance() {}

@@ -31,6 +31,12 @@ ObjPtr LukInstance::get(TokPtr& name) {
           std::shared_ptr<LukInstance> instPtr = std::make_shared<LukInstance>(*this);
           return funcPtr->bind(instPtr);
         }
+        
+        else if (method != nullptr) {
+          std::cerr << "passe ici pour : " << name->lexeme << "\n";
+          return method;
+        }
+
     }
 
     throw RuntimeError(name, 
