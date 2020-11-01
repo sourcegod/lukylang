@@ -54,6 +54,7 @@ private:
     StmtPtr ifStatement();
     StmtPtr printStatement();
     StmtPtr returnStatement();
+    std::vector<std::pair<TokPtr, ExprPtr>> multiVars();
     StmtPtr varDeclaration();
     StmtPtr whileStatement();
     
