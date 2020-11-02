@@ -277,7 +277,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
     auto& scope = m_scopes.back(); 
     // Using State READ for "this" to not generate an error for variable inused
     scope["this"] = Variable(stmt.m_name, VarState::READ);
-    // resolving variables fields
+    // resolving static klass variables fields
     TokPtr name;
     ExprPtr initializer;
     for (auto& it: stmt.m_vars) {
@@ -288,6 +288,8 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
           resolve(initializer);
         }
         define(name);
+        // make static already read to not generate error local variable inused
+        scope[name->lexeme] = Variable(name, VarState::READ);
     }
 
     // resolving the methods
