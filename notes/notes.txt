@@ -1,10 +1,16 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Update: Thu, 15/10/2020
-Last version: v0.32.3
+Last update: Mon, 02/11/2020
+Last version: v0.32.4
 
   0. Changelog
+# Version 0.32.4: Static Class Variable 
+-- Adding Parser::multiVars function, static variable into class statement in
+Parser::classDeclaration functions, Resolver and Interpreter classes.
+-- Adding multivars params into classStmt constructor, in file: stmt.hpp
+-- Added files: class_static_variable.luk in examples and tests directories.
+
 # Version 0.32.3: Load file in REPL
 -- Added Load File feature for the REPL, in file: main.cpp
 -- Added files: abs.luk, gcd.luk in examples directory
@@ -189,6 +195,13 @@ std::string("hello") + "every" + "body";
 4.10 Vector
 -- Pop_back function does not returns any value
 but remove the item from the vector
+
+-- Append a vector into another with iterator:
+std::vector<int>  v1 = {1,2,3};
+std::vector<int> v2 = {4,5,6};
+v1.insert(v1.end(), v2.begin(), v2.end());
+-- or without copy
+std::move(v2.begin(), v2.end(), std::back_inserter(v1));
 
 #--------------------------------------------------------------------------------
 
