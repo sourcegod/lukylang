@@ -228,14 +228,19 @@ StmtPtr Parser::classDeclaration() {
     }
 
     std::vector<FuncPtr> methods;
+    // adding meta class
+    std::vector<FuncPtr> classMethods;
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-      methods.push_back( std::move(function("method")) );
+        bool isClassMethod = match({TokenType::CLASS});
+        (isClassMethod ? classMethods : methods).push_back( std::move(function("method")) );
     }
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
   
     return std::make_shared<ClassStmt>(name, superclass, std::move(v_vars),
-        std::move(methods) );
+        std::move(methods), std::move(classMethods) );
 }
 
 StmtPtr Parser::declaration() {
