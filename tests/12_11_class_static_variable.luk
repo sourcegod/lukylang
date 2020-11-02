@@ -1,13 +1,13 @@
 var a=33;
 var b=55;
 class Test {
-  var x=0, y="lolo"; 
-var z="zonzon";
+  var x=42, y="toto"; 
+  var z="zonzon";
   hello() {
-    print "coucou"
-    print Test.y
+    print "kikou from hello method"
+    println("static variable y, from hello method: ", Test.y)
   }
 }
-println(Test.x, Test.y, Test.z)
-println(a, b)
-print Test.hello()
+println("static variables x, y, z, outside Test class: ", Test.x, Test.y, Test.z)
+println("global variables a, b, outside Test class: ", a, b)
+Test.hello()
