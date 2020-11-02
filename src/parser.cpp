@@ -164,23 +164,26 @@ std::vector<std::pair<TokPtr, ExprPtr>> Parser::multiVars() {
     TokPtr name;
     ExprPtr initializer;
     do {
-        if (m_isFuncBody) m_isFuncBody = false;
-        name = consume(TokenType::IDENTIFIER, "Expect variable name.");
-        initializer = nullptr;
-        if (match({TokenType::EQUAL})) {
-            // we do not call expression function to avoid comma operator
-            initializer = assignment();
-        }
-        // v_vars.emplace_back(std::make_pair(name, initializer));
-        /// Note: we can also pass an initializer list to push_back function
-        v_vars.push_back({name, initializer});
-    } while (match({TokenType::COMMA}));
-    // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    // checking end line whether is a function or simple variable for automatic semicolon insertion
-    if (m_isFuncBody) checkEndLine("", false);
-    else checkEndLine("Expect ';' after variable declaration.", true);
-    m_isFuncBody = false;
-    
+        do {
+            if (m_isFuncBody) m_isFuncBody = false;
+            name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+            initializer = nullptr;
+            if (match({TokenType::EQUAL})) {
+                // we do not call expression function to avoid comma operator
+                initializer = assignment();
+            }
+            // v_vars.emplace_back(std::make_pair(name, initializer));
+            /// Note: we can also pass an initializer list to push_back function
+            v_vars.push_back({name, initializer});
+        } while (match({TokenType::COMMA}));
+        // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+        // checking end line whether is a function or simple variable for automatic semicolon insertion
+        if (m_isFuncBody) checkEndLine("", false);
+        else checkEndLine("Expect ';' after variable declaration.", true);
+        m_isFuncBody = false;
+        
+    } while (match({TokenType::VAR}));
+        
     return std::move(v_vars);
 }
 
@@ -220,15 +223,10 @@ StmtPtr Parser::classDeclaration() {
     consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
 
     std::vector<std::pair<TokPtr, ExprPtr>>  v_vars;
-    while (match({TokenType::VAR})) {
-      /// Note: append a vector into another with iterator
-      auto vec_1 = multiVars();
-      /// v_vars.insert(v_vars.end(), vec_1.begin(), vec_1.end());
-      /// or without copy
-      std::move(vec_1.begin(), vec_1.end(), std::back_inserter(v_vars));
+    if (match({TokenType::VAR})) {
+        v_vars = multiVars();
     }
 
-    
     std::vector<FuncPtr> methods;
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
       methods.push_back( std::move(function("method")) );
