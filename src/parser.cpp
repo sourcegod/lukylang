@@ -220,7 +220,7 @@ StmtPtr Parser::classDeclaration() {
       superclass = std::make_shared<VariableExpr>(previous());
     }
 
-    consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
 
     std::vector<std::pair<TokPtr, ExprPtr>>  v_vars;
     if (match({TokenType::VAR})) {
@@ -230,9 +230,9 @@ StmtPtr Parser::classDeclaration() {
     std::vector<FuncPtr> methods;
     // adding meta class
     std::vector<FuncPtr> classMethods;
-    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
 
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+        /// Note: good tip using ternary expression
         bool isClassMethod = match({TokenType::CLASS});
         (isClassMethod ? classMethods : methods).push_back( std::move(function("method")) );
     }

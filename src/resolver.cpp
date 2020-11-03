@@ -263,9 +263,6 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
       // Note: changing resolve(ExprPtr&) to resolve(ExprPtr), to accept VariableExpr as parameter
       currentClass = ClassType::Subclass;
       resolve(stmt.m_superclass);
-    }
-    
-    if (stmt.m_superclass != nullptr) {
       beginScope();
       if (m_scopes.size() == 0) return;
       auto& scope = m_scopes.back(); 
@@ -277,6 +274,7 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
     auto& scope = m_scopes.back(); 
     // Using State READ for "this" to not generate an error for variable inused
     scope["this"] = Variable(stmt.m_name, VarState::READ);
+    
     // resolving static klass variables fields
     TokPtr name;
     ExprPtr initializer;
@@ -300,6 +298,17 @@ void Resolver::visitClassStmt(ClassStmt& stmt) {
       }
       resolveFunction(*funcStmt->m_function, declaration); // [local] 
     }
+    
+    // resolving classMethods
+    for (auto method: stmt.m_classMethods) {
+        beginScope();
+        auto& scope = m_scopes.back(); 
+        // Using State READ for "this" to not generate an error for variable inused
+        scope["this"] = Variable(method->m_name, VarState::READ);
+        resolveFunction(*method->m_function, FunctionType::Method); // [local] 
+        endScope();
+    }
+
 
     endScope();
     if (stmt.m_superclass != nullptr) endScope();
