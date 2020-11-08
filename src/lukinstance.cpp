@@ -13,11 +13,13 @@ std::string LukInstance::toString() const {
 }
 
 ObjPtr LukInstance::get(TokPtr& name) {
+    logMsg("\nIn LukInstance::get, searching in m_fields, name: ", name);
     auto iter = m_fields.find(name->lexeme);
     if (iter != m_fields.end()) {
       return iter->second;
     }
     if (m_klass != nullptr) {
+        logMsg("In LukInstance::get, searching in m_klass::m_methods, name: ", name);
         ObjPtr method = m_klass->findMethod(name->lexeme); 
         // Note: to retrieve lukfunction,
         // you must extract lukfunction from lukobject

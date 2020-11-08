@@ -15,6 +15,10 @@ size_t LukClass::arity() {
   return 0;
 }
 
+std::string LukClass::toString() const {  
+  return  "<Class " + m_name + ">";
+}
+
 ObjPtr  LukClass::call(Interpreter& interp, 
            std::vector<ObjPtr>& v_args) {
     // Note: "this" is a const pointer, 
@@ -37,25 +41,22 @@ ObjPtr  LukClass::call(Interpreter& interp,
     return std::make_shared<LukObject>(instPtr);
 }
 
-std::string LukClass::toString() const {  
-  return  "<Class " + m_name + ">";
-}
-
 ObjPtr LukClass::findMethod(const std::string& name) {
-  auto iter = m_methods.find(name);
-  if (iter != m_methods.end()) {
-    return iter->second;
-  }
-
-  if (p_superclass != nullptr) {
-    return p_superclass->findMethod(name);
-  }
-  return nullptr;
+    logMsg("\nIn LukClass::Findmethod, name: ", name, "m_methods size: ", m_methods.size());
+    auto iter = m_methods.find(name);
+    if (iter != m_methods.end()) {
+        return iter->second;
+    }
+    if (p_superclass != nullptr) {
+        return p_superclass->findMethod(name);
+    }
+    
+    return nullptr;
 }
 
 
 std::ostream& operator<<(std::ostream& oss, const LukClass& lc) {
-  oss << lc.m_name;
+    oss << lc.m_name;
 
   return oss;
 }

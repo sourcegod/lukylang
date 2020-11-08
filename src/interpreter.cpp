@@ -451,6 +451,7 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   logMsg("\nIn visitGetExpr, name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
   logMsg("obj: ", obj, ", type: ", obj->getType(), ", id: ", obj->getId());
+  /// Note: now, LukClass object is derived from LukInstance, and LukCallable objects
   if (obj->isInstance()) {
     logMsg("obj is an instance");
     // obj_ptr is the method
@@ -460,17 +461,22 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
     // so, after *shared_ptr, you cannot use it again.
     // so, dont use *shared_ptr
     logMsg("In visitGetExpr, obj_ptr: ", obj_ptr->toString());
-  logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
+    logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
     return obj_ptr;
   }
-  // searching klass fields
+  // searching in instance m_klass::fields, then in instance m_klass::m_methods
+  // then in klass::m_methods
+  logMsg("obj is not instance: ", obj->toString(), ", type: ", obj->toString());
   logMsg("obj is: ", obj->toString(), ", type: ", obj->getType());
   auto klass = obj->getDynCast<LukClass>();
   if (klass != nullptr) { 
-    auto objMeth = klass->findMethod(expr.m_name->lexeme);
-    if (objMeth != nullptr) return objMeth;
-    throw RuntimeError(expr.m_name,
-    "property not found.");
+      auto instMeth = klass->get(expr.m_name);
+      if (instMeth != nullptr) return instMeth;
+      logMsg("Method instance not found: ", expr.m_name->lexeme);
+      auto objMeth = klass->findMethod(expr.m_name->lexeme);
+      if (objMeth != nullptr) return objMeth;
+      throw RuntimeError(expr.m_name,
+      "property not found.");
    }
   throw RuntimeError(expr.m_name,
     "Only instances have properties.");
@@ -517,7 +523,7 @@ ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
   logMsg("instptr tostring: ", instPtr->toString());
   logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
   instPtr->set(expr.m_name, value);
-  logMsg("m_fields size from visitSet: ", instPtr->getFields().size());
+  logMsg("m_fields size from visitSet: protected");
   logMsg("Exit out visitSet: \n");
  
   return value;
@@ -772,6 +778,19 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
       methods[name->lexeme] = value;
   }
   
+  std::unordered_map<std::string, ObjPtr> classMethods;
+  // Adding classmethods into the class map
+  for (auto meth: stmt.m_classMethods) {
+    auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
+        meth->m_function, m_env, false);
+    auto obj_ptr = std::make_shared<LukObject>(func);
+    classMethods[meth->m_name->lexeme] = obj_ptr;
+  }
+  // in this klass, metaklass and superklass are null
+  auto metaKlass = std::make_shared<LukClass>(nullptr, 
+      stmt.m_name->lexeme + " metaclass", 
+      nullptr, classMethods);
+
   // Adding methods into the class map
   for (auto meth: stmt.m_methods) {
     auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
@@ -784,7 +803,8 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
     methods[meth->m_name->lexeme] = obj_ptr;
   }
-  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
+  auto klass = std::make_shared<LukClass>(metaKlass, stmt.m_name->lexeme, 
+      supKlass, methods);
   if (stmt.m_superclass != nullptr) {
     // Note: moving m_enclosing from private to public in Environment object
     m_env = m_env->m_enclosing;

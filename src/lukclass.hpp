@@ -3,6 +3,7 @@
 
 #include "common.hpp"
 #include "lukcallable.hpp"
+#include "lukinstance.hpp"
 #include "logger.hpp"
 
 #include <string>
@@ -10,24 +11,26 @@
 #include <memory>
 #include <unordered_map>
 
-class LukClass : public LukCallable {
+class LukClass : public LukInstance, public LukCallable {
 public:
   std::string m_name;
   std::shared_ptr<LukClass> p_superclass;
 
-    LukClass(const std::string& name,
-        std::shared_ptr<LukClass> superclass,
-        const std::unordered_map<std::string, ObjPtr>& methods)
-      : m_name(name),
+    LukClass( std::shared_ptr<LukClass> metaclass,
+          const std::string& name,
+          std::shared_ptr<LukClass> superclass,
+          const std::unordered_map<std::string, ObjPtr>& methods) :
+      LukInstance(metaclass),
+      m_name(name),
       p_superclass(superclass),
-    m_methods(methods) 
+      m_methods(methods) 
     {}
 
     ~LukClass() {}
 
     virtual size_t arity() override;
-    virtual ObjPtr  call(Interpreter& interp, std::vector<ObjPtr>& v_args) override;
     virtual std::string toString() const override;
+    virtual ObjPtr  call(Interpreter& interp, std::vector<ObjPtr>& v_args) override;
     ObjPtr findMethod(const std::string& name);
 
 private:
