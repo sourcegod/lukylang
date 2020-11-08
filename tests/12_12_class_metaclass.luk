@@ -1,0 +1,6 @@
+class Math {
+    class square(n) {
+        return n * n
+    }
+}
+println("Static Method Math.Square(3): ", Math.square(3))
