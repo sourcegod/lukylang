@@ -35,14 +35,15 @@ ObjPtr LukInstance::get(TokPtr& name) {
         }
         
         else if (method != nullptr) {
-          std::cerr << "passe ici pour : " << name->lexeme << "\n";
           return method;
         }
 
     }
-
+  /*
     throw RuntimeError(name, 
         "Undefined property '" + name->lexeme + "'.");
+        */
+    logMsg("LukInstance::get, Undefined property: ", name->lexeme);
     // unrichable
     return nilptr;
 }

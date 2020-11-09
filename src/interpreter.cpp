@@ -471,10 +471,10 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   auto klass = obj->getDynCast<LukClass>();
   if (klass != nullptr) { 
       auto instMeth = klass->get(expr.m_name);
-      if (instMeth != nullptr) return instMeth;
+      if (instMeth != nullptr && instMeth != nilptr) return instMeth;
       logMsg("Method instance not found: ", expr.m_name->lexeme);
       auto objMeth = klass->findMethod(expr.m_name->lexeme);
-      if (objMeth != nullptr) return objMeth;
+      if (objMeth != nullptr && objMeth != nilptr) return objMeth;
       throw RuntimeError(expr.m_name,
       "property not found.");
    }
@@ -509,24 +509,33 @@ ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
 ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
     logMsg("\nIn visitSet: ");
     logMsg("name: ", expr.m_name);
-  auto objP = evaluate(expr.m_object);
-  if (not objP->isInstance()) {
-    throw RuntimeError(expr.m_name,
-      "Only instances have fields.");
-  }
+    auto objP = evaluate(expr.m_object);
+    auto value = evaluate(expr.m_value);
+    // Now, LukClass object is derived from LukInstance  and LukCallable objects.
+    if (objP->isInstance()) {
+        logMsg("value: ", value);
+        logMsg("obj: ", objP, ", type: ", objP->getType());
+        logMsg("obj->getId: ", objP->getId());
+        auto instPtr = objP->getInstance();
+        logMsg("instptr tostring: ", instPtr->toString());
+        logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
+        instPtr->set(expr.m_name, value);
+        logMsg("m_fields size from visitSet: protected");
+        return value;
+    }
 
-  auto value = evaluate(expr.m_value);
-  logMsg("value: ", value);
-  logMsg("obj: ", objP, ", type: ", objP->getType());
-  logMsg("obj->getId: ", objP->getId());
-  auto instPtr = objP->getInstance();
-  logMsg("instptr tostring: ", instPtr->toString());
-  logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
-  instPtr->set(expr.m_name, value);
-  logMsg("m_fields size from visitSet: protected");
-  logMsg("Exit out visitSet: \n");
+    // using klass instead instance
+    auto klass = objP->getDynCast<LukClass>();
+    if (klass != nullptr) { 
+        klass->set(expr.m_name, value);
+        return value;
+    }
+
+    logMsg("Exit out visitSet: \n");
+    throw RuntimeError(expr.m_name,
+        "Only instances have fields.");
  
-  return value;
+    return nilptr;
 }
 
 ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
@@ -548,6 +557,7 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
     if (method == nullptr) {
       throw RuntimeError(expr.m_method,
           "Undefined property '" + expr.m_method->lexeme + "'.");
+
     }
 
     std::shared_ptr<LukFunction> funcPtr = method->getDynCast<LukFunction>();
