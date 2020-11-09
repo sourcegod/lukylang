@@ -4,3 +4,5 @@ class Math {
     }
 }
 println("Static Method Math.Square(3): ", Math.square(3))
+Math.pi = 3.141592653;
+println("Math.pi = ",  Math.pi);
