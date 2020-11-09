@@ -1,10 +1,15 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Mon, 02/11/2020
-Last version: v0.32.4
+Last update: Mon, 09/11/2020
+Last version: dev_0.32.5
 
   0. Changelog
+# Version dev_0.32.5: metaclass
+-- Adding metaclass or static class method support.
+-- Adding files: class_metaclass.luk in examples and tests directories.
+-- Now, LukClass is derived from LukInstance and LukCallable objects.
+
 # Version 0.32.4: Static Class Variable 
 -- Adding Parser::multiVars function, static variable into class statement in
 Parser::classDeclaration functions, Resolver and Interpreter classes.
