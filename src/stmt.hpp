@@ -199,9 +199,10 @@ public:
 
 class WhileStmt : public Stmt {
 public:
-    WhileStmt(ExprPtr condition, StmtPtr body) :
+    WhileStmt(ExprPtr condition, StmtPtr body, bool isWhile) :
         m_condition(std::move(condition)),
-        m_body(std::move(body))
+        m_body(std::move(body)),
+        m_isWhile(isWhile)
     {}
 
     void accept(StmtVisitor& v) override {
@@ -210,6 +211,7 @@ public:
 
     ExprPtr m_condition;
     StmtPtr m_body;
+    bool m_isWhile;
 };
 
 

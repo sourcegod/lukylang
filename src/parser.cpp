@@ -81,7 +81,7 @@ StmtPtr Parser::doStatement() {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
     checkEndLine("Expect ';' after value.", true);
 
-    return std::make_shared<WhileStmt>(condition, body);
+    return std::make_shared<WhileStmt>(condition, body, false);
 }
 
 StmtPtr Parser::forStatement() {
@@ -115,7 +115,7 @@ StmtPtr Parser::forStatement() {
         stmts.push_back(increment);
         body = std::make_shared<BlockStmt>( std::move(stmts) );
     }
-    body = std::make_shared<WhileStmt>(condition, body);
+    body = std::make_shared<WhileStmt>(condition, body, true);
     if (initializer) {
         std::vector<StmtPtr> stmts;
         stmts.push_back( initializer );
@@ -168,7 +168,7 @@ StmtPtr Parser::whileStatement() {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
     StmtPtr body = statement();
 
-    return std::make_shared<WhileStmt>(condition, body);
+    return std::make_shared<WhileStmt>(condition, body, true);
 }
 
 std::vector<std::pair<TokPtr, ExprPtr>> Parser::multiVars() {
