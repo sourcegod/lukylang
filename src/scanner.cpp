@@ -11,6 +11,7 @@ Scanner::Scanner(const std::string& source, LukError& lukErr)
     m_keywords["break"]    = TokenType::BREAK;
     m_keywords["class"]  = TokenType::CLASS;
     m_keywords["continue"]    = TokenType::CONTINUE;
+    m_keywords["do"]   = TokenType::DO;
     m_keywords["else"]   = TokenType::ELSE;
     m_keywords["false"]  = TokenType::FALSE;
     m_keywords["for"]    = TokenType::FOR;
