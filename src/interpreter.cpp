@@ -891,16 +891,31 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
 
 void Interpreter::visitWhileStmt(WhileStmt& stmt) {
     auto val  = evaluate(stmt.m_condition);
-    while (isTruthy(val)) {
-        try {
-            execute(stmt.m_body);
-            val  = evaluate(stmt.m_condition);
-            // Note: catching must be by reference, not by value
-        } catch(Jump& jmp) {
-            if (jmp.m_keyword->lexeme == "break") break;
-            if (jmp.m_keyword->lexeme == "continue") continue;
+    // isWhile variable indicates whether is an while loop or a do-while loop
+    if (stmt.m_isWhile) {
+        while (isTruthy(val)) {
+            try {
+                execute(stmt.m_body);
+                val  = evaluate(stmt.m_condition);
+                // Note: catching must be by reference, not by value
+            } catch(Jump& jmp) {
+                if (jmp.m_keyword->lexeme == "break") break;
+                if (jmp.m_keyword->lexeme == "continue") continue;
+            }
+        
         }
+    } else {
+        do {
+            try {
+                execute(stmt.m_body);
+                val  = evaluate(stmt.m_condition);
+                // Note: catching must be by reference, not by value
+            } catch(Jump& jmp) {
+                if (jmp.m_keyword->lexeme == "break") break;
+                if (jmp.m_keyword->lexeme == "continue") continue;
+            }
 
+        } while (isTruthy(val));
     }
 
 }
