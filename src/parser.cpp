@@ -37,7 +37,8 @@ StmtPtr Parser::statement() {
      
     if (match({TokenType::BREAK, TokenType::CONTINUE})) 
         return breakStatement();
-
+    if (match({TokenType::DO})) 
+        return doStatement();
     if (match({TokenType::FOR})) 
         return forStatement();
     if (match({TokenType::IF})) 
@@ -70,6 +71,17 @@ StmtPtr Parser::breakStatement() {
     TokPtr keyword = previous();
     consume(TokenType::SEMICOLON, "Expect ';' after break statement");
     return std::make_shared<BreakStmt>(keyword);
+}
+
+StmtPtr Parser::doStatement() {
+    StmtPtr body = statement();
+    consume(TokenType::WHILE, "Expect 'while' after 'do' body");
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'");
+    ExprPtr condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
+    checkEndLine("Expect ';' after value.", true);
+
+    return std::make_shared<WhileStmt>(condition, body);
 }
 
 StmtPtr Parser::forStatement() {

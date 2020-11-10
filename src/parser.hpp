@@ -48,6 +48,7 @@ private:
     StmtPtr breakStatement();
     StmtPtr classDeclaration();
     StmtPtr declaration();
+    StmtPtr doStatement();
     StmtPtr expressionStatement();
     StmtPtr forStatement();
     FuncPtr function(const std::string& kind);
