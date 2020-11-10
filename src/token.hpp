@@ -42,8 +42,8 @@ enum class TokenType {
     // Reserved Keywords.
     AND, BREAK, 
     CLASS, CONTINUE,
-    ELSE, FALSE,
-    FUN, FOR,
+    DO, ELSE,
+    FALSE, FOR, FUN,
     IF, NIL,
     OR, PRINT,
     RETURN, SUPER,
