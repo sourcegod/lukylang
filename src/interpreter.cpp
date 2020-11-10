@@ -170,7 +170,7 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
       case TokenType::EQUAL: break;
       case TokenType::PLUS_EQUAL:
           if (cur->isNumber() && value->isNumber()) {
-              *value = *cur + *value;
+              value = std::make_shared<LukObject>(*cur + *value);
           } else if ( (value->isString() && cur->isString())  ||
               (value->isString() && cur->isNumeric()) || 
               (value->isNumeric() && cur->isString()) ) {
@@ -184,14 +184,14 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
       
       case TokenType::MINUS_EQUAL:
           checkNumberOperands(op, cur, value);
-          *value = *cur - *value;
+          value = std::make_shared<LukObject>(*cur - *value);
           break;
 
       case TokenType::STAR_EQUAL:
           if ( (cur->isNumber()) && (value->isNumber()) ) {
-              *value *= *cur;
+              value = std::make_shared<LukObject>(*cur * *value);
           } else if ( cur->isString() && value->isNumber() ) { 
-              // Note: can multiply string by number
+              /// Note: can multiply string by number
               if ( not value->isInt()) {
                   throw RuntimeError(op, "String multiplier must be an integer");
               }
@@ -213,12 +213,12 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 
       case TokenType::SLASH_EQUAL:
           checkNumberOperands(op, cur, value);
-          *value = *cur / *value;
+          value = std::make_shared<LukObject>(*cur / *value);
           break;
 
       case TokenType::MOD_EQUAL:
           checkNumberOperands(op, cur, value);
-          *value = *cur % *value;
+          value = std::make_shared<LukObject>(*cur % *value);
           break;
 
       case TokenType::EXP_EQUAL:
@@ -227,39 +227,39 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
           checkNumberOperands(op, cur, value);
           if ( cur->isInt() && value->isInt() &&
                   value->getInt() >= 0 ) {
-              *value = int( std::pow( cur->getNumber(), value->getNumber()) );
+              value = std::make_shared<LukObject>( int( std::pow( cur->getNumber(), value->getNumber())) );
           } 
-          else *value = std::pow( cur->getNumber(), value->getNumber() );
+          else value = std::make_shared<LukObject>( std::pow( cur->getNumber(), value->getNumber()) );
           break;
 
        // bitwise operators compound assignment
        case TokenType::BIT_OR_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur | *value;
+                value = std::make_shared<LukObject>(*cur | *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_AND_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur & *value;
+                value = std::make_shared<LukObject>(*cur & *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_XOR_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur ^ *value;
+                value = std::make_shared<LukObject>(*cur ^ *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_LEFT_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur << *value;
+                value = std::make_shared<LukObject>(*cur << *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_RIGHT_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur >> *value;
+                value = std::make_shared<LukObject>(*cur >> *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
