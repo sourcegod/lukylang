@@ -340,6 +340,20 @@ bool Scanner::isAlNum(const char c) const {
     return isAlpha(c) || isDigit(c);
 }
 
+bool Scanner::isIdent(const char c) const {
+    return isAlpha(c) || isDigit(c) || c == '$';
+}
+
+bool Scanner::isExpr(const char c) const {
+    if (c == '}') return false;
+    return true;
+}
+
+void Scanner::synchronize() {
+    m_start = m_current;
+    // logMsg("Synchronizing, start: ", start, ", current: ", current);
+}
+
 void Scanner::skipComments() {
     while (!isAtEnd()) {
         if (peek() != '\n') {
