@@ -49,14 +49,18 @@ public:
     bool isDigit(char) const;
     bool isAlpha(char) const;
     bool isAlNum(char) const;
-    bool isIdent(const char c) const;
-    bool isExpr(const char c) const;
-    void synchronize();
     void skipComments();
     void skipMultilineComments();
     bool isPrintable(char ch);
     char searchPrintable();
     void logTokens();
+    
+    // String Interpolation functions
+    bool isIdent(const char c) const;
+    bool isExpr(const char c) const;
+    void synchronize();
+    std::string getIdent();
+    std::string getExpr();
    
 };
 

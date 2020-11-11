@@ -340,20 +340,6 @@ bool Scanner::isAlNum(const char c) const {
     return isAlpha(c) || isDigit(c);
 }
 
-bool Scanner::isIdent(const char c) const {
-    return isAlpha(c) || isDigit(c) || c == '$';
-}
-
-bool Scanner::isExpr(const char c) const {
-    if (c == '}') return false;
-    return true;
-}
-
-void Scanner::synchronize() {
-    m_start = m_current;
-    // logMsg("Synchronizing, start: ", start, ", current: ", current);
-}
-
 void Scanner::skipComments() {
     while (!isAtEnd()) {
         if (peek() != '\n') {
@@ -409,3 +395,47 @@ void Scanner::logTokens() {
   }
 
 }
+
+bool Scanner::isIdent(const char c) const {
+    return isAlpha(c) || isDigit(c) || c == '$';
+}
+
+bool Scanner::isExpr(const char c) const {
+    if (c == '}') return false;
+    return true;
+}
+
+void Scanner::synchronize() {
+    m_start = m_current;
+    // logMsg("Synchronizing, start: ", start, ", current: ", current);
+}
+
+std::string Scanner::getIdent() {
+    // logMsg("\nIn getIdent, start: ", start, ", current: ", current);
+    // consume the '$' for the identifier
+    if (!isAtEnd()) advance();
+    while ( isAlNum(peek()) ) {
+        advance();
+    }
+    const size_t idLen = m_current - m_start;
+    const std::string ident  = m_source.substr(m_start, idLen);
+    // logMsg("Exit out  getIdent, with ident: ", ident, "\n");
+
+    return ident;
+}
+
+std::string Scanner::getExpr() {
+    // logMsg("\nIn getExpr, start: ", start, ", current: ", current);
+    while ( isExpr(peek()) ) {
+        advance();
+    }
+    // consume the '}' for the end of expression
+    if (!isAtEnd()) advance();
+    const size_t exLen = m_current - m_start;
+    const std::string expr  = m_source.substr(m_start, exLen);
+    // logMsg("Exit out  getExpr, with expr: ", expr, "\n");
+
+    return expr;
+}
+
+
