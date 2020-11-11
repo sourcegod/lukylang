@@ -1,10 +1,17 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Mon, 09/11/2020
-Last version: dev_0.32.5
+Last update: Wed, 11/11/2020
+Last version: dev_0.32.6
+
 
   0. Changelog
+
+# Version dev_0.32.6: do-while
+-- Adding do-while support.
+-- Fixed bugs for compound assignment operators in Interpreter::visitAssignExpr function.
+-- Adding files: loop_do_while.luk in examples and tests directories
+
 # Version dev_0.32.5: metaclass
 -- Adding metaclass or static class method support.
 -- Adding files: class_metaclass.luk in examples and tests directories.
