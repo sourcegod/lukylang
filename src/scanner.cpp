@@ -172,8 +172,8 @@ void Scanner::scanToken() {
 
 
         // support simple and double quotes string
-        case '"': string(ch); break;
-        case '\'': string(ch); break;
+        case '"': getString(ch); break;
+        case '\'': getString(ch); break;
 
         default: {
             if (isDigit(ch)) {
@@ -283,7 +283,7 @@ std::string Scanner::unescape(const std::string& escaped) {
     return  strChar;
 }
 
-void Scanner::string(char ch) {
+void Scanner::getString(char ch) {
     // the ch argument is to indicate whether it's simple or double quotes
     while (peek() != ch && !isAtEnd()) {
         if (peek() == '\n') {
