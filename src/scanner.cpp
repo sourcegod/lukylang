@@ -285,15 +285,52 @@ std::string Scanner::unescape(const std::string& escaped) {
 
 void Scanner::getString(char ch) {
     // the ch argument is to indicate whether it's simple or double quotes
+    synchronize();
     while (peek() != ch && !isAtEnd()) {
-        if (peek() == '\n') {
+        auto curChar = peek();
+        auto nextChar = peekNext();
+        // std::cerr  << "char: " << curChar << "\n";
+        if (curChar == '\n') {
             m_line++;
             m_col=0;
         }
-        if (peek() == '\\' && peekNext()  == ch) advance();
-        advance();
-    }
+        if (curChar == '\\' && nextChar  == ch) advance();
 
+        // searching interpolation expression
+        if ( curChar == '$' && 
+                (isAlNum(nextChar) || nextChar == '{') ) {
+            auto part = getPart();
+            // std::cerr << "voici part: " << part << "\n";
+            addToken(TokenType::STRING, part);
+            addToken(TokenType::PLUS);
+            synchronize();
+
+            if (isIdent(nextChar)) { // interpolation identifier
+                auto ident = getIdent();
+                // std::cerr << "voici ident: " << ident << "\n";
+                addToken(TokenType::IDENTIFIER, ident);
+                synchronize();
+
+            } else if (isExpr(nextChar)) { // interpolation expression
+                auto expr = getExpr();
+                // std::cerr << "voici expr: " << expr << "\n";
+                // addToken(TokenType::INT_EXPR, expr);
+                addToken(TokenType::STRING, expr);
+                synchronize();
+            }
+           
+            // cannot use curChar or nextChar 
+            // cause current char has been changed by getIdent or getExpr function.
+            if (peek() != ch && !isAtEnd() ) {
+                addToken(TokenType::PLUS);
+            }
+            continue;
+
+        }
+       if (!isAtEnd())  advance();
+
+    } // End While
+    
     // unterminated string
     if (isAtEnd()) {
         m_lukErr.error(m_errTitle, m_line, m_col, std::string("Unterminated string: '") + ch + "'.");
@@ -302,11 +339,14 @@ void Scanner::getString(char ch) {
     
     // the closing "
     advance();
-    const size_t strLen = m_current - m_start;
     // Handle escapes sequences
     // trim the surrounding quotes
-    const std::string strLiteral = unescape(m_source.substr(m_start +1, strLen -2));
-    addToken(TokenType::STRING, strLiteral);
+    const size_t strLen = m_current - m_start;
+    if (strLen > 1) { // whether is not only '"' char
+        const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
+        addToken(TokenType::STRING, strLiteral);
+    }
+
 }
 
 bool Scanner::match(const char expected) {
@@ -396,25 +436,38 @@ void Scanner::logTokens() {
 
 }
 
-bool Scanner::isIdent(const char c) const {
-    return isAlpha(c) || isDigit(c) || c == '$';
-}
-
-bool Scanner::isExpr(const char c) const {
-    if (c == '}') return false;
-    return true;
-}
-
 void Scanner::synchronize() {
     m_start = m_current;
     // logMsg("Synchronizing, start: ", start, ", current: ", current);
 }
 
+bool Scanner::isStartIdent(const char c) const {
+    return  c == '$'  && (peekNext() == '_' || isAlpha(peekNext()) );
+}
+
+bool Scanner::isIdent(const char c) const {
+    return isAlNum(c);
+}
+
+bool Scanner::isStartExpr(const char c) const {
+    return  c == '$' && peekNext() == '{';
+}
+
+bool Scanner::isExpr(const char c) const {
+    // only '}' char retrieve false cause it is the end of expression
+    if (c == '}' || isAtEnd()) return false;
+    return true;
+}
+
 std::string Scanner::getIdent() {
     // logMsg("\nIn getIdent, start: ", start, ", current: ", current);
     // consume the '$' for the identifier
-    if (!isAtEnd()) advance();
-    while ( isAlNum(peek()) ) {
+    if (!isAtEnd()) { 
+        advance();
+        m_start++;
+    }
+
+    while ( isIdent(peek()) ) {
         advance();
     }
     const size_t idLen = m_current - m_start;
@@ -426,12 +479,28 @@ std::string Scanner::getIdent() {
 
 std::string Scanner::getExpr() {
     // logMsg("\nIn getExpr, start: ", start, ", current: ", current);
+    // consume the '${' for the expression
+    auto oldStart = m_start;
+    if (peek() == '$' && peekNext() == '{') { 
+        advance(); advance();
+        m_start +=2;
+    }
+
     while ( isExpr(peek()) ) {
         advance();
     }
+
+    if (isAtEnd()) {
+        auto errExpr = m_source.substr(oldStart, (m_current -1) - oldStart);
+        m_lukErr.error(m_errTitle, m_line, m_col, 
+            std::string("Unterminated Interpolating Expression: '") + errExpr + "'");
+        return errExpr;
+    }
+
     // consume the '}' for the end of expression
-    if (!isAtEnd()) advance();
-    const size_t exLen = m_current - m_start;
+    if (peek() == '}') advance();
+    // unterminated interpolating expression
+    const size_t exLen = (m_current -1) - m_start;
     const std::string expr  = m_source.substr(m_start, exLen);
     // logMsg("Exit out  getExpr, with expr: ", expr, "\n");
 
@@ -439,3 +508,13 @@ std::string Scanner::getExpr() {
 }
 
 
+std::string Scanner::getPart() {
+    const size_t strLen = m_current - m_start;
+    // logMsg("\nIn addpart, start: ", start,
+    // ", current: ", current, ", len: ", stringLen);
+    
+    // trim the surrounding quotes
+
+    return m_source.substr(m_start, strLen);
+}
+  

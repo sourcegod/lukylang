@@ -56,11 +56,14 @@ public:
     void logTokens();
     
     // String Interpolation functions
-    bool isIdent(const char c) const;
-    bool isExpr(const char c) const;
     void synchronize();
+    bool isStartIdent(const char c) const;
+    bool isIdent(const char c) const;
+    bool isStartExpr(const char c) const;
+    bool isExpr(const char c) const;
     std::string getIdent();
     std::string getExpr();
+    std::string getPart();
    
 };
 
