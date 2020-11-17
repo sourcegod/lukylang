@@ -4,8 +4,13 @@
 Scanner::Scanner(const std::string& source, LukError& lukErr)
       : m_start(0), m_current(0),
       m_line(1), m_col(0),
-      m_source(source), m_lukErr(lukErr) {
+      m_source(source), m_lukErr(lukErr), 
+      m_addingEOF(true) {
     logMsg("\nIn Scanner constructor");
+    initKeywords();
+}
+
+void Scanner::initKeywords() {
     // initialize reserved m_keywords map
     m_keywords["and"]    = TokenType::AND;
     m_keywords["break"]    = TokenType::BREAK;
@@ -26,8 +31,8 @@ Scanner::Scanner(const std::string& source, LukError& lukErr)
     m_keywords["true"]   = TokenType::TRUE;
     m_keywords["var"]    = TokenType::VAR;
     m_keywords["while"]  = TokenType::WHILE;
-}
 
+}
 void Scanner::addToken(const TokenType _tokenType) { 
     addToken(_tokenType, ""); 
 }

@@ -16,6 +16,7 @@ public:
       logMsg("\n~Scanner destructor");
     }    
     
+    void initKeywords();
     const std::vector<TokPtr>&& scanTokens();
 
   private:
@@ -30,6 +31,7 @@ public:
     const std::string m_errTitle = "ScanError: ";
     // Reserved keywords
     std::unordered_map<std::string, TokenType> m_keywords;
+    bool m_addingEOF;
 
 
     void addToken(TokenType);
