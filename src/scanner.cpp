@@ -2,13 +2,23 @@
 #include "lukerror.hpp"
 
 Scanner::Scanner(const std::string& source, LukError& lukErr)
-      : m_start(0), m_current(0),
-      m_line(1), m_col(0),
-      m_source(source), m_lukErr(lukErr), 
-      m_addingEOF(true) {
+        : m_start(0), m_current(0),
+        m_line(1), m_col(0),
+        m_source(source), m_lukErr(lukErr), 
+        m_addingEOF(true) {
     logMsg("\nIn Scanner constructor");
     initKeywords();
 }
+
+Scanner::Scanner(LukError& lukErr)
+        : m_start(0), m_current(0),
+        m_line(1), m_col(0),
+        m_source(""), m_lukErr(lukErr),
+        m_addingEOF(false) {
+    logMsg("\nIn Second Scanner constructor");
+    initKeywords();
+}
+
 
 void Scanner::initKeywords() {
     // initialize reserved m_keywords map
@@ -33,6 +43,15 @@ void Scanner::initKeywords() {
     m_keywords["while"]  = TokenType::WHILE;
 
 }
+
+void Scanner::initScan(const std::string& source, size_t line, size_t col, bool addingEOF) {
+    m_source = source;
+    m_line = line;
+    m_col = col;
+    m_addingEOF = addingEOF;
+
+}
+
 void Scanner::addToken(const TokenType _tokenType) { 
     addToken(_tokenType, ""); 
 }
@@ -207,9 +226,13 @@ const std::vector<TokPtr>&& Scanner::scanTokens() {
         m_start = m_current;
         scanToken();
     }
-    TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", m_line, m_col);
-    // Note: it will be safer to move the pointer to the vector
-    m_tokens.push_back( std::move(endOfFile) );
+    // Adding End Of File token?
+    if (m_addingEOF) {
+        TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", m_line, m_col);
+        // Note: it will be safer to move the pointer to the vector
+        m_tokens.push_back( std::move(endOfFile) );
+    }
+
 #ifdef DEBUG
       logTokens();
 #endif

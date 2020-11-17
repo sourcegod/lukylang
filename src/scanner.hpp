@@ -11,12 +11,13 @@
 class Scanner {
 public:
     Scanner(const std::string& source, LukError& lukErr);
+    Scanner(LukError& lukErr);
     
     ~Scanner() {
       logMsg("\n~Scanner destructor");
     }    
     
-    void initKeywords();
+    void initScan(const std::string& source, size_t line, size_t col, bool addingEOF);
     const std::vector<TokPtr>&& scanTokens();
 
   private:
@@ -34,6 +35,7 @@ public:
     bool m_addingEOF;
 
 
+    void initKeywords();
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);
     void addToken(TokenType, const std::string& lexeme, std::string literal);
