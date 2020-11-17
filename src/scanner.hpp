@@ -34,6 +34,7 @@ public:
 
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);
+    void addToken(TokenType, const std::string& literal, std::string& lexeme);
     void insertToken(const TokenType type, const std::string& literal);
 
     void scanToken();

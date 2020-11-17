@@ -42,13 +42,20 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
             type != TokenType::NUMBER ||
             type != TokenType::STRING ||
             type != TokenType::INT ||
-            type != TokenType::DOUBLE) {
+            type != TokenType::DOUBLE,
+            type != TokenType::INT_EXPR) {
         lexeme = m_source.substr(m_start, lexLen);
     }
-    
+    // std::cerr << "Token lexeme: " << lexeme << ", literal: " << literal << "\n";   
     // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
     m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
 }
+void Scanner::addToken(const TokenType type, const std::string& literal, std::string& lexeme) {
+    if (lexeme == "") lexeme = literal;
+    // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
+}
+
 
 void Scanner::insertToken(const TokenType type, const std::string& literal) { 
     auto lexeme = literal;
@@ -302,7 +309,8 @@ void Scanner::getString(char ch) {
             auto part = getPart();
             // std::cerr << "voici part: " << part << "\n";
             addToken(TokenType::STRING, part);
-            addToken(TokenType::PLUS);
+            std::cerr << "Adding token Plus\n";
+            addToken(TokenType::PLUS, "");
             synchronize();
 
             if (isIdent(nextChar)) { // interpolation identifier
@@ -313,15 +321,16 @@ void Scanner::getString(char ch) {
 
             } else if (isExpr(nextChar)) { // interpolation expression
                 auto expr = getExpr();
-                // std::cerr << "voici expr: " << expr << "\n";
-                // addToken(TokenType::INT_EXPR, expr);
-                addToken(TokenType::STRING, expr);
+                // std::cerr << "Expr: " << expr << "\n";
+                addToken(TokenType::INT_EXPR, expr);
+                // addToken(TokenType::STRING, expr);
                 synchronize();
             }
            
             // cannot use curChar or nextChar 
             // cause current char has been changed by getIdent or getExpr function.
             if (peek() != ch && !isAtEnd() ) {
+              std::cerr << "ici\n";
                 addToken(TokenType::PLUS);
             }
             continue;
@@ -344,6 +353,7 @@ void Scanner::getString(char ch) {
     const size_t strLen = m_current - m_start;
     if (strLen > 1) { // whether is not only '"' char
         const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
+        // std::cerr << "strLiteral: " << strLiteral << "\n";
         addToken(TokenType::STRING, strLiteral);
     }
 
