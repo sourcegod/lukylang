@@ -45,10 +45,13 @@ void Scanner::initKeywords() {
 }
 
 void Scanner::initScan(const std::string& source, size_t line, size_t col, bool addingEOF) {
+    // init global params
+    m_start = m_current =0;
     m_source = source;
     m_line = line;
     m_col = col;
     m_addingEOF = addingEOF;
+    m_tokens.clear();
 
 }
 
@@ -320,6 +323,7 @@ std::string Scanner::unescape(const std::string& escaped) {
 void Scanner::getString(char ch) {
     // the ch argument is to indicate whether it's simple or double quotes
     synchronize();
+    bool isInterp = false;
     while (peek() != ch && !isAtEnd()) {
         auto curChar = peek();
         auto nextChar = peekNext();
@@ -333,24 +337,22 @@ void Scanner::getString(char ch) {
         // searching interpolation expression
         if ( curChar == '$' && 
                 (isAlNum(nextChar) || nextChar == '{') ) {
-            auto part = getPart();
+            auto part = unescape(getPart());
             // std::cerr << "voici part: " << part << "\n";
             addToken(TokenType::STRING, part);
-            std::cerr << "Adding token Interp_Plus\n";
             addToken(TokenType::INTERP_PLUS, "Interp_Plus", "");
             synchronize();
 
             if (isIdent(nextChar)) { // interpolation identifier
                 auto ident = getIdent();
-                // std::cerr << "voici ident: " << ident << "\n";
                 addToken(TokenType::IDENTIFIER, ident);
                 synchronize();
 
             } else if (isExpr(nextChar)) { // interpolation expression
                 auto expr = getExpr();
-                // std::cerr << "Expr: " << expr << "\n";
                 addToken(TokenType::INTERP_EXPR, "Interp_Expr", expr);
                 synchronize();
+                isInterp = true;
             }
            
             // cannot use curChar or nextChar 
@@ -378,8 +380,10 @@ void Scanner::getString(char ch) {
     const size_t strLen = m_current - m_start;
     if (strLen > 1) { // whether is not only '"' char
         const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
-        // std::cerr << "strLiteral: " << strLiteral << "\n";
         addToken(TokenType::STRING, strLiteral);
+    }
+    if (isInterp) {
+      // addToken(TokenType::INTERP_END, "Interp_End", "Interp_End");
     }
 
 }
