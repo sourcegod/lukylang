@@ -596,6 +596,36 @@ ExprPtr Parser::finishCall(ExprPtr callee) {
     return std::make_shared<CallExpr>(callee, paren, args);
 }
 
+ExprPtr Parser::interpExpr() {
+    /// Note: to declare iterator: 
+    /// std::vector<TokPtr>::iterator it = vec.begin();
+    /// or: auto it = = vec.begin()
+    auto it = m_tokens.begin();
+    auto tokP = previous();
+    logMsg("In interpExpr Parser: INT_EXPR: ", tokP->lexeme, ", ", tokP->literal);
+    // Init the scanner without End Of File token
+    m_scan.initScan(tokP->literal, tokP->line, tokP->col, false);
+    auto v_tokens = m_scan.scanTokens();
+    /*
+    std::cerr << "m_tokens size: " << m_tokens.size() << ", v_tokens size: " << v_tokens.size() << "\n";
+    std::cerr << "m_current: " << m_current << ", curToken: " << m_tokens[m_current] << "\n";
+    */
+
+    // m_tokens.erase(it + pos);
+    // m_tokens.erase(m_tokens.begin() + 3);
+    m_tokens.insert(it + m_current, v_tokens.begin(), v_tokens.end());
+    /*
+    std::cerr << "m_tokens size: " << m_tokens.size() << ", v_tokens size: " << v_tokens.size() << "\n";
+    for (auto tok: m_tokens) {
+      std::cerr << "tok lexeme: " << tok->lexeme << ", literal: " << tok->literal << "\n";
+    }
+    */
+
+    logMsg("End of Interp Expr");
+    
+    return expression();
+}
+
 ExprPtr Parser::primary() {
     if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
@@ -608,28 +638,7 @@ ExprPtr Parser::primary() {
     }
     
     if (match({TokenType::INTERP_EXPR})) {
-        /// Note: to declare iterator: 
-        /// std::vector<TokPtr>::iterator it = vec.begin();
-        /// or: auto it = = vec.begin()
-        auto it = m_tokens.begin();
-        auto tokP = previous();
-        std::cerr << "In Primary Parser: INT_EXPR: " << tokP->lexeme << ", " << tokP->literal << "\n";
-        auto scan = Scanner(tokP->literal, lukErr);
-        auto v_tokens = scan.scanTokens();
-        v_tokens.pop_back();
-        std::cerr << "m_tokens size: " << m_tokens.size() << ", v_tokens size: " << v_tokens.size() << "\n";
-        std::cerr << "m_current: " << m_current << ", curToken: " << m_tokens[m_current] << "\n";
-        // m_tokens.erase(it + pos);
-        // m_tokens.erase(m_tokens.begin() + 3);
-        m_tokens.insert(it + m_current, v_tokens.begin(), v_tokens.end());
-        std::cerr << "m_tokens size: " << m_tokens.size() << ", v_tokens size: " << v_tokens.size() << "\n";
-        for (auto tok: m_tokens) {
-          std::cerr << "tok lexeme: " << tok->lexeme << ", literal: " << tok->literal << "\n";
-        }
-        
-        return expression();
-        // return  std::make_shared<GroupingExpr>(expr);
-        // return std::make_shared<LiteralExpr>( objP );
+        return interpExpr();
     }
     
     if (match({TokenType::SUPER})) {

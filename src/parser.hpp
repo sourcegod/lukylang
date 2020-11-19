@@ -1,18 +1,13 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#include "common.hpp"
 #include "expr.hpp"
 #include "stmt.hpp"
-#include "token.hpp"
+#include "scanner.hpp"
 #include <memory>
 #include <stdexcept>
 #include <vector>
-#include "lukobject.hpp"
-
-// forward declarations
-class LukError;
-class LukObject;
-class Stmt;
 
 using ExprPtr = std::shared_ptr<Expr>;
 using StmtPtr = std::shared_ptr<Stmt>;
@@ -42,6 +37,7 @@ private:
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
     bool m_isFuncBody = false;
+    Scanner m_scan = Scanner(lukErr);
 
     StmtPtr statement();
     std::vector<StmtPtr> block();
@@ -81,6 +77,7 @@ private:
     ExprPtr postfix();
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
+    ExprPtr interpExpr();
     ExprPtr primary();
     bool checkEndLine(const std::string& msg, bool verbose);
 
