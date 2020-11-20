@@ -215,6 +215,25 @@ v1.insert(v1.end(), v2.begin(), v2.end());
 -- or without copy
 std::move(v2.begin(), v2.end(), std::back_inserter(v1));
 
+-- to declare iterator: 
+std::vector<TokPtr>::iterator it = vec.begin();
+-- or: 
+auto it = = vec.begin()
+
+-- Erase forth index in the vector:
+vec.erase(it + 3);
+
+-- Insert vec1 into vec before forth index:
+vec.insert(it + 3, vec1.begin(), vec1.end());
+
+4.11 Class
+  -- cannot put an instance of a class into itself
+  that would result in infinite recursion
+  Use pointer to a class instead
+  Scanner* m_scan; 
+  -- or use static class
+  static Scanner m_scan;
+
 #--------------------------------------------------------------------------------
 
   5. Release version
