@@ -495,12 +495,13 @@ ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 ObjPtr Interpreter::visitInterpolateExpr(InterpolateExpr& expr) {
     logMsg("\nIn visitInterpolateExpr: ", typeid(expr).name()); 
     std::vector<ObjPtr> v_args;
+    std::ostringstream msg;
     for (auto& arg: expr.m_args) {
-        v_args.push_back(evaluate(arg));
+        msg << evaluate(arg)->toString();
     }
     logMsg("\nExit out visitInterpolateExpr, before returns func->call:  "); 
 
-    return nilptr;
+    return std::make_shared<LukObject>(msg.str());
 }
 
 ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
