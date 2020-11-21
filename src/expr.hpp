@@ -13,6 +13,7 @@ class CallExpr;
 class FunctionExpr;
 class GetExpr;
 class GroupingExpr;
+class InterpolateExpr;
 class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
@@ -34,6 +35,7 @@ class ExprVisitor {
         virtual ObjPtr visitFunctionExpr(FunctionExpr&) =0;
         virtual ObjPtr visitGetExpr(GetExpr&) =0;
         virtual ObjPtr visitGroupingExpr(GroupingExpr&) =0;
+        virtual ObjPtr visitInterpolateExpr(InterpolateExpr&) =0;
         virtual ObjPtr visitLiteralExpr(LiteralExpr&) =0;
         virtual ObjPtr visitLogicalExpr(LogicalExpr&) =0;
         virtual ObjPtr visitSetExpr(SetExpr&) =0;
@@ -182,6 +184,21 @@ public:
 
     ExprPtr m_expression;
 };
+
+class InterpolateExpr : public Expr {
+public:
+    InterpolateExpr(std::vector<ExprPtr> args) :
+        m_args(std::move(args))
+    {}
+    
+    ObjPtr accept(ExprVisitor &v) override {
+        return v.visitInterpolateExpr(*this); 
+    }
+
+
+    std::vector<ExprPtr> m_args;
+};
+
 
 class LiteralExpr: public Expr {
 public:
