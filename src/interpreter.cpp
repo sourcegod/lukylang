@@ -492,6 +492,17 @@ ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.m_expression);
 }
 
+ObjPtr Interpreter::visitInterpolateExpr(InterpolateExpr& expr) {
+    logMsg("\nIn visitInterpolateExpr: ", typeid(expr).name()); 
+    std::vector<ObjPtr> v_args;
+    for (auto& arg: expr.m_args) {
+        v_args.push_back(evaluate(arg));
+    }
+    logMsg("\nExit out visitInterpolateExpr, before returns func->call:  "); 
+
+    return nilptr;
+}
+
 ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
     logMsg("\nIn visitLiteralExpr Interpreter, value: ", expr.m_value->toString());
     return expr.m_value;

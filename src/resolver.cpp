@@ -158,6 +158,15 @@ ObjPtr Resolver::visitGroupingExpr(GroupingExpr& expr) {
   return nilptr;
 }
 
+ObjPtr Resolver::visitInterpolateExpr(InterpolateExpr& expr) {
+    for (auto& arg : expr.m_args) {
+        resolve(arg);
+    }
+
+    return nilptr;
+}
+
+
 ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
     logMsg("\nIn visitLiteralExpr, Resolver, value: ", expr.m_value->toString());
 
