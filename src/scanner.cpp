@@ -73,8 +73,7 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
             type != TokenType::NUMBER ||
             type != TokenType::STRING ||
             type != TokenType::INT ||
-            type != TokenType::DOUBLE || 
-            type != TokenType::INTERP_EXPR) {
+            type != TokenType::DOUBLE) { 
         lexeme = m_source.substr(m_start, lexLen);
     }
     // std::cerr << "Token lexeme: " << lexeme << ", literal: " << literal << "\n";   
