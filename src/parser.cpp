@@ -492,24 +492,18 @@ ExprPtr Parser::bitwiseShift() {
 ExprPtr Parser::addition() {
     ExprPtr left = multiplication();
     
+    // String Interpolation
     std::vector<ExprPtr> v_args;
-    
-    /*
-     // String Interpolation
     if (match({TokenType::INTERP_PLUS})) { 
         v_args.emplace_back(left);
         do {
             v_args.emplace_back(expression());
-
         } while (match({TokenType::INTERP_PLUS}));
         
-        return std::make_shared<InterpExpr>(std::move(v_args));
+        return std::make_shared<InterpolateExpr>(std::move(v_args));
     }
-    */
 
-    
-    while (match({TokenType::MINUS, TokenType::PLUS,
-            TokenType::INTERP_PLUS})) { 
+    while (match({TokenType::MINUS, TokenType::PLUS})) {
         TokPtr op = previous();
         ExprPtr right = multiplication();
         left = std::make_shared<BinaryExpr>(left, op, right);

@@ -398,10 +398,6 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
         case TokenType::COMMA:
             return right;
 
-        // Interpolating operator
-        case TokenType::INTERP_PLUS:
-            return std::make_shared<LukObject>(left->toString() + right->toString());
-
         default: break;
     }
 
