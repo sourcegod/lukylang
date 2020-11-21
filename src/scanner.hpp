@@ -7,7 +7,7 @@
 #include "lukerror.hpp"
 #include "token.hpp"
 
-
+// class Scanner;
 class Scanner {
 public:
     Scanner(const std::string& source, LukError& lukErr);
@@ -33,6 +33,12 @@ public:
     // Reserved keywords
     std::unordered_map<std::string, TokenType> m_keywords;
     bool m_addingEOF;
+    /// Note: cannot put an instance of a class into itself
+    /// that would result in infinite recursion
+    /// Note: Use pointer to a class instead
+    /// Scanner* m_scan; 
+    /// or use static class
+    static Scanner m_scan;
 
 
     void initKeywords();
@@ -69,6 +75,7 @@ public:
     std::string getIdent();
     std::string getExpr();
     std::string getPart();
+    void scanInterpExpr(const std::string& expr);
    
 };
 

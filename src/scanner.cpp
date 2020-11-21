@@ -1,6 +1,10 @@
 #include "scanner.hpp"
 #include "lukerror.hpp"
 
+// static variables
+LukError lukErr;
+Scanner Scanner::m_scan = Scanner(lukErr);
+
 Scanner::Scanner(const std::string& source, LukError& lukErr)
         : m_start(0), m_current(0),
         m_line(1), m_col(0),
@@ -350,7 +354,8 @@ void Scanner::getString(char ch) {
 
             } else if (isExpr(nextChar)) { // interpolation expression
                 auto expr = getExpr();
-                addToken(TokenType::INTERP_EXPR, "Interp_Expr", expr);
+                scanInterpExpr(expr);
+                // addToken(TokenType::INTERP_EXPR, "Interp_Expr", expr);
                 synchronize();
                 isInterp = true;
             }
@@ -382,7 +387,9 @@ void Scanner::getString(char ch) {
         const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
         addToken(TokenType::STRING, strLiteral);
     }
+
     if (isInterp) {
+      // addToken(TokenType::SEMICOLON, ";");
       // addToken(TokenType::INTERP_END, "Interp_End", "Interp_End");
     }
 
@@ -468,7 +475,10 @@ char Scanner::searchPrintable() {
 }
 
 void Scanner::logTokens() {
-  logMsg("Tokens list");
+  if (m_addingEOF)
+      logMsg("Tokens list for Main Scanner");
+  else
+      logMsg("Tokens list for Second Scanner");
   for (auto& it: m_tokens) {
     logMsg("id: ", it->id, "lexeme: ", it->lexeme);
   }
@@ -549,11 +559,19 @@ std::string Scanner::getExpr() {
 
 std::string Scanner::getPart() {
     const size_t strLen = m_current - m_start;
-    // logMsg("\nIn addpart, start: ", start,
-    // ", current: ", current, ", len: ", stringLen);
+    // logMsg("\nIn addpart, start: ", start);
+    // logMsg("current: ", current, ", len: ", stringLen);
     
     // trim the surrounding quotes
 
     return m_source.substr(m_start, strLen);
+}
+void Scanner::scanInterpExpr(const std::string& expr) {
+  // rescanning interpolating expression
+    m_scan.initScan(expr, m_line, m_col, false);
+    auto v_tok = m_scan.scanTokens();
+    /// Note: append v_tok into m_tokens without copy
+    std::move(v_tok.begin(), v_tok.end(), std::back_inserter(m_tokens));
+
 }
   

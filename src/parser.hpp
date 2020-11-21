@@ -4,11 +4,12 @@
 #include "common.hpp"
 #include "expr.hpp"
 #include "stmt.hpp"
-#include "scanner.hpp"
 #include <memory>
 #include <stdexcept>
 #include <vector>
 
+// forward declaration
+class LukError;
 using ExprPtr = std::shared_ptr<Expr>;
 using StmtPtr = std::shared_ptr<Stmt>;
 using PObject = std::shared_ptr<LukObject>;
@@ -37,7 +38,6 @@ private:
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
     bool m_isFuncBody = false;
-    Scanner m_scan = Scanner(lukErr);
 
     StmtPtr statement();
     std::vector<StmtPtr> block();
@@ -77,7 +77,6 @@ private:
     ExprPtr postfix();
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
-    ExprPtr interpExpr();
     ExprPtr primary();
     bool checkEndLine(const std::string& msg, bool verbose);
 

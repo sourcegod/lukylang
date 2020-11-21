@@ -1,6 +1,5 @@
 # include "parser.hpp"
 #include "lukerror.hpp"
-#include "scanner.hpp"
 
 #include <vector>
 #include <typeinfo>
@@ -492,8 +491,25 @@ ExprPtr Parser::bitwiseShift() {
 
 ExprPtr Parser::addition() {
     ExprPtr left = multiplication();
-    while (match({TokenType::MINUS, TokenType::PLUS, 
-          TokenType::INTERP_PLUS})) {
+    
+    std::vector<ExprPtr> v_args;
+    
+    /*
+     // String Interpolation
+    if (match({TokenType::INTERP_PLUS})) { 
+        v_args.emplace_back(left);
+        do {
+            v_args.emplace_back(expression());
+
+        } while (match({TokenType::INTERP_PLUS}));
+        
+        return std::make_shared<InterpExpr>(std::move(v_args));
+    }
+    */
+
+    
+    while (match({TokenType::MINUS, TokenType::PLUS,
+            TokenType::INTERP_PLUS})) { 
         TokPtr op = previous();
         ExprPtr right = multiplication();
         left = std::make_shared<BinaryExpr>(left, op, right);
@@ -596,36 +612,6 @@ ExprPtr Parser::finishCall(ExprPtr callee) {
     return std::make_shared<CallExpr>(callee, paren, args);
 }
 
-ExprPtr Parser::interpExpr() {
-    /// Note: to declare iterator: 
-    /// std::vector<TokPtr>::iterator it = vec.begin();
-    /// or: auto it = = vec.begin()
-    auto it = m_tokens.begin();
-    auto tokP = previous();
-    logMsg("In interpExpr Parser: INT_EXPR: ", tokP->lexeme, ", ", tokP->literal);
-    // Init the scanner without End Of File token
-    m_scan.initScan(tokP->literal, tokP->line, tokP->col, false);
-    auto v_tokens = m_scan.scanTokens();
-    /*
-    std::cerr << "m_tokens size: " << m_tokens.size() << ", v_tokens size: " << v_tokens.size() << "\n";
-    std::cerr << "m_current: " << m_current << ", curToken: " << m_tokens[m_current] << "\n";
-    */
-
-    // m_tokens.erase(it + pos);
-    // m_tokens.erase(m_tokens.begin() + 3);
-    m_tokens.insert(it + m_current, v_tokens.begin(), v_tokens.end());
-    /*
-    std::cerr << "m_tokens size: " << m_tokens.size() << ", v_tokens size: " << v_tokens.size() << "\n";
-    for (auto tok: m_tokens) {
-      std::cerr << "tok lexeme: " << tok->lexeme << ", literal: " << tok->literal << "\n";
-    }
-    */
-
-    logMsg("End of Interp Expr");
-    
-    return expression();
-}
-
 ExprPtr Parser::primary() {
     if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
@@ -636,11 +622,7 @@ ExprPtr Parser::primary() {
         logMsg("\nIn primary Parser, before literalExpr: ", objP);
         return std::make_shared<LiteralExpr>( objP );
     }
-    
-    if (match({TokenType::INTERP_EXPR})) {
-        return interpExpr();
-    }
-    
+   
     if (match({TokenType::SUPER})) {
       TokPtr keyword = previous();
       consume(TokenType::DOT, "Expect '.' after 'super'.");
