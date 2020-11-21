@@ -209,8 +209,8 @@ void Scanner::scanToken() {
 
 
         // support simple and double quotes string
-        case '"': getString(ch); break;
-        case '\'': getString(ch); break;
+        case '"': addString(ch); break;
+        case '\'': addString(ch); break;
 
         default: {
             if (isDigit(ch)) {
@@ -324,14 +324,12 @@ std::string Scanner::unescape(const std::string& escaped) {
     return  strChar;
 }
 
-void Scanner::getString(char ch) {
+void Scanner::addString(char ch) {
     // the ch argument is to indicate whether it's simple or double quotes
     synchronize();
-    bool isInterp = false;
     while (peek() != ch && !isAtEnd()) {
         auto curChar = peek();
         auto nextChar = peekNext();
-        // std::cerr  << "char: " << curChar << "\n";
         if (curChar == '\n') {
             m_line++;
             m_col=0;
@@ -339,12 +337,10 @@ void Scanner::getString(char ch) {
         if (curChar == '\\' && nextChar  == ch) advance();
 
         // searching interpolation expression
-        if ( curChar == '$' && 
-                (isAlNum(nextChar) || nextChar == '{') ) {
+        if ( isStartIdent(curChar) || isStartExpr(curChar) ) {
             auto part = unescape(getPart());
-            // std::cerr << "voici part: " << part << "\n";
-            addToken(TokenType::STRING, part);
-            addToken(TokenType::INTERP_PLUS, "Interp_Plus", "");
+            addToken(TokenType::STRING, unescape(part));
+            addToken(TokenType::INTERP_PLUS, "_+", "");
             synchronize();
 
             if (isIdent(nextChar)) { // interpolation identifier
@@ -355,15 +351,13 @@ void Scanner::getString(char ch) {
             } else if (isExpr(nextChar)) { // interpolation expression
                 auto expr = getExpr();
                 scanInterpExpr(expr);
-                // addToken(TokenType::INTERP_EXPR, "Interp_Expr", expr);
                 synchronize();
-                isInterp = true;
             }
            
             // cannot use curChar or nextChar 
             // cause current char has been changed by getIdent or getExpr function.
             if (peek() != ch && !isAtEnd() ) {
-                addToken(TokenType::INTERP_PLUS, "Interp_Plus", "");
+                addToken(TokenType::INTERP_PLUS, "_+", "");
             }
             continue;
 
@@ -386,11 +380,6 @@ void Scanner::getString(char ch) {
     if (strLen > 1) { // whether is not only '"' char
         const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
         addToken(TokenType::STRING, strLiteral);
-    }
-
-    if (isInterp) {
-      // addToken(TokenType::SEMICOLON, ";");
-      // addToken(TokenType::INTERP_END, "Interp_End", "Interp_End");
     }
 
 }
@@ -486,7 +475,7 @@ void Scanner::logTokens() {
 }
 
 void Scanner::synchronize() {
-    m_start = m_current;
+    m_start = m_col = m_current;
     // logMsg("Synchronizing, start: ", start, ", current: ", current);
 }
 
