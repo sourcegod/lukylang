@@ -1,11 +1,19 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Wed, 11/11/2020
-Last version: dev_0.32.6
+Last update: Sun, 22/11/2020
+Last version: dev_0.32.7
 
 
   0. Changelog
+# Version dev_0.32.7: String Interpolation
+-- Adding String Interpolation support.
+-- Adding isIdent, isExpr, synchronize functions, in Scanner class.
+-- Adding getIdent, getExpr functions, in Scanner class.
+-- Adding getPart, isStartIdent, isStartExpr functions, in Scanner class. 
+-- Changed Scanner::string to Scanner::addString, and factorized Scanner::addString function.
+-- Added files: mis_string_interpolation.luk in tests and examples directories.
+-- Added escape sequences for \$, \{, \}, in Scanner::unescape, Scanner::addString functions.
 
 # Version dev_0.32.6: do-while
 -- Adding do-while support.
@@ -225,6 +233,11 @@ vec.erase(it + 3);
 
 -- Insert vec1 into vec before forth index:
 vec.insert(it + 3, vec1.begin(), vec1.end());
+
+-- Adding std::pair or any else in a vector v_vars:
+v_vars.emplace_back(std::make_pair(name, initializer));
+Or, we can also pass an initializer list to push_back function
+v_vars.push_back({name, initializer});
 
 4.11 Class
   -- cannot put an instance of a class into itself

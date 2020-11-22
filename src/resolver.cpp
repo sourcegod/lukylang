@@ -166,7 +166,6 @@ ObjPtr Resolver::visitInterpolateExpr(InterpolateExpr& expr) {
     return nilptr;
 }
 
-
 ObjPtr Resolver::visitLiteralExpr(LiteralExpr& expr) {
     logMsg("\nIn visitLiteralExpr, Resolver, value: ", expr.m_value->toString());
 
