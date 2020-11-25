@@ -4,6 +4,7 @@
 #include <vector>
 #include <typeinfo>
 #include <memory>
+#include <map>
 
 ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     : std::runtime_error(msg)
@@ -589,21 +590,32 @@ ExprPtr Parser::call() {
 }
 
 ExprPtr Parser::finishCall(ExprPtr callee) {
-    std::vector<ExprPtr> args;
+    std::vector<ExprPtr> v_args;
+    std::vector<ExprPtr> v_keywords;
+    std::map<TokPtr, ExprPtr> mapKeywords; 
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
-            if (args.size() >= 32) {
+            if (v_args.size() >= 32) {
                 error(peek(), "Cannot have more than 32 arguments.");
             }
             
             /// Note: calling assignment function rather than expression to avoid the comma operator
-            args.emplace_back(assignment());
+            auto expr = assignment();
+            if (expr->isAssignExpr()) {
+              // std::cerr << "AssignExpr\n";
+              // The AssignExpr->getobject function, returns m_value
+              mapKeywords[expr->getName()] = expr->getObject();
+              continue;
+            } else { 
+                // std::cerr << "Expr: \n";
+                v_args.emplace_back(expr);
+            }
         } while (match({TokenType::COMMA}));
     }
 
     TokPtr paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
 
-    return std::make_shared<CallExpr>(callee, paren, args);
+    return std::make_shared<CallExpr>(callee, paren, v_args, mapKeywords);
 }
 
 ExprPtr Parser::primary() {
