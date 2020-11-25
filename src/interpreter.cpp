@@ -429,6 +429,26 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
            << v_args.size() << ".";
         throw RuntimeError(expr.m_paren, msg.str());
     }
+    auto& funcKeywords = func->getKeywords();
+    if (!expr.m_keywords.empty()  && funcKeywords.empty() ) {
+          throw RuntimeError(expr.m_paren, "No default keyword for this function.");
+    } else if (!expr.m_keywords.empty() ) {
+        for (auto& iter: expr.m_keywords)  {
+            auto strVal = iter.first->lexeme;
+            auto obj = evaluate(iter.second);
+            logMsg(iter.first, ":", obj->toString());
+            // std::cerr << iter.first->lexeme <<  ": " << obj->toString() << "\n";
+            // searching the calling keyword in funcKeyword map
+            auto elem = funcKeywords.find(strVal);
+            if (elem != funcKeywords.end()) {
+                funcKeywords[strVal] = obj;
+            } else {
+                  throw RuntimeError(strVal +  std::string(", No such  keyword for this function."));
+            
+            }
+        } // End For loop
+    }
+ 
     logMsg("func->toString : ",func->toString());
     logMsg("func.use_count: ", func.use_count());
 
