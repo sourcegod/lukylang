@@ -441,7 +441,7 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
             // searching the calling keyword in funcKeyword map
             auto elem = funcKeywords.find(strVal);
             if (elem != funcKeywords.end()) {
-                funcKeywords[strVal] = obj;
+                func->setKeywords(strVal, obj->toString());
             } else {
                   throw RuntimeError(strVal +  std::string(", No such  keyword for this function."));
             
