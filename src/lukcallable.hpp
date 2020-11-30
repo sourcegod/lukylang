@@ -15,10 +15,7 @@ using VArguments = std::vector<ObjPtr>;
 
 class LukCallable {
 public:
-    LukCallable() {
-      m_keywords["sep"] = std::make_shared<LukObject>(", ");
-      m_keywords["end"] = std::make_shared<LukObject>("\n");
-    }
+    LukCallable() {}
     ~LukCallable() {}
     
     virtual std::string addressOf() {  
@@ -30,10 +27,12 @@ public:
     virtual size_t arity() = 0;
     virtual ObjPtr call(Interpreter&, VArguments& v_args) =0;
     virtual std::string toString() const = 0;
-   virtual std::string typeName() const { return "LukCallable"; }
-   std::map<std::string, ObjPtr>& getKeywords() { return m_keywords; }
-private:
-   std::map<std::string, ObjPtr> m_keywords;
+    virtual std::string typeName() const { return "LukCallable"; }
+    std::map<std::string, std::string>& getKeywords() { return m_keywords; }
+    virtual void setKeywords(const std::string&, const std::string&) {}
+
+protected:
+   std::map<std::string, std::string> m_keywords;
 };
 
 
