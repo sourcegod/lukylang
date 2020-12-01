@@ -137,6 +137,11 @@ ObjPtr Resolver::visitCallExpr(CallExpr& expr) {
     resolve(arg);
   }
 
+    for (auto& it: expr.m_keywords) {
+        resolve(it.second);
+  }
+
+
   return nilptr;
 }
 
