@@ -380,10 +380,10 @@ void Scanner::addString(char ch) {
     // Handle escapes sequences
     // trim the surrounding quotes
     const size_t strLen = m_current - m_start;
-    if (strLen > 1) { // whether is not only '"' char
-        const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
-        addToken(TokenType::STRING, strLiteral);
-    }
+    // if (strLen > 1) { // whether is not only '"' char
+    const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
+    addToken(TokenType::STRING, strLiteral);
+    // }
 
 }
 
