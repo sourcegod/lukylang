@@ -1,11 +1,18 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Sun, 22/11/2020
-Last version: dev_0.32.7
+Last update: Sat, 05/12/2020
+Last version: dev_0.32.8
 
 
   0. Changelog
+# Version dev_0.32.8: Default Keyword
+-- Adding Default Keyword or default argument in function call like println.
+-- Added default keywords support in Parser::finishCall function.
+-- Added virtual setKeywords function and default keyword support in PrintLn class.
+-- Fixed bugs in Scanner::addString function.
+-- Added files: default_keyword.luk in examples and tests directories.
+
 # Version dev_0.32.7: String Interpolation
 -- Adding String Interpolation support.
 -- Adding isIdent, isExpr, synchronize functions, in Scanner class.
