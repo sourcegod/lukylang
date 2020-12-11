@@ -35,6 +35,14 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     // native clock function
     auto clock_func = std::make_shared<ClockFunc>();
     m_globals->define("clock", std::make_shared<LukObject>(clock_func));
+    
+    // native double function
+    auto double_func = std::make_shared<DoubleFunc>();
+    m_globals->define("double", std::make_shared<LukObject>(double_func));
+
+    // native int function
+    auto int_func = std::make_shared<IntFunc>();
+    m_globals->define("int", std::make_shared<LukObject>(int_func));
 
     // native println function
     auto println_func = std::make_shared<PrintlnFunc>();
@@ -43,10 +51,6 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     // native readln function
     auto readln_func = std::make_shared<ReadlnFunc>();
     m_globals->define("readln", std::make_shared<LukObject>(readln_func));
-
-    // native int function
-    auto int_func = std::make_shared<IntFunc>();
-    m_globals->define("int", std::make_shared<LukObject>(int_func));
 
     logMsg("\nExit out Interpreter constructor");
 

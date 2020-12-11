@@ -7,6 +7,7 @@
 class LukCallable;
 class Interpreter;
 
+/// Note: convert any object to double
 class DoubleFunc : public LukCallable {
 public:
     DoubleFunc() {} 
@@ -15,7 +16,7 @@ public:
     virtual ObjPtr  call(Interpreter& /*interp*/, 
            std::vector<ObjPtr>& v_args) override {
        
-           return std::make_shared<LukObject>(v_args[0]->toDouble());
+        return std::make_shared<LukObject>(v_args[0]->toDouble());
     }
    
     virtual std::string toString() const override { return "<Native Function: double()>"; }

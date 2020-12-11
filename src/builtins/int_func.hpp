@@ -2,11 +2,11 @@
 #define INT_FUNC_HPP
 #include <string>
 #include <vector>
-#include <iostream>
 
 class LukCallable;
 class Interpreter;
 
+/// Note: convert any object to int
 class IntFunc : public LukCallable {
 public:
     IntFunc() {} 
@@ -15,7 +15,7 @@ public:
     virtual ObjPtr  call(Interpreter& /*interp*/, 
            std::vector<ObjPtr>& v_args) override {
        
-           return std::make_shared<LukObject>(v_args[0]->toInt());
+        return std::make_shared<LukObject>(v_args[0]->toInt());
     }
    
     virtual std::string toString() const override { return "<Native Function: int()>"; }
