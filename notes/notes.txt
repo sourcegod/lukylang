@@ -2,11 +2,15 @@ Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
 Last update: Fri, 11/12/2020
-Last version: dev_0.32.9
+Last version: dev_0.32.10
 
   0. Changelog
+# Version dev_0.32.10: Native double
+-- Adding native double function, to convert any object to double.
+-- Added files: native_double.luk in examples and tests directories.
+
 # Version dev_0.32.9: Native int
--- Adding native int function.
+-- Adding native int function, to convert any object to int.
 -- Added files: native_int.luk in examples and tests directories.
 
 # Version dev_0.32.8: Default Keyword
