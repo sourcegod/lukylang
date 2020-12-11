@@ -31,7 +31,7 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
 
     // TRACE_ALL;
     // TRACE_MSG("Env globals tracer: ");
-    
+    // builtins functions 
     // native clock function
     auto clock_func = std::make_shared<ClockFunc>();
     m_globals->define("clock", std::make_shared<LukObject>(clock_func));
@@ -44,6 +44,9 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     auto readln_func = std::make_shared<ReadlnFunc>();
     m_globals->define("readln", std::make_shared<LukObject>(readln_func));
 
+    // native int function
+    auto int_func = std::make_shared<IntFunc>();
+    m_globals->define("int", std::make_shared<LukObject>(int_func));
 
     logMsg("\nExit out Interpreter constructor");
 
