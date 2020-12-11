@@ -51,6 +51,11 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     // native readln function
     auto readln_func = std::make_shared<ReadlnFunc>();
     m_globals->define("readln", std::make_shared<LukObject>(readln_func));
+    
+    // native str function
+    auto str_func = std::make_shared<StrFunc>();
+    m_globals->define("str", std::make_shared<LukObject>(str_func));
+
 
     logMsg("\nExit out Interpreter constructor");
 
