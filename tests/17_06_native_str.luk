@@ -1,0 +1,2 @@
+println('str("hello ", 42, 0.5):')
+str("hello ", 42, 0.5)

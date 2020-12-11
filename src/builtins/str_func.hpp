@@ -17,7 +17,7 @@ public:
            std::vector<ObjPtr>& v_args) override {
         std::ostringstream msg;
         for (auto& arg: v_args) {
-            msg << arg;
+            msg << arg->toString();
         }
    
         return std::make_shared<LukObject>(msg.str());
