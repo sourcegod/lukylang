@@ -427,10 +427,10 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     /// Note: 255 arguments means variadic function
     if (func->arity() != 255 && v_args.size() != func->arity()) {
         std::ostringstream msg;
-        msg << "Expected " << func->arity() 
+        msg << callee->toString() << ", " << "Expected " << func->arity() 
            << " arguments but got " 
            << v_args.size() << ".";
-        throw RuntimeError(expr.m_paren, msg.str());
+        throw RuntimeError(msg.str());
     }
     auto& funcKeywords = func->getKeywords();
     if (!expr.m_keywords.empty()  && funcKeywords.empty() ) {
