@@ -2,9 +2,14 @@ Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
 Last update: Sat, 12/12/2020
-Last version: dev_0.32.11
+Last version: dev_0.32.12
 
   0. Changelog
+
+# Version dev_0.32.12: Native random
+-- Adding native random function, to generate randomize number.
+-- Added files: native_random.luk in examples and tests directories.
+
 
 # Version dev_0.32.11: Native str
 -- Adding native str function, to convert any object to string.
