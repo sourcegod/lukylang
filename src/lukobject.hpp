@@ -266,6 +266,8 @@ private:
     double _toDouble() const;
     std::string _toString() const;
     void fromToken(Token& tok);
+    /// Note: deleting trailing zeros
+    std::string stripZeros(std::string str) const;
     
 
 };

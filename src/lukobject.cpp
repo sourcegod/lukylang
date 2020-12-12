@@ -326,7 +326,7 @@ std::string LukObject::_toString() const {
         case LukType::Nil: return "nil";
         case LukType::Bool: return (m_bool ? "true" : "false");
         case LukType::Int: return std::to_string(m_int);
-        case LukType::Double: return std::to_string(m_double);
+        case LukType::Double: return stripZeros( std::to_string(m_double) );
         case LukType::String: return m_string;
         case LukType::Callable: 
         case LukType::Instance: 
@@ -337,6 +337,21 @@ std::string LukObject::_toString() const {
 
     return "''";
 }
+
+std::string LukObject::stripZeros(std::string str) const {
+    // erasing trailing zeros
+    auto pos = str.find_last_not_of('0');
+    // keeping the first zero whether they are only zeros after the dot
+    if (str[pos] == '.') str.erase(pos +2, std::string::npos);
+    else str.erase(pos +1, std::string::npos);
+    // returning a constant string
+    auto result = str;
+    
+    return result;
+
+
+}
+
 // casting to the right type
 void LukObject::cast(LukType tp) {
     if (m_type == tp) return;
