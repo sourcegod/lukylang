@@ -47,7 +47,11 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     // native println function
     auto println_func = std::make_shared<PrintlnFunc>();
     m_globals->define("println", std::make_shared<LukObject>(println_func));
-
+    
+    // native random function
+    auto random_func = std::make_shared<RandomFunc>();
+    m_globals->define("random", std::make_shared<LukObject>(random_func));
+ 
     // native readln function
     auto readln_func = std::make_shared<ReadlnFunc>();
     m_globals->define("readln", std::make_shared<LukObject>(readln_func));
