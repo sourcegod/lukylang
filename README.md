@@ -63,8 +63,23 @@ Adding extras features to make the language more fun and usable:
 - Escapes sequences
 - Simple and Double quotes
 - Automatic Semicolon Insertion
+
+- Function and Lambda arrow
+- multi variable declaration
+- Load luky file *.luk from the REPL
+- Static Class Variable 
+- metaclass
+- do-while
+- String Interpolation
+- Default Keyword or default argument in function
+
 - Native println function with variadic arguments
 - Native readln function
+- Native int function
+- Native double function
+- Native str function
+- Native random function
+`See changelog for more informations`
 
 ## Misc
 Miscellaneous files are included:
@@ -73,6 +88,7 @@ Miscellaneous files are included:
 - Tests files
 - lukman script for building, running, debugging and testing the luky program.
 - Grammar file for context-free grammar rules Parser.
+
 ## Examples 
 - Example 1: hello
 var name = "Lukylang";
@@ -101,6 +117,8 @@ class Bacon {
   }
 }
 Bacon().eat(); // "Crunch crunch crunch!".
+
+`See examples directory for more samples `
 
 
 ## Thanks
