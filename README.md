@@ -59,11 +59,27 @@ Additional features are supported, mostly based on tasks from book:
 Adding extras features to make the language more fun and usable:
 - Debugging messages
 - Int and Double types support
+- String multiplier: ("abc"*2 = "abcabc")
 - Escapes sequences
 - Simple and Double quotes
 - Automatic Semicolon Insertion
+
+- Function and Lambda arrow
+- multi variable declaration
+- Load luky file *.luk from the REPL
+- Static Class Variable 
+- metaclass
+- do-while
+- String Interpolation
+- Default Keyword or default argument in function
+
 - Native println function with variadic arguments
 - Native readln function
+- Native int function
+- Native double function
+- Native str function
+- Native random function
+`See changelog for more informations`
 
 ## Misc
 Miscellaneous files are included:
@@ -72,6 +88,37 @@ Miscellaneous files are included:
 - Tests files
 - lukman script for building, running, debugging and testing the luky program.
 - Grammar file for context-free grammar rules Parser.
+
+## Examples 
+- Example 1: hello
+var name = "Lukylang";
+print "Hello from " + name; // Hello from Lukylang
+
+- Example 2: For loop
+for (i=0; i < 5; i +=1) { print i; } // 0 1 2 3 4
+
+- Example 3: factorial 1
+fun fact(n) {
+  if (n <= 1) return 1;
+  return n*fact(n-1);
+}
+print fact(5); // 120
+
+- Example 4: facttorial 2 with ternary operator
+fun fact(n) {
+  return n <= 1 ? 1 : nfact(n-1);
+}
+print fact(5) // 120
+
+- Example 5: class
+class Bacon {
+  eat() {
+    print "Crunch crunch crunch!";
+  }
+}
+Bacon().eat(); // "Crunch crunch crunch!".
+
+`See examples directory for more samples `
 
 
 ## Thanks

@@ -1,23 +1,37 @@
 Todo list
 Date: Wed, 30/09/2020
-Last update: Wed, 30/09/2020
+Last update: Mon, 14/12/2020
 
--- Unit testing
--- Multi-variable  declarations: 
+# Version 0.34.0
+Date: Mon, 14/12/2020
+-- Unit testing-- switch statement
+-- Goto statement
+-- type function: returns object as string
+-- len function: returns string or array count.
+-- Modules and import function
+-- Native shell function
+-- array data type
+-- Range function
+-- For range loop
+-- Hashmap data type
+-- Sound: play audio frequency function
+-- Play:  play audio note function
+-- Note: play midi note function
+
+# Version 0.33.0
+Date: Wed, 30/09/2020
+* -- Multi-variable  declarations: 
 var a, b=0, c=1
 
--- String Interpolation
--- do...while statement
--- Function arrow
--- Lambda arrow
+* -- String Interpolation
+* -- do...while statement
+* -- Function arrow
+* -- Lambda arrow
+* -- Static variable in class
 
--- Goto statement
--- switch statement
--- Native to_int function
--- Native to_str function
--- Native to_double function
--- Native shell function
-
--- array data type
--- Hashmap data type
+* -- Native to_int or num function
+* -- Native to_str or str function
+* -- Native to_double function
+* -- random function
+* -- Static variable and method in classes.
 

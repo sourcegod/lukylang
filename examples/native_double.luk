@@ -1,0 +1,2 @@
+println('double("42"):')
+double("42")

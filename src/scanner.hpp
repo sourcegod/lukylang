@@ -7,15 +7,17 @@
 #include "lukerror.hpp"
 #include "token.hpp"
 
-
+// class Scanner;
 class Scanner {
 public:
     Scanner(const std::string& source, LukError& lukErr);
+    Scanner(LukError& lukErr);
     
     ~Scanner() {
       logMsg("\n~Scanner destructor");
     }    
     
+    void initScan(const std::string& source, size_t line, size_t col, bool addingEOF);
     const std::vector<TokPtr>&& scanTokens();
 
   private:
@@ -30,10 +32,20 @@ public:
     const std::string m_errTitle = "ScanError: ";
     // Reserved keywords
     std::unordered_map<std::string, TokenType> m_keywords;
+    bool m_addingEOF;
+    /// Note: cannot put an instance of a class into itself
+    /// that would result in infinite recursion
+    /// Note: Use pointer to a class instead
+    /// Scanner* m_scan; 
+    /// or use static class
+    static Scanner m_scan;
 
 
+    void initKeywords();
     void addToken(TokenType);
     void addToken(TokenType, const std::string&);
+    void addToken(TokenType, const std::string& lexeme, std::string literal);
+    void insertToken(const TokenType type, const std::string& literal);
 
     void scanToken();
     char advance();
@@ -41,7 +53,7 @@ public:
     void identifier();
     void number();
     std::string unescape(const std::string& escaped);
-    void string(char ch='"');
+    void addString(char ch='"');
     bool match(char);
     char peek() const;
     char peekNext() const;
@@ -52,6 +64,18 @@ public:
     void skipMultilineComments();
     bool isPrintable(char ch);
     char searchPrintable();
+    void logTokens();
+    
+    // String Interpolation functions
+    void synchronize();
+    bool isStartIdent(const char c) const;
+    bool isIdent(const char c) const;
+    bool isStartExpr(const char c) const;
+    bool isExpr(const char c) const;
+    std::string getIdent();
+    std::string getExpr();
+    std::string getPart();
+    void scanInterpExpr(const std::string& expr);
    
 };
 

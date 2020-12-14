@@ -1,10 +1,90 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Wed, 30/09/2020
-Last version: v0.32.0
+Last update: Mon, 14/12/2020
+Last version: dev_0.33.0
 
   0. Changelog
+
+# Version dev_0.33.0: random
+Date: Mon, 14/12/2020
+-- Updated file: changelog
+-- Updated file: README.md
+-- Updated file: todo.txt
+
+
+# Version dev_0.32.12: Native random
+Date: Sat, 12/12/2020
+-- Adding native random function, to generate randomize number.
+-- Added files: native_random.luk in examples and tests directories.
+
+
+# Version dev_0.32.11: Native str
+-- Adding native str function, to convert any object to string.
+-- Added files: native_str.luk in examples and tests directories.
+-- Added LukObject::stripZeros function, 
+to deleting trailing zeros when convert double number to string.
+
+# Version dev_0.32.10: Native double
+-- Adding native double function, to convert any object to double.
+-- Added files: native_double.luk in examples and tests directories.
+
+# Version dev_0.32.9: Native int
+-- Adding native int function, to convert any object to int.
+-- Added files: native_int.luk in examples and tests directories.
+
+# Version dev_0.32.8: Default Keyword
+-- Adding Default Keyword or default argument in function call like println.
+-- Added default keywords support in Parser::finishCall function.
+-- Added virtual setKeywords function and default keyword support in PrintLn class.
+-- Fixed bugs in Scanner::addString function.
+-- Added files: default_keyword.luk in examples and tests directories.
+
+# Version dev_0.32.7: String Interpolation
+-- Adding String Interpolation support.
+-- Adding isIdent, isExpr, synchronize functions, in Scanner class.
+-- Adding getIdent, getExpr functions, in Scanner class.
+-- Adding getPart, isStartIdent, isStartExpr functions, in Scanner class. 
+-- Changed Scanner::string to Scanner::addString, and factorized Scanner::addString function.
+-- Added files: mis_string_interpolation.luk in tests and examples directories.
+-- Added escape sequences for \$, \{, \}, in Scanner::unescape, Scanner::addString functions.
+
+# Version dev_0.32.6: do-while
+-- Adding do-while support.
+-- Fixed bugs for compound assignment operators in Interpreter::visitAssignExpr function.
+-- Adding files: loop_do_while.luk in examples and tests directories
+
+# Version dev_0.32.5: metaclass
+-- Adding metaclass or static class method support.
+-- Adding files: class_metaclass.luk in examples and tests directories.
+-- Now, LukClass is derived from LukInstance and LukCallable objects.
+
+# Version 0.32.4: Static Class Variable 
+-- Adding Parser::multiVars function, static variable into class statement in
+Parser::classDeclaration functions, Resolver and Interpreter classes.
+-- Adding multivars params into classStmt constructor, in file: stmt.hpp
+-- Added files: class_static_variable.luk in examples and tests directories.
+
+# Version 0.32.3: Load file in REPL
+-- Added Load File feature for the REPL, in file: main.cpp
+-- Added files: abs.luk, gcd.luk in examples directory
+-- Added file: pcm.luk in examples directory.
+
+# Version 0.32.2: multi variable declaration
+-- Adding multi-variable declaration support.
+-- Added files: var_1.luk, var_2.luk and var_multi.luk in tests directory.
+
+
+# Version 0.32.1: Function and Lambda arrow
+-- Added support for lambda and function arrow with (=>) Token type.
+-- Added Scanner::logTokens and Scanner::insertToken functions
+-- Fixed bugs in Scanner class for Automatic Semicolon Insertion.
+-- Fixed bugs in Parser::varDeclaration function, for Automatic Semicolon
+Insertion.
+-- Added files: func_count_three.luk in examples and tests directories.
+--  Added files: func_lambda_arrow.luk in examples and tests directories.
+-- Added files: func_var_lambda.luk in examples and tests directories.
+
 # Version 0.32.0: println and readln
 -- Added file: notes/todo.txt
 -- Updated file: README.md
@@ -169,6 +249,37 @@ std::string("hello") + "every" + "body";
 4.10 Vector
 -- Pop_back function does not returns any value
 but remove the item from the vector
+
+-- Append a vector into another with iterator:
+std::vector<int>  v1 = {1,2,3};
+std::vector<int> v2 = {4,5,6};
+v1.insert(v1.end(), v2.begin(), v2.end());
+-- or without copy
+std::move(v2.begin(), v2.end(), std::back_inserter(v1));
+
+-- to declare iterator: 
+std::vector<TokPtr>::iterator it = vec.begin();
+-- or: 
+auto it = = vec.begin()
+
+-- Erase forth index in the vector:
+vec.erase(it + 3);
+
+-- Insert vec1 into vec before forth index:
+vec.insert(it + 3, vec1.begin(), vec1.end());
+
+-- Adding std::pair or any else in a vector v_vars:
+v_vars.emplace_back(std::make_pair(name, initializer));
+Or, we can also pass an initializer list to push_back function
+v_vars.push_back({name, initializer});
+
+4.11 Class
+  -- cannot put an instance of a class into itself
+  that would result in infinite recursion
+  Use pointer to a class instead
+  Scanner* m_scan; 
+  -- or use static class
+  static Scanner m_scan;
 
 #--------------------------------------------------------------------------------
 

@@ -1,0 +1,2 @@
+fun test(x) => x**3
+print test(5)

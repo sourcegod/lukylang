@@ -26,6 +26,7 @@ enum class TokenType {
     STAR_EQUAL, SLASH_EQUAL, 
     MOD, MOD_EQUAL,
     EXP, EXP_EQUAL,
+    EQUAL_ARROW,
 
     // bitwise operators
     BIT_AND, BIT_AND_EQUAL, BIT_NOT,
@@ -41,9 +42,10 @@ enum class TokenType {
     // Reserved Keywords.
     AND, BREAK, 
     CLASS, CONTINUE,
-    ELSE, FALSE,
-    FUN, FOR,
-    IF, NIL,
+    DO, ELSE,
+    FALSE, FOR, 
+    FUN, IF, 
+    INTERP_PLUS, NIL, 
     OR, PRINT,
     RETURN, SUPER,
     THIS, TRUE,

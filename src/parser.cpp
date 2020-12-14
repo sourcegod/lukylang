@@ -1,8 +1,10 @@
 # include "parser.hpp"
 #include "lukerror.hpp"
+
 #include <vector>
 #include <typeinfo>
 #include <memory>
+#include <map>
 
 ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     : std::runtime_error(msg)
@@ -37,7 +39,8 @@ StmtPtr Parser::statement() {
      
     if (match({TokenType::BREAK, TokenType::CONTINUE})) 
         return breakStatement();
-
+    if (match({TokenType::DO})) 
+        return doStatement();
     if (match({TokenType::FOR})) 
         return forStatement();
     if (match({TokenType::IF})) 
@@ -72,6 +75,17 @@ StmtPtr Parser::breakStatement() {
     return std::make_shared<BreakStmt>(keyword);
 }
 
+StmtPtr Parser::doStatement() {
+    StmtPtr body = statement();
+    consume(TokenType::WHILE, "Expect 'while' after 'do' body");
+    consume(TokenType::LEFT_PAREN, "Expect '(' after 'while'");
+    ExprPtr condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
+    checkEndLine("Expect ';' after value.", true);
+
+    return std::make_shared<WhileStmt>(condition, body, false);
+}
+
 StmtPtr Parser::forStatement() {
     consume(TokenType::LEFT_PAREN, "Expect '(' after 'for'");
     StmtPtr initializer; 
@@ -103,7 +117,7 @@ StmtPtr Parser::forStatement() {
         stmts.push_back(increment);
         body = std::make_shared<BlockStmt>( std::move(stmts) );
     }
-    body = std::make_shared<WhileStmt>(condition, body);
+    body = std::make_shared<WhileStmt>(condition, body, true);
     if (initializer) {
         std::vector<StmtPtr> stmts;
         stmts.push_back( initializer );
@@ -133,7 +147,7 @@ StmtPtr Parser::printStatement() {
     // consume(TokenType::SEMICOLON, "Expect ';' after value.");
     // No require semicolon
     // checking whether not end line for automatic semicolon insertion
-    checkEndLine("Expect ';' after value.");
+    checkEndLine("Expect ';' after value.", true);
 
     return std::make_shared<PrintStmt>(value);
 }
@@ -156,20 +170,60 @@ StmtPtr Parser::whileStatement() {
     consume(TokenType::RIGHT_PAREN, "Expect ')' after condition");
     StmtPtr body = statement();
 
-    return std::make_shared<WhileStmt>(condition, body);
+    return std::make_shared<WhileStmt>(condition, body, true);
+}
+
+std::vector<std::pair<TokPtr, ExprPtr>> Parser::multiVars() {
+    std::vector<std::pair<TokPtr, ExprPtr>> v_vars;
+    TokPtr name;
+    ExprPtr initializer;
+    do {
+        do {
+            if (m_isFuncBody) m_isFuncBody = false;
+            name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+            initializer = nullptr;
+            if (match({TokenType::EQUAL})) {
+                // we do not call expression function to avoid comma operator
+                initializer = assignment();
+            }
+            // v_vars.emplace_back(std::make_pair(name, initializer));
+            /// Note: we can also pass an initializer list to push_back function
+            v_vars.push_back({name, initializer});
+        } while (match({TokenType::COMMA}));
+        // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
+        // checking end line whether is a function or simple variable for automatic semicolon insertion
+        if (m_isFuncBody) checkEndLine("", false);
+        else checkEndLine("Expect ';' after variable declaration.", true);
+        m_isFuncBody = false;
+        
+    } while (match({TokenType::VAR}));
+        
+    return std::move(v_vars);
 }
 
 StmtPtr Parser::varDeclaration() {
-    TokPtr name = consume(TokenType::IDENTIFIER, "Expect variable name.");
-    ExprPtr initializer = nullptr;
-    if (match({TokenType::EQUAL})) {
-        initializer = expression();
-    }
+    std::vector<std::pair<TokPtr, ExprPtr>> v_vars;
+    TokPtr name;
+    ExprPtr initializer;
+    do {
+        if (m_isFuncBody) m_isFuncBody = false;
+        name = consume(TokenType::IDENTIFIER, "Expect variable name.");
+        initializer = nullptr;
+        if (match({TokenType::EQUAL})) {
+            // we do not call expression function to avoid comma operator
+            initializer = assignment();
+        }
+        // v_vars.emplace_back(std::make_pair(name, initializer));
+        /// Note: we can also pass an initializer list to push_back function
+        v_vars.push_back({name, initializer});
+    } while (match({TokenType::COMMA}));
     // consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.");
-    // checking whether not end line for automatic semicolon insertion
-    checkEndLine("Expect ';' after variable declaration.");
+    // checking end line whether is a function or simple variable for automatic semicolon insertion
+    if (m_isFuncBody) checkEndLine("", false);
+    else checkEndLine("Expect ';' after variable declaration.", true);
+    m_isFuncBody = false;
     
-    return std::make_shared<VarStmt>(name, initializer);
+    return std::make_shared<VarStmt>(std::move(v_vars));
 }
 
 StmtPtr Parser::classDeclaration() {
@@ -180,16 +234,27 @@ StmtPtr Parser::classDeclaration() {
       superclass = std::make_shared<VariableExpr>(previous());
     }
 
-    consume(TokenType::LEFT_BRACE, "Expect '{' after class body.");
-    
+    consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+
+    std::vector<std::pair<TokPtr, ExprPtr>>  v_vars;
+    if (match({TokenType::VAR})) {
+        v_vars = multiVars();
+    }
+
     std::vector<FuncPtr> methods;
+    // adding meta class
+    std::vector<FuncPtr> classMethods;
+
     while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
-      methods.push_back( std::move(function("method")) );
+        /// Note: good tip using ternary expression
+        bool isClassMethod = match({TokenType::CLASS});
+        (isClassMethod ? classMethods : methods).push_back( std::move(function("method")) );
     }
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
   
-    return std::make_shared<ClassStmt>(name, superclass, std::move(methods) );
+    return std::make_shared<ClassStmt>(name, superclass, std::move(v_vars),
+        std::move(methods), std::move(classMethods) );
 }
 
 StmtPtr Parser::declaration() {
@@ -214,7 +279,7 @@ StmtPtr Parser::expressionStatement() {
     ExprPtr expr = expression();
     // consume(TokenType::SEMICOLON, "Expect ';' after expression.");
     // checking whether not end line for automatic semicolon insertion
-    checkEndLine("Expect ';' after expression.");
+    checkEndLine("Expect ';' after expression.", true);
 
     return std::make_shared<ExpressionStmt>(expr);
 }
@@ -225,8 +290,10 @@ FuncPtr Parser::function(const std::string& kind) {
 }
 
 std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
+    m_isFuncBody = true;
     consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name.");
     std::vector<TokPtr> params;
+    std::vector<StmtPtr> body;
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
             if (params.size() >= 8) {
@@ -239,9 +306,24 @@ std::shared_ptr<FunctionExpr> Parser::functionBody(const std::string& kind) {
 
     consume(TokenType::RIGHT_PAREN, "Expect ')' after parameters.");
 
+    // Adding function arrow expression
+    if (match({TokenType::EQUAL_ARROW})) {
+      auto keyword = previous();
+      ExprPtr value = expression();
+      // checking whether not end line for automatic semicolon insertion
+      checkEndLine("Expect ';' after value.", true);
+
+      auto retStmt = std::make_shared<ReturnStmt>(keyword, value);
+      body.emplace_back( retStmt );
+ 
+      return std::make_shared<FunctionExpr>(params, body);
+
+    }
+
     consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
 
-    std::vector<StmtPtr> body = block();
+    // std::vector<StmtPtr> body = block();
+    body = block();
 
     return std::make_shared<FunctionExpr>(params, body);
 }
@@ -410,6 +492,18 @@ ExprPtr Parser::bitwiseShift() {
 
 ExprPtr Parser::addition() {
     ExprPtr left = multiplication();
+    
+    // String Interpolation
+    std::vector<ExprPtr> v_args;
+    if (match({TokenType::INTERP_PLUS})) { 
+        v_args.emplace_back(left);
+        do {
+            v_args.emplace_back(expression());
+        } while (match({TokenType::INTERP_PLUS}));
+        
+        return std::make_shared<InterpolateExpr>(std::move(v_args));
+    }
+
     while (match({TokenType::MINUS, TokenType::PLUS})) {
         TokPtr op = previous();
         ExprPtr right = multiplication();
@@ -496,21 +590,32 @@ ExprPtr Parser::call() {
 }
 
 ExprPtr Parser::finishCall(ExprPtr callee) {
-    std::vector<ExprPtr> args;
+    std::vector<ExprPtr> v_args;
+    std::vector<ExprPtr> v_keywords;
+    std::map<TokPtr, ExprPtr> mapKeywords; 
     if (!check(TokenType::RIGHT_PAREN)) {
         do {
-            if (args.size() >= 32) {
+            if (v_args.size() >= 32) {
                 error(peek(), "Cannot have more than 32 arguments.");
             }
             
             /// Note: calling assignment function rather than expression to avoid the comma operator
-            args.emplace_back(assignment());
+            auto expr = assignment();
+            if (expr->isAssignExpr()) {
+              // std::cerr << "AssignExpr\n";
+              // The AssignExpr->getobject function, returns m_value
+              mapKeywords[expr->getName()] = expr->getObject();
+              continue;
+            } else { 
+                // std::cerr << "Expr: \n";
+                v_args.emplace_back(expr);
+            }
         } while (match({TokenType::COMMA}));
     }
 
     TokPtr paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments.");
 
-    return std::make_shared<CallExpr>(callee, paren, args);
+    return std::make_shared<CallExpr>(callee, paren, v_args, mapKeywords);
 }
 
 ExprPtr Parser::primary() {
@@ -518,13 +623,12 @@ ExprPtr Parser::primary() {
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING, 
-                TokenType::INT, TokenType::DOUBLE})) {
+                TokenType::INT, TokenType::DOUBLE})) { 
         ObjPtr objP = std::make_shared<LukObject>( previous() );
         logMsg("\nIn primary Parser, before literalExpr: ", objP);
         return std::make_shared<LiteralExpr>( objP );
-        // return std::make_shared<LiteralExpr>( LukObject(previous()) );
     }
-    
+   
     if (match({TokenType::SUPER})) {
       TokPtr keyword = previous();
       consume(TokenType::DOT, "Expect '.' after 'super'.");
@@ -560,11 +664,14 @@ ExprPtr Parser::primary() {
     return nullptr;
 }
 
-bool Parser::checkEndLine(const std::string& msg) {
+bool Parser::checkEndLine(const std::string& msg, bool verbose=true) {
     if (isAtEnd()) return false;
     if (match({TokenType::SEMICOLON})) return true;
+    
+    if (verbose)
+      throw error(peek(), msg);
 
-    throw error(peek(), msg);
+    return false;
 }
 
 TokPtr& Parser::consume(TokenType type, std::string message) {

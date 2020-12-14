@@ -1,0 +1,2 @@
+var name="John", age=33;
+print "Hi,  my name is $name, I was born in year ${2020-age},\nso I am ${2*10+13} old."

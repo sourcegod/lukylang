@@ -1,19 +1,15 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#include "common.hpp"
 #include "expr.hpp"
 #include "stmt.hpp"
-#include "token.hpp"
 #include <memory>
 #include <stdexcept>
 #include <vector>
-#include "lukobject.hpp"
 
-// forward declarations
+// forward declaration
 class LukError;
-class LukObject;
-class Stmt;
-
 using ExprPtr = std::shared_ptr<Expr>;
 using StmtPtr = std::shared_ptr<Stmt>;
 using PObject = std::shared_ptr<LukObject>;
@@ -41,18 +37,21 @@ private:
     std::vector<TokPtr> m_tokens;
     LukError& lukErr;
     const std::string errTitle = "ParseError: ";
+    bool m_isFuncBody = false;
 
     StmtPtr statement();
     std::vector<StmtPtr> block();
     StmtPtr breakStatement();
     StmtPtr classDeclaration();
     StmtPtr declaration();
+    StmtPtr doStatement();
     StmtPtr expressionStatement();
     StmtPtr forStatement();
     FuncPtr function(const std::string& kind);
     StmtPtr ifStatement();
     StmtPtr printStatement();
     StmtPtr returnStatement();
+    std::vector<std::pair<TokPtr, ExprPtr>> multiVars();
     StmtPtr varDeclaration();
     StmtPtr whileStatement();
     
@@ -79,7 +78,7 @@ private:
     ExprPtr call();
     ExprPtr finishCall(ExprPtr callee);
     ExprPtr primary();
-    bool checkEndLine(const std::string& msg);
+    bool checkEndLine(const std::string& msg, bool verbose);
 
     TokPtr& consume(TokenType type, std::string message);
     bool match(const std::vector<TokenType>& types);

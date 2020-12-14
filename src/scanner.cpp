@@ -1,16 +1,36 @@
 #include "scanner.hpp"
 #include "lukerror.hpp"
 
+// static variables
+LukError lukErr;
+Scanner Scanner::m_scan = Scanner(lukErr);
+
 Scanner::Scanner(const std::string& source, LukError& lukErr)
-      : m_start(0), m_current(0),
-      m_line(1), m_col(0),
-      m_source(source), m_lukErr(lukErr) {
+        : m_start(0), m_current(0),
+        m_line(1), m_col(0),
+        m_source(source), m_lukErr(lukErr), 
+        m_addingEOF(true) {
     logMsg("\nIn Scanner constructor");
+    initKeywords();
+}
+
+Scanner::Scanner(LukError& lukErr)
+        : m_start(0), m_current(0),
+        m_line(1), m_col(0),
+        m_source(""), m_lukErr(lukErr),
+        m_addingEOF(false) {
+    logMsg("\nIn Second Scanner constructor");
+    initKeywords();
+}
+
+
+void Scanner::initKeywords() {
     // initialize reserved m_keywords map
     m_keywords["and"]    = TokenType::AND;
     m_keywords["break"]    = TokenType::BREAK;
     m_keywords["class"]  = TokenType::CLASS;
     m_keywords["continue"]    = TokenType::CONTINUE;
+    m_keywords["do"]   = TokenType::DO;
     m_keywords["else"]   = TokenType::ELSE;
     m_keywords["false"]  = TokenType::FALSE;
     m_keywords["for"]    = TokenType::FOR;
@@ -25,7 +45,24 @@ Scanner::Scanner(const std::string& source, LukError& lukErr)
     m_keywords["true"]   = TokenType::TRUE;
     m_keywords["var"]    = TokenType::VAR;
     m_keywords["while"]  = TokenType::WHILE;
+
 }
+
+void Scanner::initScan(const std::string& source, size_t line, size_t col, bool addingEOF) {
+    // init global params
+    m_start = m_current =0;
+    m_source = source;
+    m_line = line;
+    m_col = col;
+    m_addingEOF = addingEOF;
+    m_tokens.clear();
+
+}
+
+void Scanner::addToken(const TokenType _tokenType) { 
+    addToken(_tokenType, ""); 
+}
+
 
 void Scanner::addToken(const TokenType type, const std::string& literal) {
     // FIXE: manage the right lexeme
@@ -36,18 +73,26 @@ void Scanner::addToken(const TokenType type, const std::string& literal) {
             type != TokenType::NUMBER ||
             type != TokenType::STRING ||
             type != TokenType::INT ||
-            type != TokenType::DOUBLE) {
+            type != TokenType::DOUBLE) { 
         lexeme = m_source.substr(m_start, lexLen);
     }
-    
+    // std::cerr << "Token lexeme: " << lexeme << ", literal: " << literal << "\n";   
     // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
     m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
 }
 
-void Scanner::addToken(const TokenType _tokenType) { 
-    addToken(_tokenType, ""); 
+void Scanner::insertToken(const TokenType type, const std::string& literal) { 
+    auto lexeme = literal;
+    m_col++;
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
+
 }
 
+void Scanner::addToken(const TokenType type, const std::string& lexeme, std::string literal) {
+    if (literal == "") literal = lexeme;
+    // Note: can  pass directly a new pointer to push_back function, without create the pointer before.
+    m_tokens.push_back( std::make_shared<Token>(type, lexeme, literal, m_line, m_col) );
+}
 
 void Scanner::scanToken() {
     const char ch = advance();
@@ -62,7 +107,7 @@ void Scanner::scanToken() {
             if (lastToken->type != TokenType::LEFT_BRACE &&
                     lastToken->type != TokenType::RIGHT_BRACE && 
                     lastToken->type != TokenType::SEMICOLON) {
-                addToken(TokenType::SEMICOLON);
+                insertToken(TokenType::SEMICOLON, ";");
             }
             addToken(TokenType::RIGHT_BRACE); 
             break;
@@ -105,7 +150,11 @@ void Scanner::scanToken() {
         case '%': addToken(match('=') ? TokenType::MOD_EQUAL : TokenType::MOD); break;
 
         case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
-        case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
+        case '=': 
+          if (match('=')) addToken(TokenType::EQUAL_EQUAL);
+          else if (match('>')) addToken(TokenType::EQUAL_ARROW);
+          else addToken(TokenType::EQUAL); 
+          break;
 
         // Adding: bitwise shift operators
         case '<': 
@@ -153,15 +202,14 @@ void Scanner::scanToken() {
             } else if (lastToken->type !=  TokenType::SEMICOLON &&
                     lastToken->type != TokenType::LEFT_BRACE &&
                     lastToken->type != TokenType::RIGHT_BRACE ) {
-                addToken(TokenType::SEMICOLON);
+                insertToken(TokenType::SEMICOLON, ";");
             }
             break;
 
-            break;
 
         // support simple and double quotes string
-        case '"': string(ch); break;
-        case '\'': string(ch); break;
+        case '"': addString(ch); break;
+        case '\'': addString(ch); break;
 
         default: {
             if (isDigit(ch)) {
@@ -184,10 +232,17 @@ const std::vector<TokPtr>&& Scanner::scanTokens() {
         m_start = m_current;
         scanToken();
     }
-    TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", m_line, m_col);
-    // Note: it will be safer to move the pointer to the vector
-    m_tokens.push_back( std::move(endOfFile) );
-    
+    // Adding End Of File token?
+    if (m_addingEOF) {
+        TokPtr endOfFile = std::make_shared<Token>(TokenType::END_OF_FILE, "EOF", "", m_line, m_col);
+        // Note: it will be safer to move the pointer to the vector
+        m_tokens.push_back( std::move(endOfFile) );
+    }
+
+#ifdef DEBUG
+      logTokens();
+#endif
+
     // Note: move function must be used when returning vector of pointer.
     return std::move(m_tokens);
 }
@@ -249,8 +304,11 @@ std::string Scanner::unescape(const std::string& escaped) {
                 case '"': strChar.push_back('\"'); break;
                 case '\'': strChar.push_back('\''); break;
                 case 't': strChar.push_back('\t'); break;
-                case 'b': strChar.push_back('\b');
-                    break;
+                case 'b': strChar.push_back('\b'); break;
+                case '$': strChar.push_back('\$'); break;
+                case '{': strChar.push_back('\{'); break;
+                case '}': strChar.push_back('\}'); break;
+                
                 default:
                     /// Note: best way to construct string with const char* 
                     /// is to create first char* in a std::string
@@ -268,17 +326,49 @@ std::string Scanner::unescape(const std::string& escaped) {
     return  strChar;
 }
 
-void Scanner::string(char ch) {
+void Scanner::addString(char ch) {
     // the ch argument is to indicate whether it's simple or double quotes
+    synchronize();
     while (peek() != ch && !isAtEnd()) {
-        if (peek() == '\n') {
+        auto curChar = peek();
+        auto nextChar = peekNext();
+        if (curChar == '\n') {
             m_line++;
             m_col=0;
         }
-        if (peek() == '\\' && peekNext()  == ch) advance();
-        advance();
-    }
+        if (curChar == '\\' && (
+              nextChar  == ch || nextChar == '$') ) advance();
 
+        // searching interpolation expression
+        if ( isStartIdent(curChar) || isStartExpr(curChar) ) {
+            auto part = unescape(getPart());
+            addToken(TokenType::STRING, unescape(part));
+            addToken(TokenType::INTERP_PLUS, "_+", "");
+            synchronize();
+
+            if (isIdent(nextChar)) { // interpolation identifier
+                auto ident = getIdent();
+                addToken(TokenType::IDENTIFIER, ident);
+                synchronize();
+
+            } else if (isExpr(nextChar)) { // interpolation expression
+                auto expr = getExpr();
+                scanInterpExpr(expr);
+                synchronize();
+            }
+           
+            // cannot use curChar or nextChar 
+            // cause current char has been changed by getIdent or getExpr function.
+            if (peek() != ch && !isAtEnd() ) {
+                addToken(TokenType::INTERP_PLUS, "_+", "");
+            }
+            continue;
+
+        }
+       if (!isAtEnd())  advance();
+
+    } // End While
+    
     // unterminated string
     if (isAtEnd()) {
         m_lukErr.error(m_errTitle, m_line, m_col, std::string("Unterminated string: '") + ch + "'.");
@@ -287,11 +377,14 @@ void Scanner::string(char ch) {
     
     // the closing "
     advance();
-    const size_t strLen = m_current - m_start;
     // Handle escapes sequences
     // trim the surrounding quotes
-    const std::string strLiteral = unescape(m_source.substr(m_start +1, strLen -2));
+    const size_t strLen = m_current - m_start;
+    // if (strLen > 1) { // whether is not only '"' char
+    const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
     addToken(TokenType::STRING, strLiteral);
+    // }
+
 }
 
 bool Scanner::match(const char expected) {
@@ -373,3 +466,104 @@ char Scanner::searchPrintable() {
     return '\0';
 }
 
+void Scanner::logTokens() {
+  if (m_addingEOF)
+      logMsg("Tokens list for Main Scanner");
+  else
+      logMsg("Tokens list for Second Scanner");
+  for (auto& it: m_tokens) {
+    logMsg("id: ", it->id, "lexeme: ", it->lexeme);
+  }
+
+}
+
+void Scanner::synchronize() {
+    m_start = m_col = m_current;
+    // logMsg("Synchronizing, start: ", start, ", current: ", current);
+}
+
+bool Scanner::isStartIdent(const char c) const {
+    return  c == '$'  && (peekNext() == '_' || isAlpha(peekNext()) );
+}
+
+bool Scanner::isIdent(const char c) const {
+    return isAlNum(c);
+}
+
+bool Scanner::isStartExpr(const char c) const {
+    return  c == '$' && peekNext() == '{';
+}
+
+bool Scanner::isExpr(const char c) const {
+    // only '}' char retrieve false cause it is the end of expression
+    if (c == '}' || isAtEnd()) return false;
+    return true;
+}
+
+std::string Scanner::getIdent() {
+    // logMsg("\nIn getIdent, start: ", start, ", current: ", current);
+    // consume the '$' for the identifier
+    if (!isAtEnd()) { 
+        advance();
+        m_start++;
+    }
+
+    while ( isIdent(peek()) ) {
+        advance();
+    }
+    const size_t idLen = m_current - m_start;
+    const std::string ident  = m_source.substr(m_start, idLen);
+    // logMsg("Exit out  getIdent, with ident: ", ident, "\n");
+
+    return ident;
+}
+
+std::string Scanner::getExpr() {
+    // logMsg("\nIn getExpr, start: ", start, ", current: ", current);
+    // consume the '${' for the expression
+    auto oldStart = m_start;
+    if (peek() == '$' && peekNext() == '{') { 
+        advance(); advance();
+        m_start +=2;
+    }
+
+    while ( isExpr(peek()) ) {
+        advance();
+    }
+
+    if (isAtEnd()) {
+        auto errExpr = m_source.substr(oldStart, (m_current -1) - oldStart);
+        m_lukErr.error(m_errTitle, m_line, m_col, 
+            std::string("Unterminated Interpolating Expression: '") + errExpr + "'");
+        return errExpr;
+    }
+
+    // consume the '}' for the end of expression
+    if (peek() == '}') advance();
+    // unterminated interpolating expression
+    const size_t exLen = (m_current -1) - m_start;
+    const std::string expr  = m_source.substr(m_start, exLen);
+    // logMsg("Exit out  getExpr, with expr: ", expr, "\n");
+
+    return expr;
+}
+
+
+std::string Scanner::getPart() {
+    const size_t strLen = m_current - m_start;
+    // logMsg("\nIn addpart, start: ", start);
+    // logMsg("current: ", current, ", len: ", stringLen);
+    
+    // trim the surrounding quotes
+
+    return m_source.substr(m_start, strLen);
+}
+void Scanner::scanInterpExpr(const std::string& expr) {
+  // rescanning interpolating expression
+    m_scan.initScan(expr, m_line, m_col, false);
+    auto v_tok = m_scan.scanTokens();
+    /// Note: append v_tok into m_tokens without copy
+    std::move(v_tok.begin(), v_tok.end(), std::back_inserter(m_tokens));
+
+}
+  

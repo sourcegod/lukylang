@@ -31,18 +31,34 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
 
     // TRACE_ALL;
     // TRACE_MSG("Env globals tracer: ");
-    
+    // builtins functions 
     // native clock function
     auto clock_func = std::make_shared<ClockFunc>();
     m_globals->define("clock", std::make_shared<LukObject>(clock_func));
+    
+    // native double function
+    auto double_func = std::make_shared<DoubleFunc>();
+    m_globals->define("double", std::make_shared<LukObject>(double_func));
+
+    // native int function
+    auto int_func = std::make_shared<IntFunc>();
+    m_globals->define("int", std::make_shared<LukObject>(int_func));
 
     // native println function
     auto println_func = std::make_shared<PrintlnFunc>();
     m_globals->define("println", std::make_shared<LukObject>(println_func));
-
+    
+    // native random function
+    auto random_func = std::make_shared<RandomFunc>();
+    m_globals->define("random", std::make_shared<LukObject>(random_func));
+ 
     // native readln function
     auto readln_func = std::make_shared<ReadlnFunc>();
     m_globals->define("readln", std::make_shared<LukObject>(readln_func));
+    
+    // native str function
+    auto str_func = std::make_shared<StrFunc>();
+    m_globals->define("str", std::make_shared<LukObject>(str_func));
 
 
     logMsg("\nExit out Interpreter constructor");
@@ -146,6 +162,7 @@ ObjPtr Interpreter::evaluate(ExprPtr expr) {
      auto obj = expr->accept(*this);
      if (obj == nullptr) {
        std::cerr << "Evaluated expr " << expr->typeName() << " to nullptr \n";
+       return nilptr;
      }
 
     logMsg("Evaluating obj result after accept: ", obj->toString());
@@ -169,7 +186,7 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
       case TokenType::EQUAL: break;
       case TokenType::PLUS_EQUAL:
           if (cur->isNumber() && value->isNumber()) {
-              *value = *cur + *value;
+              value = std::make_shared<LukObject>(*cur + *value);
           } else if ( (value->isString() && cur->isString())  ||
               (value->isString() && cur->isNumeric()) || 
               (value->isNumeric() && cur->isString()) ) {
@@ -183,14 +200,14 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
       
       case TokenType::MINUS_EQUAL:
           checkNumberOperands(op, cur, value);
-          *value = *cur - *value;
+          value = std::make_shared<LukObject>(*cur - *value);
           break;
 
       case TokenType::STAR_EQUAL:
           if ( (cur->isNumber()) && (value->isNumber()) ) {
-              *value *= *cur;
+              value = std::make_shared<LukObject>(*cur * *value);
           } else if ( cur->isString() && value->isNumber() ) { 
-              // Note: can multiply string by number
+              /// Note: can multiply string by number
               if ( not value->isInt()) {
                   throw RuntimeError(op, "String multiplier must be an integer");
               }
@@ -212,12 +229,12 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
 
       case TokenType::SLASH_EQUAL:
           checkNumberOperands(op, cur, value);
-          *value = *cur / *value;
+          value = std::make_shared<LukObject>(*cur / *value);
           break;
 
       case TokenType::MOD_EQUAL:
           checkNumberOperands(op, cur, value);
-          *value = *cur % *value;
+          value = std::make_shared<LukObject>(*cur % *value);
           break;
 
       case TokenType::EXP_EQUAL:
@@ -226,39 +243,39 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
           checkNumberOperands(op, cur, value);
           if ( cur->isInt() && value->isInt() &&
                   value->getInt() >= 0 ) {
-              *value = int( std::pow( cur->getNumber(), value->getNumber()) );
+              value = std::make_shared<LukObject>( int( std::pow( cur->getNumber(), value->getNumber())) );
           } 
-          else *value = std::pow( cur->getNumber(), value->getNumber() );
+          else value = std::make_shared<LukObject>( std::pow( cur->getNumber(), value->getNumber()) );
           break;
 
        // bitwise operators compound assignment
        case TokenType::BIT_OR_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur | *value;
+                value = std::make_shared<LukObject>(*cur | *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_AND_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur & *value;
+                value = std::make_shared<LukObject>(*cur & *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_XOR_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur ^ *value;
+                value = std::make_shared<LukObject>(*cur ^ *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_LEFT_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur << *value;
+                value = std::make_shared<LukObject>(*cur << *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
        case TokenType::BIT_RIGHT_EQUAL:
             if (cur->isBoolInt() && value->isBoolInt() )
-                *value = *cur >> *value;
+                value = std::make_shared<LukObject>(*cur >> *value);
             else throw RuntimeError(op, "operands must be bools or integers.");
             break;
 
@@ -423,11 +440,31 @@ ObjPtr Interpreter::visitCallExpr(CallExpr& expr) {
     /// Note: 255 arguments means variadic function
     if (func->arity() != 255 && v_args.size() != func->arity()) {
         std::ostringstream msg;
-        msg << "Expected " << func->arity() 
+        msg << callee->toString() << ", " << "Expected " << func->arity() 
            << " arguments but got " 
            << v_args.size() << ".";
-        throw RuntimeError(expr.m_paren, msg.str());
+        throw RuntimeError(msg.str());
     }
+    auto& funcKeywords = func->getKeywords();
+    if (!expr.m_keywords.empty()  && funcKeywords.empty() ) {
+          throw RuntimeError(expr.m_paren, "No default keyword for this function.");
+    } else if (!expr.m_keywords.empty() ) {
+        for (auto& iter: expr.m_keywords)  {
+            auto strVal = iter.first->lexeme;
+            auto obj = evaluate(iter.second);
+            logMsg(iter.first, ":", obj->toString());
+            // std::cerr << iter.first->lexeme <<  ": " << obj->toString() << "\n";
+            // searching the calling keyword in funcKeyword map
+            auto elem = funcKeywords.find(strVal);
+            if (elem != funcKeywords.end()) {
+                func->setKeywords(strVal, obj->toString());
+            } else {
+                  throw RuntimeError(strVal +  std::string(", No such  keyword for this function."));
+            
+            }
+        } // End For loop
+    }
+ 
     logMsg("func->toString : ",func->toString());
     logMsg("func.use_count: ", func.use_count());
 
@@ -450,6 +487,7 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
   logMsg("\nIn visitGetExpr, name: ", expr.m_name);
   auto obj = evaluate(expr.m_object);
   logMsg("obj: ", obj, ", type: ", obj->getType(), ", id: ", obj->getId());
+  /// Note: now, LukClass object is derived from LukInstance, and LukCallable objects
   if (obj->isInstance()) {
     logMsg("obj is an instance");
     // obj_ptr is the method
@@ -459,10 +497,23 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
     // so, after *shared_ptr, you cannot use it again.
     // so, dont use *shared_ptr
     logMsg("In visitGetExpr, obj_ptr: ", obj_ptr->toString());
-  logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
+    logMsg("\nExit out visitGetExpr, name, before returning obj_ptr");
     return obj_ptr;
   }
-
+  // searching in instance m_klass::fields, then in instance m_klass::m_methods
+  // then in klass::m_methods
+  logMsg("obj is not instance: ", obj->toString(), ", type: ", obj->toString());
+  logMsg("obj is: ", obj->toString(), ", type: ", obj->getType());
+  auto klass = obj->getDynCast<LukClass>();
+  if (klass != nullptr) { 
+      auto instMeth = klass->get(expr.m_name);
+      if (instMeth != nullptr && instMeth != nilptr) return instMeth;
+      logMsg("Method instance not found: ", expr.m_name->lexeme);
+      auto objMeth = klass->findMethod(expr.m_name->lexeme);
+      if (objMeth != nullptr && objMeth != nilptr) return objMeth;
+      throw RuntimeError(expr.m_name,
+      "property not found.");
+   }
   throw RuntimeError(expr.m_name,
     "Only instances have properties.");
   
@@ -471,6 +522,18 @@ ObjPtr Interpreter::visitGetExpr(GetExpr& expr) {
 
 ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
     return evaluate(expr.m_expression);
+}
+
+ObjPtr Interpreter::visitInterpolateExpr(InterpolateExpr& expr) {
+    logMsg("\nIn visitInterpolateExpr: ", typeid(expr).name()); 
+    std::vector<ObjPtr> v_args;
+    std::ostringstream msg;
+    for (auto& arg: expr.m_args) {
+        msg << evaluate(arg)->toString();
+    }
+    logMsg("\nExit out visitInterpolateExpr, before returns func->call:  "); 
+
+    return std::make_shared<LukObject>(msg.str());
 }
 
 ObjPtr Interpreter::visitLiteralExpr(LiteralExpr& expr) {
@@ -494,24 +557,33 @@ ObjPtr Interpreter::visitLogicalExpr(LogicalExpr& expr) {
 ObjPtr Interpreter::visitSetExpr(SetExpr& expr) {
     logMsg("\nIn visitSet: ");
     logMsg("name: ", expr.m_name);
-  auto objP = evaluate(expr.m_object);
-  if (not objP->isInstance()) {
-    throw RuntimeError(expr.m_name,
-      "Only instances have fields.");
-  }
+    auto objP = evaluate(expr.m_object);
+    auto value = evaluate(expr.m_value);
+    // Now, LukClass object is derived from LukInstance  and LukCallable objects.
+    if (objP->isInstance()) {
+        logMsg("value: ", value);
+        logMsg("obj: ", objP, ", type: ", objP->getType());
+        logMsg("obj->getId: ", objP->getId());
+        auto instPtr = objP->getInstance();
+        logMsg("instptr tostring: ", instPtr->toString());
+        logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
+        instPtr->set(expr.m_name, value);
+        logMsg("m_fields size from visitSet: protected");
+        return value;
+    }
 
-  auto value = evaluate(expr.m_value);
-  logMsg("value: ", value);
-  logMsg("obj: ", objP, ", type: ", objP->getType());
-  logMsg("obj->getId: ", objP->getId());
-  auto instPtr = objP->getInstance();
-  logMsg("instptr tostring: ", instPtr->toString());
-  logMsg("Set instance, name: ", expr.m_name, ", value: ", value);
-  instPtr->set(expr.m_name, value);
-  logMsg("m_fields size from visitSet: ", instPtr->getFields().size());
-  logMsg("Exit out visitSet: \n");
+    // using klass instead instance
+    auto klass = objP->getDynCast<LukClass>();
+    if (klass != nullptr) { 
+        klass->set(expr.m_name, value);
+        return value;
+    }
+
+    logMsg("Exit out visitSet: \n");
+    throw RuntimeError(expr.m_name,
+        "Only instances have fields.");
  
-  return value;
+    return nilptr;
 }
 
 ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
@@ -533,6 +605,7 @@ ObjPtr Interpreter::visitSuperExpr(SuperExpr& expr) {
     if (method == nullptr) {
       throw RuntimeError(expr.m_method,
           "Undefined property '" + expr.m_method->lexeme + "'.");
+
     }
 
     std::shared_ptr<LukFunction> funcPtr = method->getDynCast<LukFunction>();
@@ -749,6 +822,34 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
   }
 
   std::unordered_map<std::string, ObjPtr> methods;
+  // Adding variables fields into the class map
+  ObjPtr value = nilptr;
+  TokPtr name;
+  ExprPtr initializer;
+  for (auto& it: stmt.m_vars) {
+      value = nilptr;
+      name = it.first;
+      initializer = it.second;
+      if (initializer != nullptr) {
+          value = evaluate(initializer);
+      }
+      methods[name->lexeme] = value;
+  }
+  
+  std::unordered_map<std::string, ObjPtr> classMethods;
+  // Adding classmethods into the class map
+  for (auto meth: stmt.m_classMethods) {
+    auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
+        meth->m_function, m_env, false);
+    auto obj_ptr = std::make_shared<LukObject>(func);
+    classMethods[meth->m_name->lexeme] = obj_ptr;
+  }
+  // in this klass, metaklass and superklass are null
+  auto metaKlass = std::make_shared<LukClass>(nullptr, 
+      stmt.m_name->lexeme + " metaclass", 
+      nullptr, classMethods);
+
+  // Adding methods into the class map
   for (auto meth: stmt.m_methods) {
     auto func = std::make_shared<LukFunction>(meth->m_name->lexeme, 
         meth->m_function, m_env,
@@ -760,8 +861,8 @@ void Interpreter::visitClassStmt(ClassStmt& stmt) {
     logMsg("Adding meth to methods map: ", meth->m_name->lexeme);
     methods[meth->m_name->lexeme] = obj_ptr;
   }
-
-  auto klass = std::make_shared<LukClass>(stmt.m_name->lexeme, supKlass, methods);
+  auto klass = std::make_shared<LukClass>(metaKlass, stmt.m_name->lexeme, 
+      supKlass, methods);
   if (stmt.m_superclass != nullptr) {
     // Note: moving m_enclosing from private to public in Environment object
     m_env = m_env->m_enclosing;
@@ -820,10 +921,17 @@ void Interpreter::visitReturnStmt(ReturnStmt& stmt) {
 void Interpreter::visitVarStmt(VarStmt& stmt) {
     // Note: new ObjPtr needs to be initialized to nilptr to avoid crash
     ObjPtr value = nilptr;
-    if (stmt.m_initializer != nullptr) {
-        value = evaluate(stmt.m_initializer);
+    TokPtr name;
+    ExprPtr initializer;
+    for (auto& it: stmt.m_vars) {
+        value = nilptr;
+        name = it.first;
+        initializer = it.second;
+        if (initializer != nullptr) {
+            value = evaluate(initializer);
+        }
+        m_env->define(name->lexeme, value);
     }
-    m_env->define(stmt.m_name->lexeme, value);
 
     // log environment state for debugging
     logState();
@@ -831,16 +939,31 @@ void Interpreter::visitVarStmt(VarStmt& stmt) {
 
 void Interpreter::visitWhileStmt(WhileStmt& stmt) {
     auto val  = evaluate(stmt.m_condition);
-    while (isTruthy(val)) {
-        try {
-            execute(stmt.m_body);
-            val  = evaluate(stmt.m_condition);
-            // Note: catching must be by reference, not by value
-        } catch(Jump& jmp) {
-            if (jmp.m_keyword->lexeme == "break") break;
-            if (jmp.m_keyword->lexeme == "continue") continue;
+    // isWhile variable indicates whether is an while loop or a do-while loop
+    if (stmt.m_isWhile) {
+        while (isTruthy(val)) {
+            try {
+                execute(stmt.m_body);
+                val  = evaluate(stmt.m_condition);
+                // Note: catching must be by reference, not by value
+            } catch(Jump& jmp) {
+                if (jmp.m_keyword->lexeme == "break") break;
+                if (jmp.m_keyword->lexeme == "continue") continue;
+            }
+        
         }
+    } else {
+        do {
+            try {
+                execute(stmt.m_body);
+                val  = evaluate(stmt.m_condition);
+                // Note: catching must be by reference, not by value
+            } catch(Jump& jmp) {
+                if (jmp.m_keyword->lexeme == "break") break;
+                if (jmp.m_keyword->lexeme == "continue") continue;
+            }
 
+        } while (isTruthy(val));
     }
 
 }

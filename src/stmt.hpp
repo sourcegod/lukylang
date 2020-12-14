@@ -58,10 +58,15 @@ public:
 
 class ClassStmt : public Stmt {
 public:
-    ClassStmt(TokPtr& name, std::shared_ptr<VariableExpr>& superclass, std::vector<FuncPtr>&& methods) :
-      m_name(name),
-      m_superclass(std::move(superclass)),
-      m_methods(std::move(methods))
+    ClassStmt(TokPtr& name, std::shared_ptr<VariableExpr>& superclass, 
+              std::vector<std::pair<TokPtr, ExprPtr>>&& vars,
+              std::vector<FuncPtr>&& methods,
+              std::vector<FuncPtr>&& classMethods) :
+        m_name(name),
+        m_superclass(std::move(superclass)),
+        m_vars(std::move(vars)),
+        m_methods(std::move(methods)),
+        m_classMethods(std::move(classMethods))
     {}
 
     void accept(StmtVisitor& v) override {
@@ -69,7 +74,9 @@ public:
     }
     TokPtr m_name;
     std::shared_ptr<VariableExpr> m_superclass;
+    std::vector<std::pair<TokPtr, ExprPtr>> m_vars;
     std::vector<FuncPtr> m_methods;
+    std::vector<FuncPtr> m_classMethods;
 
 };
 
@@ -180,24 +187,22 @@ public:
 
 class VarStmt : public Stmt {
 public:
-    VarStmt(TokPtr& name, ExprPtr expr) :
-        m_name(name),
-        m_initializer(std::move(expr))
+    VarStmt(std::vector<std::pair<TokPtr, ExprPtr>>&& vars) : m_vars(std::move(vars))
     {}
 
     void accept(StmtVisitor& v) override {
         v.visitVarStmt(*this);
     }
-    TokPtr m_name;
-    ExprPtr m_initializer;
+    std::vector<std::pair<TokPtr, ExprPtr>> m_vars;
 
 };
 
 class WhileStmt : public Stmt {
 public:
-    WhileStmt(ExprPtr condition, StmtPtr body) :
+    WhileStmt(ExprPtr condition, StmtPtr body, bool isWhile) :
         m_condition(std::move(condition)),
-        m_body(std::move(body))
+        m_body(std::move(body)),
+        m_isWhile(isWhile)
     {}
 
     void accept(StmtVisitor& v) override {
@@ -206,6 +211,7 @@ public:
 
     ExprPtr m_condition;
     StmtPtr m_body;
+    bool m_isWhile;
 };
 
 

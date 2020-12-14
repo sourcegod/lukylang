@@ -5,6 +5,7 @@
 #include "token.hpp"
 #include <memory>
 #include <vector>
+#include <map>
 
 // forward declarations
 class AssignExpr;
@@ -13,6 +14,7 @@ class CallExpr;
 class FunctionExpr;
 class GetExpr;
 class GroupingExpr;
+class InterpolateExpr;
 class LiteralExpr;
 class LogicalExpr;
 class SetExpr;
@@ -34,6 +36,7 @@ class ExprVisitor {
         virtual ObjPtr visitFunctionExpr(FunctionExpr&) =0;
         virtual ObjPtr visitGetExpr(GetExpr&) =0;
         virtual ObjPtr visitGroupingExpr(GroupingExpr&) =0;
+        virtual ObjPtr visitInterpolateExpr(InterpolateExpr&) =0;
         virtual ObjPtr visitLiteralExpr(LiteralExpr&) =0;
         virtual ObjPtr visitLogicalExpr(LogicalExpr&) =0;
         virtual ObjPtr visitSetExpr(SetExpr&) =0;
@@ -54,6 +57,7 @@ public:
     }
     
     virtual ObjPtr accept(ExprVisitor &v) =0;
+    virtual bool isAssignExpr() const { return false; }
     virtual bool isCallExpr() const { return false; }
     virtual bool isFunctionExpr() const { return false; }
     virtual bool isGetExpr() const { return false; }
@@ -86,6 +90,11 @@ public:
     ObjPtr accept(ExprVisitor &v) override {
         return v.visitAssignExpr(*this); 
     }
+    bool isAssignExpr() const override { return true; }
+    std::string typeName() const override { return "AssignExpr"; }
+    TokPtr getName() const override { return m_name; }
+    ExprPtr getObject() const override { return m_value; }
+
 
     TokPtr m_name;
     TokPtr m_equals;
@@ -112,10 +121,11 @@ public:
 
 class CallExpr : public Expr {
 public:
-    CallExpr(ExprPtr callee, TokPtr& paren, std::vector<ExprPtr> args) :
+    CallExpr(ExprPtr callee, TokPtr& paren, std::vector<ExprPtr> args, std::map<TokPtr, ExprPtr> m_keywords) :
         m_callee(std::move(callee)),
         m_paren(paren),
-        m_args(std::move(args))
+        m_args(std::move(args)),
+        m_keywords(std::move(m_keywords))
     {}
     
     ObjPtr accept(ExprVisitor &v) override {
@@ -124,11 +134,12 @@ public:
 
     bool isCallExpr() const override { return true; }
     std::string typeName() const override { return "CallExpr"; }
-    virtual TokPtr getName() const { return m_paren; }
+    TokPtr getName() const override { return m_paren; }
 
     ExprPtr m_callee;
     TokPtr m_paren;
     std::vector<ExprPtr> m_args;
+    std::map<TokPtr, ExprPtr> m_keywords;
 };
 
 class FunctionExpr : public Expr {
@@ -182,6 +193,21 @@ public:
 
     ExprPtr m_expression;
 };
+
+class InterpolateExpr : public Expr {
+public:
+    InterpolateExpr(std::vector<ExprPtr> args) :
+        m_args(std::move(args))
+    {}
+    
+    ObjPtr accept(ExprVisitor &v) override {
+        return v.visitInterpolateExpr(*this); 
+    }
+
+
+    std::vector<ExprPtr> m_args;
+};
+
 
 class LiteralExpr: public Expr {
 public:
