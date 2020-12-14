@@ -10,6 +10,8 @@ Last version: dev_0.33.0
 Date: Mon, 14/12/2020
 -- Updated file: changelog
 -- Updated file: README.md
+-- Updated file: todo.txt
+
 
 # Version dev_0.32.12: Native random
 Date: Sat, 12/12/2020
