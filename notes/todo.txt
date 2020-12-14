@@ -1,28 +1,15 @@
 Todo list
 Date: Wed, 30/09/2020
-Last update: Thu, 08/10/2020
+Last update: Mon, 14/12/2020
 
--- Unit testing
--- Multi-variable  declarations: 
-var a, b=0, c=1
-
--- String Interpolation
--- do...while statement
--- Function arrow
--- Lambda arrow
--- Static variable in class
-
+# Version 0.34.0
+Date: Mon, 14/12/2020
+-- Unit testing-- switch statement
 -- Goto statement
--- switch statement
--- Native to_int or num function
--- Native to_str or str function
--- Native to_double function
 -- type function: returns object as string
 -- len function: returns string or array count.
 -- Modules and import function
--- random function
 -- Native shell function
--- Static variable and method in classes.
 -- array data type
 -- Range function
 -- For range loop
@@ -30,4 +17,21 @@ var a, b=0, c=1
 -- Sound: play audio frequency function
 -- Play:  play audio note function
 -- Note: play midi note function
+
+# Version 0.33.0
+Date: Wed, 30/09/2020
+* -- Multi-variable  declarations: 
+var a, b=0, c=1
+
+* -- String Interpolation
+* -- do...while statement
+* -- Function arrow
+* -- Lambda arrow
+* -- Static variable in class
+
+* -- Native to_int or num function
+* -- Native to_str or str function
+* -- Native to_double function
+* -- random function
+* -- Static variable and method in classes.
 
