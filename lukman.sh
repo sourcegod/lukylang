@@ -117,6 +117,11 @@ elif [[ "$1" = "-T" || "$1" = "testall" ]]; then
     done
     echo -e "\nEnd test";
 
+# run normal version with file, without options
+elif [ -e "$1" ]; then
+    CheckFile $lukApp
+    $lukApp "$1"
+
 else
     echo "$help"
     exit 1
