@@ -33,33 +33,10 @@ Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     // TRACE_MSG("Env globals tracer: ");
     // builtins functions 
     // native clock function
-    auto clock_func = std::make_shared<ClockFunc>();
-    m_globals->define("clock", std::make_shared<LukObject>(clock_func));
-    
-    // native double function
-    auto double_func = std::make_shared<DoubleFunc>();
-    m_globals->define("double", std::make_shared<LukObject>(double_func));
-
-    // native int function
-    auto int_func = std::make_shared<IntFunc>();
-    m_globals->define("int", std::make_shared<LukObject>(int_func));
-
-    // native println function
-    auto println_func = std::make_shared<PrintlnFunc>();
-    m_globals->define("println", std::make_shared<LukObject>(println_func));
-    
-    // native random function
-    auto random_func = std::make_shared<RandomFunc>();
-    m_globals->define("random", std::make_shared<LukObject>(random_func));
- 
-    // native readln function
-    auto readln_func = std::make_shared<ReadlnFunc>();
-    m_globals->define("readln", std::make_shared<LukObject>(readln_func));
-    
-    // native str function
-    auto str_func = std::make_shared<StrFunc>();
-    m_globals->define("str", std::make_shared<LukObject>(str_func));
-
+    // auto clock_func = std::make_shared<ClockFunc>();
+    // m_globals->define("clock", std::make_shared<LukObject>(clock_func));
+    auto blt = BuiltinFunc(m_globals);
+    blt.initNative();
 
     logMsg("\nExit out Interpreter constructor");
 
