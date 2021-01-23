@@ -195,6 +195,20 @@ LukObject::LukObject(const LukObject&& obj) {
 
 }
 
+std::string LukObject::typeOf() const {
+    switch(m_type) {
+        case LukType::Nil: return "nil";
+        case LukType::Bool: return "bool";
+        case LukType::Int: return "int";
+        case LukType::Double: return "double";
+        case LukType::String: return "string";
+        case LukType::Callable:  return "callable";
+        case LukType::Instance:  return "instance";
+    }
+    throw RuntimeError("Cannot determine the object's type.");
+
+    return "''";
+}
 
 // returns the current value to string
 std::string LukObject::value() {

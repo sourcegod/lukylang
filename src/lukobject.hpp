@@ -78,6 +78,8 @@ public:
     LukObject& getObj() { return *this; }
     // get the type id
     LukType getType() { return m_type; }
+    /// Note: returns the string representation for object's type
+    std::string typeOf() const;
 
     // get id number
     size_t getId() { return id; }
