@@ -9,6 +9,8 @@
 #include "builtins/random_func.hpp"
 #include "builtins/readln_func.hpp"
 #include "builtins/str_func.hpp"
+#include "builtins/type_func.hpp"
+
 class BuiltinFunc {
 public:
     BuiltinFunc(EnvPtr env) : m_env(env)
@@ -42,6 +44,11 @@ public:
         // native str function
         auto str_func = std::make_shared<StrFunc>();
         m_env->define("str", std::make_shared<LukObject>(str_func));
+
+        
+        // native type function
+        auto type_func = std::make_shared<TypeFunc>();
+        m_env->define("type", std::make_shared<LukObject>(type_func));
 
 }
 
