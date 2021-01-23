@@ -328,6 +328,7 @@ std::string Scanner::unescape(const std::string& escaped) {
 
 void Scanner::addString(char ch) {
     // the ch argument is to indicate whether it's simple or double quotes
+    bool isInterp = false;
     synchronize();
     while (peek() != ch && !isAtEnd()) {
         auto curChar = peek();
@@ -341,6 +342,7 @@ void Scanner::addString(char ch) {
 
         // searching interpolation expression
         if ( isStartIdent(curChar) || isStartExpr(curChar) ) {
+            isInterp = true;
             auto part = unescape(getPart());
             addToken(TokenType::STRING, unescape(part));
             addToken(TokenType::INTERP_PLUS, "_+", "");
@@ -380,10 +382,14 @@ void Scanner::addString(char ch) {
     // Handle escapes sequences
     // trim the surrounding quotes
     const size_t strLen = m_current - m_start;
-    // if (strLen > 1) { // whether is not only '"' char
-    const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
-    addToken(TokenType::STRING, strLiteral);
-    // }
+    /// Note: returns whether there is no string after the Interpolating String
+    if (strLen == 1 && isInterp) return;
+    // if (strLen > 1 && isInterp) { // whether is not only '"' char
+    else {
+        const std::string strLiteral = unescape(m_source.substr(m_start, strLen -1));
+        addToken(TokenType::STRING, strLiteral);
+    }
+    
 
 }
 
