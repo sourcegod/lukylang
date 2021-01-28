@@ -2,6 +2,7 @@
 #define LEN_FUNC_HPP
 #include <string>
 #include <vector>
+#include <sstream> // ostringstream
 
 class LukCallable;
 class Interpreter;
@@ -18,8 +19,11 @@ public:
             int val = v_args[0]->toString().size();
             return std::make_shared<LukObject>(val);
         }
+        std::ostringstream errMsg;
+        errMsg << "Object of type '"
+        << v_args[0]->typeOf()  << "' has no len().";
+        throw RuntimeError(errMsg.str());
         
-        return std::make_shared<LukObject>(0);
     }
    
     virtual std::string toString() const override { return "<Native Function: len()>"; }
