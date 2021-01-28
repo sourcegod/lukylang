@@ -1,0 +1,2 @@
+println('len("hello"): ', len("hello"))
+println('len("how are you?"): ', len("How are you?"))
