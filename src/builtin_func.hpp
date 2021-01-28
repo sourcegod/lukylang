@@ -10,6 +10,7 @@
 #include "builtins/readln_func.hpp"
 #include "builtins/str_func.hpp"
 #include "builtins/type_func.hpp"
+#include "builtins/len_func.hpp"
 
 class BuiltinFunc {
 public:
@@ -49,6 +50,11 @@ public:
         // native type function
         auto type_func = std::make_shared<TypeFunc>();
         m_env->define("type", std::make_shared<LukObject>(type_func));
+
+        // native len function
+        auto len_func = std::make_shared<LenFunc>();
+        m_env->define("len", std::make_shared<LukObject>(len_func));
+
 
 }
 
