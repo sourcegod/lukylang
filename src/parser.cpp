@@ -143,13 +143,18 @@ StmtPtr Parser::ifStatement() {
 }
 
 StmtPtr Parser::printStatement() {
-    ExprPtr value = expression();
+    /// Adding multiple arguments to the print statement
+    std::vector<ExprPtr> v_args;
+    // ExprPtr value = expression();
+    do {
+        v_args.emplace_back(expression());
+    } while (match({TokenType::COMMA}));
     // consume(TokenType::SEMICOLON, "Expect ';' after value.");
     // No require semicolon
     // checking whether not end line for automatic semicolon insertion
     checkEndLine("Expect ';' after value.", true);
 
-    return std::make_shared<PrintStmt>(value);
+    return std::make_shared<PrintStmt>(std::move(v_args));
 }
 
 StmtPtr Parser::returnStatement() {
