@@ -503,7 +503,6 @@ ObjPtr Interpreter::visitGroupingExpr(GroupingExpr& expr) {
 
 ObjPtr Interpreter::visitInterpolateExpr(InterpolateExpr& expr) {
     logMsg("\nIn visitInterpolateExpr: ", typeid(expr).name()); 
-    std::vector<ObjPtr> v_args;
     std::ostringstream msg;
     for (auto& arg: expr.m_args) {
         msg << evaluate(arg)->toString();
@@ -876,7 +875,12 @@ void Interpreter::visitIfStmt(IfStmt& stmt) {
 }
 
 void Interpreter::visitPrintStmt(PrintStmt& stmt) {
-    ObjPtr value = evaluate(stmt.m_expression);
+    // ObjPtr value = evaluate(stmt.m_expression);
+    std::string msg;
+    for (auto& arg: stmt.m_args) {
+        msg += evaluate(arg)->toString();
+    }
+    ObjPtr value = std::make_shared<LukObject>(msg);
     // Note: printing obj->toString instead *obj pointer
     // to avoid multiple object's destructors 
     logMsg("\nIn visitprint: id: ", value->getId(), ", value: ", value->toString());

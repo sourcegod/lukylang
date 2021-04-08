@@ -147,7 +147,8 @@ StmtPtr Parser::printStatement() {
     std::vector<ExprPtr> v_args;
     // ExprPtr value = expression();
     do {
-        v_args.emplace_back(expression());
+        /// calling assignment instead expression function to avoid comma operator
+        v_args.emplace_back(assignment());
     } while (match({TokenType::COMMA}));
     // consume(TokenType::SEMICOLON, "Expect ';' after value.");
     // No require semicolon
