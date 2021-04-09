@@ -160,14 +160,12 @@ class PrintStmt : public Stmt {
 public:
     PrintStmt(std::vector<ExprPtr>&& args) :
         m_args(std::move(args))
-        // m_expression(std::move(expr))
     {}
 
     void accept(StmtVisitor& v) override {
         v.visitPrintStmt(*this);
     }
 
-    // ExprPtr m_expression;
     std::vector<ExprPtr> m_args;
 };
 
