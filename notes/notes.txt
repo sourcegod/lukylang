@@ -1,10 +1,16 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Tue, 02/02/2021
-Last version: dev_0.33.2
+Last update: Fri, 09/04/2021
+Last version: dev_0.33.3
 
   0. Changelog
+# Version dev_0.33.3: Print multiple arguments
+Date: Fri, 09/04/2021
+-- Updated (print) statement to manage multiple arguments.
+-- Added files: (misc_print_multi_arguments.luk) in examples and tests directories.
+
+
 # Version dev_0.33.2: Native len
 Date: Tue, 02/02/2021
 -- Added class: (LenFunc) and native builtin function (len).
