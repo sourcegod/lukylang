@@ -4,7 +4,6 @@
  * */
 
 #include "lukobject.hpp"
-#include "token.hpp"
 #include "lukcallable.hpp"
 #include "lukfunction.hpp"
 #include "lukinstance.hpp"
@@ -77,59 +76,6 @@ LukObject::LukObject(std::shared_ptr<LukInstance> instance)
     m_type = LukType::Instance;
     logMsg("\nIn LukObject instance toString: ", instance->toString());
     m_string = p_instance->toString();
-}
-
-LukObject::LukObject(Token tok) 
-        : id(++next_id) {
-    logMsg("\nLukObject constructor token,  id: ", id, "val: ", tok.lexeme);
-    fromToken(tok);
-}
-
-LukObject::LukObject(TokPtr& tokP) 
-        : id(++next_id) {
-    logMsg("\nLukObject constructor token pointer,  id: ", id, "val: ", tokP->lexeme);
-    // LukObject(*tokP.get());
-    fromToken(*tokP);
-}
-
-void LukObject::fromToken(Token& tok) {
-    switch(tok.type) {
-        case TokenType::NIL:
-            m_type = LukType::Nil; break;
-        case TokenType::TRUE: 
-            m_type = LukType::Bool;
-            m_bool = true; 
-            break;
-        case TokenType::FALSE: 
-            m_type = LukType::Bool;
-            m_bool = false; 
-            break;
-
-        case TokenType::INT: 
-            m_type = LukType::Int;
-            m_int = std::stoi(tok.literal); 
-            break;
-
-        case TokenType::DOUBLE: 
-            m_type = LukType::Double;
-            m_double = std::stod(tok.literal); 
-            break;
-
-        case TokenType::NUMBER: 
-            m_type = LukType::Double;
-            m_double = std::stod(tok.literal); 
-            break;
-
-        case TokenType::STRING: 
-            m_type = LukType::String;
-            m_string = tok.literal;
-            // p_string = std::make_shared<std::string>(tok.literal);
-            break;
-
-        default:
-            RuntimeError("Invalid Luky object.");
-    }
-
 }
 
 LukObject::LukObject(nullptr_t) 

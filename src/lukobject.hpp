@@ -4,7 +4,6 @@
 #include "common.hpp"
 #include "lukinstance.hpp"
 #include "logger.hpp"
-#include "token.hpp"
 
 #include <sstream> // ostreamstring
 #include <string>
@@ -19,7 +18,6 @@
 // and the include headers files.
 
 // forward declarations
-class Token;
 class LukCallable;
 class LukFunction;
 class LukObject;
@@ -59,8 +57,6 @@ public:
     LukObject(const char* val);
     LukObject(std::shared_ptr<LukCallable> callable);
     LukObject(std::shared_ptr<LukInstance> instance);
-    LukObject(Token tok);
-    LukObject(TokPtr& tokP);
     LukObject(nullptr_t nulp);
     
     // copy constructor
@@ -267,7 +263,6 @@ private:
     int _toInt() const;
     double _toDouble() const;
     std::string _toString() const;
-    void fromToken(Token& tok);
     /// Note: deleting trailing zeros
     std::string stripZeros(std::string str) const;
     
