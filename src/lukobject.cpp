@@ -89,35 +89,7 @@ LukObject::LukObject(TokPtr& tokP)
         : id(++next_id) {
     logMsg("\nLukObject constructor token pointer,  id: ", id, "val: ", tokP->lexeme);
     // LukObject(*tokP.get());
-    
     fromToken(*tokP);
-
-    /*
-    switch(tokP->type) {
-        case TokenType::NIL:
-            m_type = LukType::Nil; break;
-        case TokenType::TRUE: 
-            m_type = LukType::Bool;
-            m_bool = true; 
-            break;
-        case TokenType::FALSE: 
-            m_type = LukType::Bool;
-            m_bool = false; 
-            break;
-        case TokenType::NUMBER: 
-            m_type = LukType::Double;
-            m_double = std::stod(tokP->literal); 
-            break;
-        case TokenType::STRING: 
-            m_type = LukType::String;
-            m_string = tokP->literal;
-            // p_string = std::make_shared<std::string>(tokP->literal);
-            break;
-        default:
-            RuntimeError("Invalid Luky object.");
-    }
-    */
-
 }
 
 void LukObject::fromToken(Token& tok) {

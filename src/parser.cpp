@@ -625,12 +625,30 @@ ExprPtr Parser::finishCall(ExprPtr callee) {
 }
 
 ExprPtr Parser::primary() {
-    if (match(
+    ObjPtr objP = nullptr;
+    if (match( {TokenType::NIL})) 
+        objP = std::make_shared<LukObject>();
+    else if (match( {TokenType::FALSE})) 
+        objP = std::make_shared<LukObject>( false );
+    else if (match( {TokenType::TRUE})) 
+        objP = std::make_shared<LukObject>( true );
+    else if (match( {TokenType::INT})) 
+        objP = std::make_shared<LukObject>(std::stoi( previous()->literal ));
+    else if (match( {TokenType::NUMBER, TokenType::DOUBLE})) 
+        objP = std::make_shared<LukObject>(std::stod( previous()->literal ));
+    else if (match( {TokenType::STRING})) 
+        objP = std::make_shared<LukObject>(previous()->literal);
+        
+    /*
+    else if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING, 
                 TokenType::INT, TokenType::DOUBLE})) { 
         ObjPtr objP = std::make_shared<LukObject>( previous() );
+        */
+    
+    if (objP != nullptr) {
         logMsg("\nIn primary Parser, before literalExpr: ", objP);
         return std::make_shared<LiteralExpr>( objP );
     }
