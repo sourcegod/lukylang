@@ -1,10 +1,15 @@
 Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
-Last update: Fri, 09/04/2021
-Last version: dev_0.33.3
+Last update: Sun, 06/06/2021
+Last version: dev_0.33.4
 
   0. Changelog
+# Version dev_0.33.4: Cleanup LukObject
+Date: Sun, 06/06/2021
+-- Deleted: Token functions in LukObject class.
+-- Updated: (Parser::primary) to manage the (TokenType for LukObject class).
+
 # Version dev_0.33.3: Print multiple arguments
 Date: Fri, 09/04/2021
 -- Updated (print) statement to manage multiple arguments.
