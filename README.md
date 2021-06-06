@@ -79,6 +79,8 @@ Adding extras features to make the language more fun and usable:
 - Native double function
 - Native str function
 - Native random function
+- Native type function
+- Native len function.
 `See changelog for more informations`
 
 ## Misc

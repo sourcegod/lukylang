@@ -143,13 +143,19 @@ StmtPtr Parser::ifStatement() {
 }
 
 StmtPtr Parser::printStatement() {
-    ExprPtr value = expression();
+    /// Adding multiple arguments to the print statement
+    std::vector<ExprPtr> v_args;
+    // ExprPtr value = expression();
+    do {
+        /// calling assignment instead expression function to avoid comma operator
+        v_args.emplace_back(assignment());
+    } while (match({TokenType::COMMA}));
     // consume(TokenType::SEMICOLON, "Expect ';' after value.");
     // No require semicolon
     // checking whether not end line for automatic semicolon insertion
     checkEndLine("Expect ';' after value.", true);
 
-    return std::make_shared<PrintStmt>(value);
+    return std::make_shared<PrintStmt>(std::move(v_args));
 }
 
 StmtPtr Parser::returnStatement() {
@@ -619,12 +625,30 @@ ExprPtr Parser::finishCall(ExprPtr callee) {
 }
 
 ExprPtr Parser::primary() {
-    if (match(
+    ObjPtr objP = nullptr;
+    if (match( {TokenType::NIL})) 
+        objP = std::make_shared<LukObject>();
+    else if (match( {TokenType::FALSE})) 
+        objP = std::make_shared<LukObject>( false );
+    else if (match( {TokenType::TRUE})) 
+        objP = std::make_shared<LukObject>( true );
+    else if (match( {TokenType::INT})) 
+        objP = std::make_shared<LukObject>(std::stoi( previous()->literal ));
+    else if (match( {TokenType::NUMBER, TokenType::DOUBLE})) 
+        objP = std::make_shared<LukObject>(std::stod( previous()->literal ));
+    else if (match( {TokenType::STRING})) 
+        objP = std::make_shared<LukObject>(previous()->literal);
+        
+    /*
+    else if (match(
                 {TokenType::FALSE, TokenType::TRUE, 
                 TokenType::NIL,
                 TokenType::NUMBER, TokenType::STRING, 
                 TokenType::INT, TokenType::DOUBLE})) { 
         ObjPtr objP = std::make_shared<LukObject>( previous() );
+        */
+    
+    if (objP != nullptr) {
         logMsg("\nIn primary Parser, before literalExpr: ", objP);
         return std::make_shared<LiteralExpr>( objP );
     }

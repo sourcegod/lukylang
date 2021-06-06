@@ -1,7 +1,33 @@
 # Changelog for Luky project
 # Author: Coolbrother
 # Date: samedi, 24/08/2019
-Last update: Sun, 13/12/2020
+
+# Version dev_0.33.4: Cleanup LukObject
+Date: Sun, 06/06/2021
+-- Deleted: Token functions in LukObject class.
+-- Updated: (Parser::primary) to manage the (TokenType for LukObject class).
+
+# Version dev_0.33.3: Print multiple arguments
+Date: Fri, 09/04/2021
+-- Updated (print) statement to manage multiple arguments.
+-- Added files: (misc_print_multi_arguments.luk) in examples and tests directories.
+
+
+# Version dev_0.33.2: Native len
+Date: Tue, 02/02/2021
+-- Added class: (LenFunc) and native builtin function (len).
+-- Added files: (native_len.luk) in examples and tests directories.
+
+
+# Version dev_0.33.1: Native type
+Date: Mon, 25/01/2021
+-- Updated file: (lukman.sh) to running Luky file without options.
+-- Added class: (BuiltinFunc) and removed native functions from (interpreter.cpp file) to (builtin_func.hpp file)
+-- Fixed bug: in (Scanner::addString) function, for interpolating string.
+-- Added function: (LukObject::typeOf) to retrieve LukObject's type.
+-- Added class: (TypeFunc) and native builtin function (type) to retrieve LukObject's type as string.
+-- Added files: (native_type.luk) in (examples and tests) directories.
+
 
 # Version 0.33.0: random
 Date: Sun, 13/12/2020

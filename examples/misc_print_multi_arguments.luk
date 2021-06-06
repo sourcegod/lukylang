@@ -1,0 +1,2 @@
+var name="John", age=33;
+print "My name is: ", name, ", with ", age, " years."

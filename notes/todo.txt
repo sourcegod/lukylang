@@ -1,13 +1,11 @@
 Todo list
 Date: Wed, 30/09/2020
-Last update: Mon, 14/12/2020
+Last update: Sun, 06/06/2021
 
 # Version 0.34.0
 Date: Mon, 14/12/2020
 -- Unit testing-- switch statement
 -- Goto statement
--- type function: returns object as string
--- len function: returns string or array count.
 -- Modules and import function
 -- Native shell function
 -- array data type
@@ -17,6 +15,8 @@ Date: Mon, 14/12/2020
 -- Sound: play audio frequency function
 -- Play:  play audio note function
 -- Note: play midi note function
+* -- type function: returns object as string
+* -- len function: returns string or array count.
 
 # Version 0.33.0
 Date: Wed, 30/09/2020
