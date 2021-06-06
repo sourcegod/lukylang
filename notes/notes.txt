@@ -2,9 +2,16 @@ Notes on Luky development in C++11
 Date: vendredi, 26/06/2020
 Author: Coolbrother
 Last update: Sun, 06/06/2021
-Last version: dev_0.33.4
+Last version: dev_0.34.0
 
   0. Changelog
+# Version dev_0.34.0: len and type
+Date: Sun, 06/06/2021
+-- Updated file: changelog
+-- Updated file: README.md
+-- Updated file: todo.txt
+
+
 # Version dev_0.33.4: Cleanup LukObject
 Date: Sun, 06/06/2021
 -- Deleted: Token functions in LukObject class.
