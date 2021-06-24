@@ -36,7 +36,7 @@ LukObject::LukObject(bool val)
     m_type = LukType::Bool; 
 }
 
-LukObject::LukObject(int val) 
+LukObject::LukObject(TLukInt val) 
         : id(++next_id), m_int(val) {
     logMsg("\nLukObject constructor int,  id: ", id, "val: ", val);
     m_type = LukType::Int;
@@ -141,7 +141,7 @@ bool LukObject::toBool() {
         return m_bool;
 }
 
-int LukObject::toInt() {
+TLukInt LukObject::toInt() {
         if (m_type == LukType::Int) return m_int;
         m_int = _toInt();
         m_type = LukType::Int;
@@ -182,16 +182,16 @@ bool LukObject::_toBool() const {
     return false;
 }
 
-int LukObject::_toInt() const {
+TLukInt LukObject::_toInt() const {
     switch(m_type) {
         case LukType::Nil: return 0;
         case LukType::Bool: return m_bool ? 1 : 0;
         case LukType::Int: return m_int;
         case LukType::Double: return int(m_double);
         case LukType::String: {
-            int i;
+            TLukInt i;
             try {
-                i = std::stoi(m_string);
+                i = std::stol(m_string);
             } catch (const std::invalid_argument &) {
                 // not throw exception
                 // std::cerr << "Argument is invalid\n";
@@ -332,7 +332,7 @@ LukObject& LukObject::operator=(const bool&& val) {
     return *this;
 }
 
-LukObject& LukObject::operator=(const int&& val)  {
+LukObject& LukObject::operator=(const TLukInt&& val)  {
     id = ++next_id;
     m_type = LukType::Int;
     m_int = val;

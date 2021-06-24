@@ -41,7 +41,7 @@ public:
     int id;
     LukType m_type;
     bool m_bool = false;
-    int m_int =0;
+    TLukInt m_int =0;
     double m_double =0.;
     std::string m_string = "";
     std::shared_ptr<std::string> p_string;
@@ -51,7 +51,7 @@ public:
     // constructors
     LukObject();
     LukObject(bool val); 
-    LukObject(int val); 
+    LukObject(TLukInt val); 
     LukObject(double val);
     LukObject(const std::string& val);
     LukObject(const char* val);
@@ -90,7 +90,7 @@ public:
 
     // convertions
     bool toBool();
-    int toInt();
+    TLukInt toInt();
     double toDouble();
     std::string toString();
     std::string value();
@@ -186,7 +186,7 @@ public:
     std::shared_ptr<LukObject> operator=(ObjPtr obj);
     
     LukObject& operator=(const bool&& val);
-    LukObject& operator=(const int&& val);
+    LukObject& operator=(const TLukInt&& val);
     LukObject& operator=(const double&& val);
     // implement overloaded char* to avoid implicit casting to bool
     LukObject& operator=(const char* &&val);
@@ -260,7 +260,7 @@ public:
 private:
     // methods
     bool _toBool() const;
-    int _toInt() const;
+    TLukInt _toInt() const;
     double _toDouble() const;
     std::string _toString() const;
     /// Note: deleting trailing zeros
