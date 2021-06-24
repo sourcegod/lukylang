@@ -16,7 +16,7 @@ public:
     virtual ObjPtr  call(Interpreter& /*interp*/, 
            std::vector<ObjPtr>& v_args) override {
         if (v_args[0]->isString()) {
-            int val = v_args[0]->toString().size();
+            TLukInt val = v_args[0]->toString().size();
             return std::make_shared<LukObject>(val);
         }
         std::ostringstream errMsg;
