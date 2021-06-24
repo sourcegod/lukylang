@@ -220,7 +220,7 @@ ObjPtr Interpreter::visitAssignExpr(AssignExpr& expr) {
           checkNumberOperands(op, cur, value);
           if ( cur->isInt() && value->isInt() &&
                   value->getInt() >= 0 ) {
-              value = std::make_shared<LukObject>( int( std::pow( cur->getNumber(), value->getNumber())) );
+              value = std::make_shared<LukObject>( TLukInt( std::pow( cur->getNumber(), value->getNumber())) );
           } 
           else value = std::make_shared<LukObject>( std::pow( cur->getNumber(), value->getNumber()) );
           break;
@@ -338,7 +338,7 @@ ObjPtr Interpreter::visitBinaryExpr(BinaryExpr& expr) {
             // so, you must convert it to Int ingegral operands
             if ( left->isInt() && right->isInt() &&
                     right->getInt() >= 0 )
-                return std::make_shared<LukObject>( int(std::pow( left->getNumber(), right->getNumber()) ));
+                return std::make_shared<LukObject>( TLukInt(std::pow( left->getNumber(), right->getNumber()) ));
             return std::make_shared<LukObject>(std::pow( left->getNumber(), right->getNumber() ));
   
         case TokenType::GREATER:
@@ -638,7 +638,8 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
             if (expr.m_right->isVariableExpr()) {
                 checkNumberOperand(expr.m_op, right);
                 /// Note: creating an object with value 1, to be able to make operations between objects
-                auto objVal = LukObject(1);
+                TLukInt val=1;
+                auto objVal = LukObject(val);
                 auto var = expr.m_right;
                 auto name = var->getName(); 
                 auto objP = std::make_shared<LukObject>(*right - objVal);
@@ -652,7 +653,8 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
         case TokenType::PLUS_PLUS:
             if (expr.m_right->isVariableExpr()) {
                 checkNumberOperand(expr.m_op, right);
-                auto objVal = LukObject(1);
+                TLukInt val=1;
+                auto objVal = LukObject(val);
                 auto var = expr.m_right;
                 auto name = var->getName(); 
                 auto objP = std::make_shared<LukObject>(*right + objVal);
@@ -662,7 +664,6 @@ ObjPtr Interpreter::visitUnaryExpr(UnaryExpr& expr) {
             }
             throw RuntimeError(expr.m_op,
                 "Operand of a increment operator must be a variable.");
-          
 
         default: break;
     }
