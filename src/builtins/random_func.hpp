@@ -24,7 +24,7 @@ public:
            std::vector<ObjPtr>& v_args) override {
        
         auto size = v_args.size();
-        auto val =0;
+        TLukInt val =0;
         auto start = m_start;
         auto stop = m_stop;
         if (size == 1) stop = v_args[0]->toInt();
