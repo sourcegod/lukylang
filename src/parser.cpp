@@ -633,7 +633,7 @@ ExprPtr Parser::primary() {
     else if (match( {TokenType::TRUE})) 
         objP = std::make_shared<LukObject>( true );
     else if (match( {TokenType::INT})) 
-        objP = std::make_shared<LukObject>(std::stoi( previous()->literal ));
+        objP = std::make_shared<LukObject>(std::stol( previous()->literal ));
     else if (match( {TokenType::NUMBER, TokenType::DOUBLE})) 
         objP = std::make_shared<LukObject>(std::stod( previous()->literal ));
     else if (match( {TokenType::STRING})) 

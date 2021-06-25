@@ -305,9 +305,9 @@ std::string Scanner::unescape(const std::string& escaped) {
                 case '\'': strChar.push_back('\''); break;
                 case 't': strChar.push_back('\t'); break;
                 case 'b': strChar.push_back('\b'); break;
-                case '$': strChar.push_back('\$'); break;
-                case '{': strChar.push_back('\{'); break;
-                case '}': strChar.push_back('\}'); break;
+                case '$': strChar.push_back('$'); break;
+                case '{': strChar.push_back('{'); break;
+                case '}': strChar.push_back('}'); break;
                 
                 default:
                     /// Note: best way to construct string with const char* 
