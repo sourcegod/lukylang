@@ -13,7 +13,7 @@
 #include <stdexcept> // exception
 #include <cmath> // for fmod
 
-using luky;
+using namespace luky;
 
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
@@ -742,7 +742,7 @@ LukObject operator!(LukObject a) {
 
 // equality operators
 // equality == operator
-bool operator==(const LukObject& a, const LukObject& b) {
+bool operator==(const luky::LukObject& a, const luky::LukObject& b) {
     if (a.m_type == b.m_type) {
         switch(a.m_type) {
             case LukType::Nil: return true;

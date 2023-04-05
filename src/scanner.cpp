@@ -1,6 +1,6 @@
 #include "scanner.hpp"
 #include "lukerror.hpp"
-
+using namespace luky;
 // static variables
 LukError lukErr;
 Scanner Scanner::m_scan = Scanner(lukErr);

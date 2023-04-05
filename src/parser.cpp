@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <memory>
 #include <map>
+using namespace luky;
 
 ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     : std::runtime_error(msg)

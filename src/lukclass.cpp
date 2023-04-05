@@ -3,6 +3,8 @@
 #include "lukfunction.hpp"
 #include <memory>
 
+using namespace luky;
+
 size_t LukClass::arity() { 
     ObjPtr method = findMethod("init"); 
     if (method != nullptr) {
@@ -55,7 +57,7 @@ ObjPtr LukClass::findMethod(const std::string& name) {
 }
 
 
-std::ostream& operator<<(std::ostream& oss, const LukClass& lc) {
+std::ostream& operator<<(std::ostream& oss, const luky::LukClass& lc) {
     oss << lc.m_name;
 
   return oss;

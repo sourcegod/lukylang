@@ -16,7 +16,7 @@
 #include <sstream> // for stringstream
 #include <cmath> // for fmod
 
-using luky;
+using namespace luky;
 
 Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     logMsg("\nIn Interpreter constructor");

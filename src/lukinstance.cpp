@@ -4,7 +4,8 @@
 #include "lukfunction.hpp"
 
 #include <memory>
-using luky;
+
+using namespace luky;
 
 std::string LukInstance::toString() const { 
   // Note: FIX: m_klass can be null with default constructor

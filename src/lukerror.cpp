@@ -1,6 +1,8 @@
 #include "lukerror.hpp"
 #include <iostream>
 
+using namespace luky;
+
 LukError::LukError()
     : hadError(false) {}
 
