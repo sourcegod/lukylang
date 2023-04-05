@@ -13,6 +13,7 @@
 #include <stdexcept> // exception
 #include <cmath> // for fmod
 
+using luky;
 
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();

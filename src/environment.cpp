@@ -5,6 +5,8 @@
 #include <map>
 #include <iostream>
 
+using namespace luky;
+
 // static variable must be initialized
 int Environment::next_id;
 ObjPtr& Environment::get(TokPtr& name) {

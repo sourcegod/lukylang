@@ -1,4 +1,5 @@
 #include "token.hpp"
+using luky;
 
 int Token::next_id =0;
 Token::Token() : id(++next_id) {

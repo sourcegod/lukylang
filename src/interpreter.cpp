@@ -15,6 +15,9 @@
 #include <typeinfo> // type name
 #include <sstream> // for stringstream
 #include <cmath> // for fmod
+
+using luky;
+
 Interpreter::Interpreter(LukError& lukErr) : m_lukErr(lukErr) {
     logMsg("\nIn Interpreter constructor");
     LogConf.headers = true;
