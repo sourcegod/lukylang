@@ -712,7 +712,7 @@ LukObject& LukObject::operator>>=(const LukObject& obj) {
 
 // unary operators
 // unary minus operator
-LukObject operator-(LukObject a) {
+LukObject luky::operator-(LukObject a) {
     switch(a.m_type) {
         case LukType::Bool: a.m_bool = -a.m_bool; break;
         case LukType::Int: a.m_int = -a.m_int; break;
@@ -742,7 +742,7 @@ LukObject operator!(LukObject a) {
 
 // equality operators
 // equality == operator
-bool operator==(const luky::LukObject& a, const luky::LukObject& b) {
+bool luky::operator==(const LukObject& a, const LukObject& b) {
     if (a.m_type == b.m_type) {
         switch(a.m_type) {
             case LukType::Nil: return true;
@@ -774,16 +774,16 @@ bool operator==(const luky::LukObject& a, const luky::LukObject& b) {
 }
 
 // comparison operators for luktype
-bool operator<(LukType a, LukType b) {
+bool luky::operator<(LukType a, LukType b) {
     return static_cast<int>(a) < static_cast<int>(b);
 }
 
-bool operator>(LukType a, LukType b) {
+bool luky::operator>(LukType a, LukType b) {
     return static_cast<int>(a) > static_cast<int>(b);
 }
 
-
-bool operator<(const LukObject& a, const LukObject& b) {
+// /*
+bool luky::operator<(const LukObject& a, const LukObject& b) {
     if (a.m_type == b.m_type) {
         switch(a.m_type) {
             case LukType::Nil:
@@ -804,8 +804,10 @@ bool operator<(const LukObject& a, const LukObject& b) {
 
     throw RuntimeError("Only objects of the same type can be ordered.");
 }
+// */
+// bool operator<=(const luky::LukObject& a, const luky::LukObject& b) { return a< b || a == b; }
 
 /* 
  * Note: other operators like binary operators, are implemented inline in the header .hpp file
- * */
+*/
 

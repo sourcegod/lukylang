@@ -224,8 +224,8 @@ namespace luky {
         */
 
         // Equality operators
-        // friend bool operator==(const LukObject& a, const LukObject& b);
-        // friend inline bool operator!=(LukObject& a, LukObject& b);
+        friend bool operator==(const LukObject& a, const LukObject& b);
+        friend inline bool operator!=(LukObject& a, LukObject& b);
 
         // Unary operators
         friend LukObject operator-(LukObject a);
@@ -247,7 +247,7 @@ namespace luky {
         friend LukObject& operator>>(LukObject a, const LukObject& b);
         
         // comparison friend functions
-         friend bool operator<(const LukObject& a, const LukObject& b);
+        friend bool operator<(const LukObject& a, const LukObject& b);
         friend inline bool operator<=(const LukObject& a, const LukObject& b);
         friend inline bool operator>(const LukObject& a, const LukObject& b);
         friend inline bool operator>=(const LukObject& a, const LukObject& b);
@@ -270,7 +270,16 @@ namespace luky {
 
     };
 
+    // Equality operators
+    /// Note: "==" and "<" operators are implemented in the source filefor better readability
+    // equality != operator
+    bool operator==(const LukObject& a, const LukObject& b);
+    inline bool operator!=(LukObject& a, LukObject& b) { return !(a == b); }
 
+    // Unary operators
+    LukObject operator-(LukObject a);
+    // LukObject operator!(LukObject a);
+ 
     // binary operators 
     inline LukObject& operator+(LukObject a, const LukObject & b) { return a += b; }
     inline LukObject& operator-(LukObject a, const LukObject& b) { return a -= b; }
@@ -282,49 +291,45 @@ namespace luky {
     inline LukObject& operator|(LukObject a, const LukObject& b) { return a |= b; }
     inline LukObject& operator&(LukObject a, const LukObject& b) { return a &= b; }
     inline LukObject& operator^(LukObject a, const LukObject& b) { return a ^= b; }
+    inline LukObject operator~(LukObject a) { return ~a; }
     inline LukObject& operator<<(LukObject a, const LukObject& b) { return a <<= b; }
     inline LukObject& operator>>(LukObject a, const LukObject& b) { return a >>= b; }
+
+    // comparison operators
+    bool operator<(const LukObject& a, const LukObject& b);
+    inline bool operator<=(const LukObject& a, const LukObject& b) { return a< b || a == b; }
+    inline bool operator>(const LukObject& a, const LukObject& b) { return !(a <= b); }
+    inline bool operator>=(const LukObject& a, const LukObject& b) { return !(a < b); }
+
 
     // comparison operators for LukType object
     bool operator<(LukType a, LukType b);
     bool operator>(LukType a, LukType b);
-}
-/// in global space
-bool operator==(const luky::LukObject& a, const luky::LukObject& b);
-inline bool operator!=(luky::LukObject& a, luky::LukObject& b) { return !(a == b); }
-/// Note: "==" and "<" operators are implemented in the source filefor better readability
-// equality != operator
-// comparison operators
-// bool operator<(const luky::LukObject& a, const luky::LukObject& b);
-// inline bool operator<=(const luky::LukObject& a, const luky::LukObject& b) { return a< b || a == b; }
-// inline bool operator>(const luky::LukObject& a, const luky::LukObject& b) { return !(a <= b); }
-// inline bool operator>=(const luky::LukObject& a, const luky::LukObject& b) { return !(a < b); }
+    // outputs operators
+    // friends functions definition, because ostream accept only one argument
+    inline std::ostream& operator<<(std::ostream& ost, luky::LukObject& obj) { return ost << obj.toString(); } 
+    inline std::ostream& operator<<(std::ostream& ost, luky::ObjPtr& obj) { return ost << obj->toString(); } 
 
-
-
-// output operators
-// friend function declaration, because ostream accept only one argument
-inline std::ostream& operator<<(std::ostream& ost, luky::LukObject& obj) { return ost << obj.toString(); } 
-inline std::ostream& operator<<(std::ostream& ost, luky::ObjPtr& obj) { return ost << obj->toString(); } 
-
-// output << operator for LukType enum
-inline std::ostream& operator<<(std::ostream& ost, luky::LukType tp) {
-    // test for alias
-    // // using Type = LukObject::LukType
-    using Type = luky::LukType;
-    switch(tp) {
-        case Type::Nil: return ost << "<Nil>";
-        case Type::Bool: return ost << "<Bool>";
-        case Type::Int: return ost << "<Int>";
-        case Type::Double: return ost << "<Double>";
-        case Type::String: return ost << "<String>";
-        case Type::Callable: return ost << "<Callable>";
-        case Type::Instance: return ost << "<Instance>";
+    // output << operator for LukType enum
+    inline std::ostream& operator<<(std::ostream& ost, luky::LukType tp) {
+        // test for alias
+        // using Type = LukObject::LukType
+        using Type = luky::LukType;
+        switch(tp) {
+            case Type::Nil: return ost << "<Nil>";
+            case Type::Bool: return ost << "<Bool>";
+            case Type::Int: return ost << "<Int>";
+            case Type::Double: return ost << "<Double>";
+            case Type::String: return ost << "<String>";
+            case Type::Callable: return ost << "<Callable>";
+            case Type::Instance: return ost << "<Instance>";
+        }
+        
+        return ost << "Invalid Object type";
     }
-    
-    return ost << "Invalid Object type";
-}
-// inline bool operator!=(luky::LukObject& a, luky::LukObject& b) { return !(a == b); }
+
+} // End namespace
+
 
 
 #endif // LUKOBJECT_HPP
