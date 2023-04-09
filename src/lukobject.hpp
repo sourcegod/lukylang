@@ -278,6 +278,7 @@ namespace luky {
 
     // Unary operators
     LukObject operator-(LukObject a);
+    /// FIXME: The Unary NOT operator, No needing to declare it, dont know why???
     // LukObject operator!(LukObject a);
  
     // binary operators 
@@ -329,7 +330,5 @@ namespace luky {
     }
 
 } // End namespace
-
-
 
 #endif // LUKOBJECT_HPP

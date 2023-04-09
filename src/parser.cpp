@@ -205,7 +205,7 @@ std::vector<std::pair<TokPtr, ExprPtr>> Parser::multiVars() {
         
     } while (match({TokenType::VAR}));
         
-    return std::move(v_vars);
+    return v_vars; // std::move(v_vars);
 }
 
 StmtPtr Parser::varDeclaration() {
