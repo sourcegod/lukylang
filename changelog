@@ -1,6 +1,31 @@
 # Changelog for Luky project
 # Author: Coolbrother
 # Date: samedi, 24/08/2019
+Last update: Wed, 12/04/2023
+
+# Version dev_0.34.2: Namespace luky
+Date: Wed, 12/04/2023
+-- Adding: (ostream, equality, unary, comparison operators, in luky namespace)
+-- Adding: (namespace luky in all files)
+
+# Version dev_0.34.1: TLukInt alias
+Date: Fri, 25/06/2021
+# Version dev_0.34.1: TLukInt alias
+Date: Fri, 25/06/2021
+-- Added alias: (TLukInt) as alias for (__int64_t) type in file (common.hpp)
+-- Moved type: from (int) to (TLukInt) type in LukObject class.
+-- Moved type: from (int) to (TLukInt) type in Interpreter class.
+-- Moved type: from (int) to (TLukInt) type in LenFunc class.
+-- Moved type: from (int) to (TLukInt) type in RandomFunc class.
+-- Updated LukObject: moving from (int32_t) to (int64_t) type
+
+
+# Version dev_0.34.0: len and type
+Date: Sun, 06/06/2021
+-- Updated file: changelog
+-- Updated file: README.md
+-- Updated file: todo.txt
+
 
 # Version dev_0.33.4: Cleanup LukObject
 Date: Sun, 06/06/2021
