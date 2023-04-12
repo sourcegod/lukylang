@@ -95,25 +95,33 @@ elif [ "$1" = "-F" ]; then
 elif [[ "$1" = "-t" || "$1" = "test" ]]; then
     CheckFile $lukApp
     echo -e "Running some tests\n"
+    count=1
     for fname in ${someFiles[@]}; do
         name=$(basename $fname)
+        echo -e "#$count"
         echo "File name: $name"
         $lukApp "$testDir/$fname"
+        let count=$count+1
+        echo -e "#----------------------------------------\n\n"
     done
     echo -e "\nEnd test";
 
 # running all tests
 elif [[ "$1" = "-T" || "$1" = "testall" ]]; then
     CheckFile $lukApp
+    count=1
     echo -e "Running all tests\n"
     for fname in $testDir/*.luk; do
         name=$(basename $fname)
+        echo -e "#$count"
         echo "File name: $name"
         if [ $name = $excludeFile ]; then
             echo -e "Pass...\n"
             continue
         fi
         $lukApp $fname
+        let count=$count+1
+        echo -e "#----------------------------------------\n\n"
     done
     echo -e "\nEnd test";
 
