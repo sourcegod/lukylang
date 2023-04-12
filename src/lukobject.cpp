@@ -13,6 +13,7 @@
 #include <stdexcept> // exception
 #include <cmath> // for fmod
 
+using namespace luky;
 
 int LukObject::next_id =0;
 ObjPtr LukObject::stat_nilPtr = LukObject::getNilPtr();
@@ -36,7 +37,7 @@ LukObject::LukObject(bool val)
     m_type = LukType::Bool; 
 }
 
-LukObject::LukObject(int val) 
+LukObject::LukObject(TLukInt val) 
         : id(++next_id), m_int(val) {
     logMsg("\nLukObject constructor int,  id: ", id, "val: ", val);
     m_type = LukType::Int;
@@ -141,7 +142,7 @@ bool LukObject::toBool() {
         return m_bool;
 }
 
-int LukObject::toInt() {
+TLukInt LukObject::toInt() {
         if (m_type == LukType::Int) return m_int;
         m_int = _toInt();
         m_type = LukType::Int;
@@ -182,16 +183,16 @@ bool LukObject::_toBool() const {
     return false;
 }
 
-int LukObject::_toInt() const {
+TLukInt LukObject::_toInt() const {
     switch(m_type) {
         case LukType::Nil: return 0;
         case LukType::Bool: return m_bool ? 1 : 0;
         case LukType::Int: return m_int;
         case LukType::Double: return int(m_double);
         case LukType::String: {
-            int i;
+            TLukInt i;
             try {
-                i = std::stoi(m_string);
+                i = std::stol(m_string);
             } catch (const std::invalid_argument &) {
                 // not throw exception
                 // std::cerr << "Argument is invalid\n";
@@ -332,7 +333,7 @@ LukObject& LukObject::operator=(const bool&& val) {
     return *this;
 }
 
-LukObject& LukObject::operator=(const int&& val)  {
+LukObject& LukObject::operator=(const TLukInt&& val)  {
     id = ++next_id;
     m_type = LukType::Int;
     m_int = val;
@@ -711,7 +712,7 @@ LukObject& LukObject::operator>>=(const LukObject& obj) {
 
 // unary operators
 // unary minus operator
-LukObject operator-(LukObject a) {
+LukObject luky::operator-(LukObject a) {
     switch(a.m_type) {
         case LukType::Bool: a.m_bool = -a.m_bool; break;
         case LukType::Int: a.m_int = -a.m_int; break;
@@ -741,7 +742,7 @@ LukObject operator!(LukObject a) {
 
 // equality operators
 // equality == operator
-bool operator==(const LukObject& a, const LukObject& b) {
+bool luky::operator==(const LukObject& a, const LukObject& b) {
     if (a.m_type == b.m_type) {
         switch(a.m_type) {
             case LukType::Nil: return true;
@@ -773,16 +774,16 @@ bool operator==(const LukObject& a, const LukObject& b) {
 }
 
 // comparison operators for luktype
-bool operator<(LukType a, LukType b) {
+bool luky::operator<(LukType a, LukType b) {
     return static_cast<int>(a) < static_cast<int>(b);
 }
 
-bool operator>(LukType a, LukType b) {
+bool luky::operator>(LukType a, LukType b) {
     return static_cast<int>(a) > static_cast<int>(b);
 }
 
-
-bool operator<(const LukObject& a, const LukObject& b) {
+// /*
+bool luky::operator<(const LukObject& a, const LukObject& b) {
     if (a.m_type == b.m_type) {
         switch(a.m_type) {
             case LukType::Nil:
@@ -803,8 +804,10 @@ bool operator<(const LukObject& a, const LukObject& b) {
 
     throw RuntimeError("Only objects of the same type can be ordered.");
 }
+// */
+// bool operator<=(const luky::LukObject& a, const luky::LukObject& b) { return a< b || a == b; }
 
 /* 
  * Note: other operators like binary operators, are implemented inline in the header .hpp file
- * */
+*/
 

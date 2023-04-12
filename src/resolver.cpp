@@ -1,6 +1,7 @@
 #include "resolver.hpp"
 #include "interpreter.hpp"
 
+using namespace luky;
 Resolver::Resolver(Interpreter& interp, LukError& lukErr)
       : m_interp(interp),
       m_lukErr(lukErr) {

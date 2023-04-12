@@ -4,6 +4,8 @@
 #include "interpreter.hpp"
 #include "return.hpp"
 
+using namespace luky;
+
 ObjPtr  LukFunction::call(Interpreter& interp, std::vector<ObjPtr>& v_args) {
     // TRACE_MSG("Call Function Tracer: ");
     // std::cerr << "interp.m_globals.size: " << interp.m_globals->size() << "\n";

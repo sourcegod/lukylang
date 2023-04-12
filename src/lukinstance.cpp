@@ -5,6 +5,8 @@
 
 #include <memory>
 
+using namespace luky;
+
 std::string LukInstance::toString() const { 
   // Note: FIX: m_klass can be null with default constructor
   // so, toString function must manage this case

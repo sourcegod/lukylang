@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <memory>
 #include <map>
+using namespace luky;
 
 ParseError::ParseError(const std::string& msg, TokPtr& tokP)
     : std::runtime_error(msg)
@@ -204,7 +205,7 @@ std::vector<std::pair<TokPtr, ExprPtr>> Parser::multiVars() {
         
     } while (match({TokenType::VAR}));
         
-    return std::move(v_vars);
+    return v_vars; // std::move(v_vars);
 }
 
 StmtPtr Parser::varDeclaration() {
@@ -633,7 +634,7 @@ ExprPtr Parser::primary() {
     else if (match( {TokenType::TRUE})) 
         objP = std::make_shared<LukObject>( true );
     else if (match( {TokenType::INT})) 
-        objP = std::make_shared<LukObject>(std::stoi( previous()->literal ));
+        objP = std::make_shared<LukObject>(std::stol( previous()->literal ));
     else if (match( {TokenType::NUMBER, TokenType::DOUBLE})) 
         objP = std::make_shared<LukObject>(std::stod( previous()->literal ));
     else if (match( {TokenType::STRING})) 
